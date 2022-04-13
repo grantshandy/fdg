@@ -108,7 +108,7 @@ impl<D> Simulation<D> {
             node.velocity = Vec3::ZERO;
 
             // If we only have 2 dimensions then flaten out the locations to a 2D plane
-            // This should let us do our physics as normal 3d but still remain applicable.
+            // This should let us do our physics the same for all dimensions settings, just ignore z in 2d sims.00
             if self.dimensions == Dimensions::Two {
                 node.location.z = 0.0;
             }
