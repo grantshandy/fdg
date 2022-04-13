@@ -1,4 +1,3 @@
 /target
 /Cargo.lock
-.vscode/ltex.hiddenFalsePositives.en-US.txt
-Cargo.lock
+/.vscode/

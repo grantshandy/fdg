@@ -1,16 +1,17 @@
-use std::{ops::Range};
+use std::ops::Range;
 
 pub use glam::Vec3;
-use log::trace;
 pub use petgraph;
 use petgraph::{stable_graph::StableGraph, Undirected};
 use rand::Rng;
 
+// Range in which the nodes will be randomly placed on the first frame.
 const NODE_START_RANGE: Range<f32> = 0.0..1.0;
 
+/// A helper type that creates a [`StableGraph`] with our custom [`Node`].
 pub type ForceGraph<D> = StableGraph<Node<D>, (), Undirected>;
 
-/// Syntactic sugar to make adding Nodes to a ForceGraph easier.
+/// Syntactic sugar to make adding [`Node`]s to a [`ForceGraph`] easier.
 pub trait ForceGraphHelper<D> {
     fn add_force_node(&mut self, name: impl AsRef<str>, data: D);
 }
@@ -21,13 +22,14 @@ impl<D> ForceGraphHelper<D> for ForceGraph<D> {
     }
 }
 
+/// Number of Dimensions to run our simulation in.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 pub enum Dimensions {
     Two,
     Three,
 }
 
-/// A single Node in the graph
+/// A node on a [`ForceGraph`].
 #[derive(Clone)]
 pub struct Node<D> {
     /// The name of the node
@@ -65,20 +67,19 @@ impl<D> Node<D> {
     }
 }
 
-/// Contains graph and runs physics simulations
+/// Contains our graph and runs the layout algorithm.
 #[derive(Clone)]
 pub struct Simulation<D> {
-    /// Internal data structure
+    /// Internal force graph
     pub graph: ForceGraph<D>,
-    // Maybe here we'll add other settings?
-    /// Positive attracts and negative gravity repels nodes
+    /// Gravity coefficient (positive makes nodes attract and negative repels)
     pub gravity: f32,
-    /// Number of dimensions
+    /// Number of dimensions, either 2D or 3D
     pub dimensions: Dimensions,
 }
 
 impl<D> Simulation<D> {
-    /// Create a new simulation from an undirected graph dataset.
+    /// Create a new simulation from a [`ForceGraph`]
     pub fn from_graph(graph: ForceGraph<D>, dimensions: Dimensions) -> Self {
         let mut myself = Self {
             graph,
@@ -92,17 +93,20 @@ impl<D> Simulation<D> {
         myself
     }
 
+    /// Reset locations for every node back to the beginning
     pub fn reset_node_placement(&mut self) {
-        let node_start_range = 0.0..1.0;
         let mut rng = rand::thread_rng();
 
-        for node in  self.graph.node_weights_mut() {
+        for node in self.graph.node_weights_mut() {
             node.location = Vec3::new(
-                rng.gen_range(node_start_range.clone()),
-                rng.gen_range(node_start_range.clone()),
-                rng.gen_range(node_start_range.clone())
+                rng.gen_range(NODE_START_RANGE),
+                rng.gen_range(NODE_START_RANGE),
+                rng.gen_range(NODE_START_RANGE),
             );
-            
+
+            node.acceleration = Vec3::ZERO;
+            node.velocity = Vec3::ZERO;
+
             // If we only have 2 dimensions then flaten out the locations to a 2D plane
             // This should let us do our physics as normal 3d but still remain applicable.
             if self.dimensions == Dimensions::Two {
@@ -113,22 +117,23 @@ impl<D> Simulation<D> {
 
     /// This is where the physics happens! we'll probably have to feed it a time delay value or something
     pub fn step(&mut self) {
-        // Take a snapshot of the nodes before we change it
-        let nodes_snapshot = self.graph.node_weights().clone().collect::<Vec<&Node<D>>>();
-        let nodes =  self.graph.node_weights_mut().collect::<Vec<&mut Node<D>>>();
+        // Take a snapshot of all of the nodes before we change them
+        // let nodes_snapshot = self.graph.node_weights().clone().collect::<Vec<&Node<D>>>();
+        // let nodes =  self.graph.node_weights_mut().collect::<Vec<&mut Node<D>>>();
 
-        for node in nodes {
-            for snapshot in &nodes_snapshot {
+        // for node in nodes {
+        //     for snapshot in &nodes_snapshot {
 
-            }
-        }
+        //     }
+        // }
 
-            // trace!(
-            //     "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
-            //     node.name,
-            //     node.location.x,
-            //     node.location.y,
-            //     node.location.z
-            // );
+        // This will be helpful to show coords without a visualizer as we start
+        // trace!(
+        //     "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
+        //     node.name,
+        //     node.location.x,
+        //     node.location.y,
+        //     node.location.z
+        // );
     }
 }
