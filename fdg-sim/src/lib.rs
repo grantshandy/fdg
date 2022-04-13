@@ -1,6 +1,7 @@
 use std::ops::Range;
 
 pub use glam::Vec3;
+use log::trace;
 pub use petgraph;
 use petgraph::{stable_graph::StableGraph, Undirected};
 use rand::Rng;
@@ -30,7 +31,7 @@ pub enum Dimensions {
 }
 
 /// A node on a [`ForceGraph`].
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub struct Node<D> {
     /// The name of the node
     pub name: String,
@@ -42,6 +43,8 @@ pub struct Node<D> {
     pub velocity: Vec3,
     /// 3D acceleration
     pub acceleration: Vec3,
+    /// Mass (defaults to 1)
+    pub mass: f32,
 }
 
 impl<D> Node<D> {
@@ -53,23 +56,14 @@ impl<D> Node<D> {
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
             acceleration: Vec3::ZERO,
-        }
-    }
-
-    pub fn new_with_location(name: impl AsRef<str>, data: D, location: Vec3) -> Self {
-        Self {
-            name: name.as_ref().to_string(),
-            data,
-            location,
-            velocity: Vec3::ZERO,
-            acceleration: Vec3::ZERO,
+            mass: 1.0,
         }
     }
 }
 
 /// Contains our graph and runs the layout algorithm.
 #[derive(Clone)]
-pub struct Simulation<D> {
+pub struct Simulation<D: Clone + PartialEq> {
     /// Internal force graph
     pub graph: ForceGraph<D>,
     /// Gravity coefficient (positive makes nodes attract and negative repels)
@@ -78,12 +72,12 @@ pub struct Simulation<D> {
     pub dimensions: Dimensions,
 }
 
-impl<D> Simulation<D> {
+impl<D: Clone + PartialEq> Simulation<D> {
     /// Create a new simulation from a [`ForceGraph`]
     pub fn from_graph(graph: ForceGraph<D>, dimensions: Dimensions) -> Self {
         let mut myself = Self {
             graph,
-            gravity: -20.0,
+            gravity: -10.0,
             dimensions,
         };
 
@@ -98,42 +92,70 @@ impl<D> Simulation<D> {
         let mut rng = rand::thread_rng();
 
         for node in self.graph.node_weights_mut() {
+            // put nodes in random locations
             node.location = Vec3::new(
                 rng.gen_range(NODE_START_RANGE),
                 rng.gen_range(NODE_START_RANGE),
-                rng.gen_range(NODE_START_RANGE),
+                // if we are in 2D set z to 0, this should let us calculate physics in 3d like normal but keep 2d relevant
+                match self.dimensions {
+                    Dimensions::Two => 0.0,
+                    Dimensions::Three => rng.gen_range(NODE_START_RANGE),
+                },
             );
 
+            // reset acceleration and velocity
             node.acceleration = Vec3::ZERO;
             node.velocity = Vec3::ZERO;
-
-            // If we only have 2 dimensions then flaten out the locations to a 2D plane
-            // This should let us do our physics the same for all dimensions settings, just ignore z in 2d sims.00
-            if self.dimensions == Dimensions::Two {
-                node.location.z = 0.0;
-            }
         }
     }
 
-    /// This is where the physics happens! we'll probably have to feed it a time delay value or something
+    /// step through the simulation
     pub fn step(&mut self) {
-        // Take a snapshot of all of the nodes before we change them
-        // let nodes_snapshot = self.graph.node_weights().clone().collect::<Vec<&Node<D>>>();
-        // let nodes =  self.graph.node_weights_mut().collect::<Vec<&mut Node<D>>>();
+        // This is where the physics happens! we'll probably have to feed it a time delay value or something
+        let nodes = self.graph.clone();
 
-        // for node in nodes {
-        //     for snapshot in &nodes_snapshot {
+        for node in self.graph.node_weights_mut() {
+            let mut acceleration_vector_list: Vec<Vec3> = Vec::new();
 
-        //     }
-        // }
+            for other_node in nodes.node_weights() {
+                // skip duplicates
+                if node == other_node {
+                    continue;
+                }
 
-        // This will be helpful to show coords without a visualizer as we start
-        // trace!(
-        //     "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
-        //     node.name,
-        //     node.location.x,
-        //     node.location.y,
-        //     node.location.z
-        // );
+                // calculate distance between node and other_node using distance formula
+
+                // calculate force vector for node from law of gravitation
+                // convert force vector into acceleration vector
+                // add acceleration vector to acceleration vector list
+
+                // for our experiment now we'll add a test vector
+
+                acceleration_vector_list.push(Vec3::X);
+            }
+
+            // todo later: do this again but for edge (spring) forces between nodes
+
+
+            // set new node acceleration vector as the average of the acceleration vector list
+            let mut acceleration = node.acceleration;
+
+            
+
+            node.acceleration = acceleration;
+            // calculate new velocity vector from acceleration vector
+
+            // calculate new location from velocity vector and time interval
+
+
+            // log out new node status
+            trace!(
+                "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
+                node.name,
+                node.location.x,
+                node.location.y,
+                node.location.z
+            );
+        }
     }
 }
