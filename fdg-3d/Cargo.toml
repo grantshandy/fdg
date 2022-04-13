@@ -1,16 +1,8 @@
 [package]
-name = "fdg-sim"
+name = "fdg-3d"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-glam = "0.20"
-log = "0.4"
-petgraph = "0.6"
-rand = "0.8"
-rayon = "1"
-
-[dev-dependencies]
-pretty_env_logger = "0.4"
