@@ -1,6 +1,6 @@
 use std::{thread, time::Duration};
 
-use fdg_sim::{Dimensions, ForceGraph, ForceGraphHelper, Simulation};
+use fdg_sim::{Dimensions, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 fn main() {
     pretty_env_logger::init();
@@ -13,14 +13,15 @@ fn main() {
     let _olympus = graph.add_force_node("Olympus", "Olympus Data");
 
     // ForceGraph Simulation
-    let mut sim = Simulation::from_graph(graph, Dimensions::Two);
+    let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
+    let time_difference = 1;
 
     loop {
         // step through the simulation
         println!("Stepping!");
-        sim.step();
+        sim.step(time_difference as f32);
 
         // sleep 1 sec
-        thread::sleep(Duration::from_secs(1));
+        thread::sleep(Duration::from_secs(time_difference));
     }
 }
