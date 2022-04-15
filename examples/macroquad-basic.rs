@@ -1,9 +1,8 @@
-use fdg_sim::ForceGraph;
-use macroquad::prelude::*;
+use fdg::sim::ForceGraph;
 
 #[macroquad::main("Force Graph Demo")]
 async fn main() {
     let mut graph: ForceGraph<&str> = ForceGraph::default();
 
-    fdg_2d_macroquad::run_window(graph).await;
+    fdg::macroquad::run_window(graph).await;
 }

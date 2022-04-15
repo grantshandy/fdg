@@ -1,6 +1,6 @@
 use std::{thread, time::Duration};
 
-use fdg_sim::{Dimensions, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
+use fdg::{Dimensions, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 fn main() {
     pretty_env_logger::init();

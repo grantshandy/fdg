@@ -7,7 +7,7 @@ use petgraph::{
 };
 use rand::Rng;
 
-use crate::{Node, NODE_START_RANGE};
+use crate::sim::{Node, NODE_START_RANGE};
 
 /// Number of Dimensions to run our simulation in.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
