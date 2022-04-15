@@ -1,2 +1,2 @@
 [workspace]
-members = ["fdg-sim", "fdg-3d", "fdg-2d"]
+members = ["fdg-sim", "fdg-3d", "fdg-2d-wgpu", "fdg-2d-macroquad"]

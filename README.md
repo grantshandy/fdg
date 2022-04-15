@@ -10,7 +10,8 @@ The goal of this project is to provide a force-directed graph algorithm for Rust
 ## Contents
 - `/fdg-sim` The underlying force simulation. Handles your dataset and node's positions based on a simple physics engine.
 - `/fdg-3d` A 3D visualizer for `fdg-sim` using `wgpu` to render on the web and on desktop.
-- `/fdg-2d` A 2D visualizer for `fdg-sim` using `wgpu` to render on the web and on desktop.
+- `/fdg-2d-wgpu` A 2D visualizer for `fdg-sim` using `wgpu` to render on the web and on desktop.
+- `/fdg-2d-macroquad` A 2D visualizer for `fdg-sim` using `macroquad` to render. This is slower but it'll be much easier to use while we polish `fdg-sim`.
 
 ## Structure
 ```
