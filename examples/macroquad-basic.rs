@@ -5,14 +5,10 @@ async fn main() {
     pretty_env_logger::init();
 
     let mut graph: ForceGraph<()> = ForceGraph::default();
+    for i in 0..100 {
+        graph.add_force_node("1", ());
 
-    graph.add_force_node("", ());
-    graph.add_force_node("", ());
-    graph.add_force_node("", ());
-    graph.add_force_node("", ());
-    graph.add_force_node("", ());
-    graph.add_force_node("", ());
-
+    }
 
     fdg::macroquad::run_window(graph).await;
 }
