@@ -5,6 +5,7 @@ use log::trace;
 use petgraph::{
     graph::{EdgeIndex, NodeIndex},
     stable_graph::StableGraph,
+    visit::{EdgeRef, IntoEdgeReferences},
     Undirected,
 };
 use rand::Rng;
@@ -22,15 +23,19 @@ pub enum Dimensions {
 /// Settings for the simulation
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimulationParameters {
-    pub force_charge: f32,
+    pub gravity: f32,
     pub node_start_range: Range<f32>,
+    pub cooloff_factor: f32,
+    pub ideal_spring_length: f32,
 }
 
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            force_charge: 150.0,
+            gravity: 150.0,
             node_start_range: -10.0..10.0,
+            cooloff_factor: 0.99,
+            ideal_spring_length: 7.0,
         }
     }
 }
@@ -82,8 +87,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 },
             );
 
-            // reset acceleration and velocity
-            node.acceleration = Vec3::ZERO;
+            // reset velocity
             node.velocity = Vec3::ZERO;
         }
     }
@@ -91,61 +95,93 @@ impl<D: Clone + PartialEq> Simulation<D> {
     /// step through the simulation
     /// dt is the time since the last step
     pub fn step(&mut self, dt: f32) {
-        // This is where the physics happens! we'll probably have to feed it a time delay value or something
-        let nodes = self.graph.clone();
+        let graph_clone = self.graph.clone();
 
-        for node in self.graph.node_weights_mut() {
-            let mut force_acc: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+        for node_index in graph_clone.node_indices() {
+            let mut force_final: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 
-            for other_node in nodes.node_weights() {
+            for other_index in self.graph.node_indices() {
                 // skip duplicates
-                if node == other_node {
+                if other_index == node_index {
                     continue;
                 }
 
-                let loc: Vec3 = node.location;
-                //tjere is probably a better way to do this without using angles -- note for later
-                //calculates distance (r^2 in the gravitational equation) to save a few cpu cycles
-                let distance_squared = loc.distance_squared(other_node.location);
-                let displacement = loc - other_node.location;
+                let other_node = &self.graph[other_index];
+                let node = &self.graph[node_index];
+
+                // The repulsive force here is Coulomb's law.
+
+                //there is probably a better way to do this without using angles -- note for later
+                //calculates distance (r^2 in coulomb's equation) to save a few cpu cycles
+                let distance_squared = node.location.distance_squared(other_node.location);
+                let displacement = node.location - other_node.location;
 
                 //computes angle between the two nodes in question
                 let angle = (displacement.y).atan2(displacement.x);
 
-                //calcualtes force according to gravitational equation
+                //calculate force according to coulomb's equation
                 let force =
-                    self.parameters.force_charge * node.mass * other_node.mass / distance_squared;
+                    (self.parameters.gravity * 10.0) * node.mass * other_node.mass / distance_squared;
 
-                //claculates force vector
+                //calculate force vector
                 let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
 
-                force_acc += fvector;
+                force_final += fvector;
             }
 
-            // todo later: do this again but for edge (spring) forces between nodes
+            // The attractive force here is from Fruchterman & Reingold (1991)
+            for other_index in self.graph.neighbors(node_index) {
+                let node = &self.graph[node_index];
+                let other_node = &self.graph[other_index];
 
-            // we actually don't need an acceleration varibale stored in each node but i will do it this way nonetheless, we can remove it later
-            node.acceleration = force_acc / node.mass;
+                let distance = node.location.distance(other_node.location);
+
+                let distance_factor = distance / self.parameters.ideal_spring_length;
+
+                let fvector = (node.location - other_node.location);
+
+                force_final += fvector;
+            }
+
+            let node = &mut self.graph[node_index];
+
+            // calculate acceleration vector
+            let acceleration = force_final / node.mass;
 
             // calculate new velocity vector from acceleration vector
-            node.velocity += node.acceleration * dt;
-            node.velocity *= 0.99;
+            node.velocity += acceleration * dt;
+
+            // multiply velocity by cooloff factor
+            node.velocity *= self.parameters.cooloff_factor;
+
             // calculate new location from velocity vector and time interval
             node.location += node.velocity * dt;
+
             // log out new node status
             trace!(
                 "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
                 node.name,
                 node.location.x,
                 node.location.y,
-                node.acceleration,
+                node.location.z,
             );
         }
     }
 
+    /// Run callback with access to every node
     pub fn visit_nodes<F: FnMut(&Node<D>)>(&self, mut cb: F) {
         for n_idx in self.graph.node_indices() {
             cb(&self.graph[n_idx]);
+        }
+    }
+
+    /// Run callback with access to source and target of every edge
+    pub fn visit_edges<F: FnMut(&Node<D>, &Node<D>)>(&self, mut cb: F) {
+        for edge_ref in self.graph.edge_references() {
+            cb(
+                &self.graph[edge_ref.source()],
+                &self.graph[edge_ref.target()],
+            );
         }
     }
 

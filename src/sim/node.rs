@@ -11,8 +11,6 @@ pub struct Node<D> {
     pub location: Vec3,
     /// 3D velocity
     pub velocity: Vec3,
-    /// 3D acceleration
-    pub acceleration: Vec3,
     /// Mass (defaults to 1)
     pub mass: f32,
 }
@@ -25,7 +23,6 @@ impl<D> Node<D> {
             data,
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
-            acceleration: Vec3::ZERO,
             mass: 1.0,
         }
     }

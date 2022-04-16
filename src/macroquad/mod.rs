@@ -2,7 +2,7 @@ use crate::Simulation;
 use macroquad::prelude::*;
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
-    let mut zoom: f32 = 2.0;
+    let mut zoom: f32 = 4.0;
 
     loop {
         clear_background(LIGHTGRAY);
@@ -16,6 +16,17 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             w,
             h,
         )));
+
+        sim.visit_edges(|source, target| {
+            draw_line(
+                source.location.x,
+                source.location.y,
+                target.location.x,
+                target.location.y,
+                4.0,
+                RED,
+            );
+        });
 
         sim.visit_nodes(|node| {
             draw_circle(node.location.x, node.location.y, 10.0, BLACK);
@@ -37,6 +48,6 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         }
 
         sim.step(get_frame_time());
-        next_frame().await; 
+        next_frame().await;
     }
 }
