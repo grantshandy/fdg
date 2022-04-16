@@ -6,7 +6,7 @@ use petgraph::{
     Undirected,
 };
 use rand::Rng;
-static GRAVITY: f32 = 0.000000000066743;
+//static GRAVITY: f32 = 0.000000000066743;
 
 use crate::sim::{Node, NODE_START_RANGE};
 
@@ -109,7 +109,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 let angle = loc.angle_between(other_node.location);
 
                 //calcualtes force according to gravitational equation
-                let force = GRAVITY * node.mass * other_node.mass / distance_squared; 
+                let force = self.parameters.force_charge * node.mass * other_node.mass / distance_squared; 
 
                 //claculates force vector
                 let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
