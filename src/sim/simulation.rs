@@ -27,7 +27,7 @@ pub struct SimulationParameters {
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            force_charge: 10.0,
+            force_charge: -20.0,
             force_spring: 10.0,
         }
     }

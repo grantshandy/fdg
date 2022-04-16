@@ -13,7 +13,7 @@ fn main() {
     let _olympus = graph.add_force_node("Olympus", "Olympus Data");
 
     // ForceGraph Simulation
-    let mut sim = Simulation::from_graph(graph, Dimensions::Three, SimulationParameters::default());
+    let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
     let time_difference = 1;
 
     loop {

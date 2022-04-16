@@ -1,8 +1,6 @@
 use crate::{Dimensions, ForceGraph, Simulation, SimulationParameters};
 use macroquad::prelude::*;
 
-const ZOOM_FACTOR: f32 = 1.0;
-
 pub async fn run_window<D: Clone + PartialEq>(graph: ForceGraph<D>) {
     let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
 
@@ -23,9 +21,9 @@ pub async fn run_window<D: Clone + PartialEq>(graph: ForceGraph<D>) {
 }
 
 fn x_to_macroquad(x: f32) -> f32 {
-    ((screen_width() / 2.0) + x) * ZOOM_FACTOR
+    (screen_width() / 2.0) + x
 }
 
 fn y_to_macroquad(x: f32) -> f32 {
-    ((screen_height() / 2.0) + x) * ZOOM_FACTOR
+    (screen_height() / 2.0) + x
 }
