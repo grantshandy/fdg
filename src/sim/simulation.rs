@@ -100,7 +100,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
         for node_index in graph_clone.node_indices() {
             let mut force_final: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 
-            for other_index in self.graph.node_indices() {
+            for other_index in graph_clone.node_indices() {
                 // skip duplicates
                 if other_index == node_index {
                     continue;
@@ -125,20 +125,6 @@ impl<D: Clone + PartialEq> Simulation<D> {
 
                 //calculate force vector
                 let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
-
-                force_final += fvector;
-            }
-
-            // The attractive force here is from Fruchterman & Reingold (1991)
-            for other_index in self.graph.neighbors(node_index) {
-                let node = &self.graph[node_index];
-                let other_node = &self.graph[other_index];
-
-                let distance = node.location.distance(other_node.location);
-
-                let distance_factor = distance / self.parameters.ideal_spring_length;
-
-                let fvector = (node.location - other_node.location);
 
                 force_final += fvector;
             }
