@@ -15,13 +15,7 @@ async fn main() {
 
     graph.add_edge(one, two, ());
 
-    let parameters = SimulationParameters {
-        gravity: 30.0,
-        node_start_range: -2.0..2.0,
-        ..Default::default()
-    };
-
-    let mut sim = Simulation::from_graph(graph, Dimensions::Two, parameters);
+    let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
 
     fdg::macroquad::run_window(&mut sim).await;
 }
