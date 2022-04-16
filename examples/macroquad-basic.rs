@@ -1,8 +1,11 @@
-use fdg::sim::ForceGraph;
+use fdg::sim::{ForceGraph, ForceGraphHelper};
 
 #[macroquad::main("Force Graph Demo")]
 async fn main() {
-    let mut graph: ForceGraph<&str> = ForceGraph::default();
+    let mut graph: ForceGraph<()> = ForceGraph::default();
+
+    graph.add_force_node("Skyline", ());
+    graph.add_force_node("East", ());
 
     fdg::macroquad::run_window(graph).await;
 }

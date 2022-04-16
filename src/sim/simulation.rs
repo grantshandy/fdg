@@ -109,13 +109,13 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 let angle = loc.angle_between(other_node.location);
 
                 //calcualtes force according to gravitational equation
-                let force = self.parameters.force_charge * node.mass * other_node.mass / distance_squared; 
+                let force =
+                    self.parameters.force_charge * node.mass * other_node.mass / distance_squared;
 
                 //claculates force vector
                 let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
 
-                force_acc += fvector; 
-
+                force_acc += fvector;
             }
 
             // todo later: do this again but for edge (spring) forces between nodes
@@ -124,7 +124,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
             node.acceleration = force_acc / node.mass;
 
             // calculate new velocity vector from acceleration vector
-            node.velocity += node.acceleration * dt; 
+            node.velocity += node.acceleration * dt;
 
             // calculate new location from velocity vector and time interval
             node.location += node.velocity * dt;
@@ -136,6 +136,12 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 node.location.y,
                 node.location.z
             );
+        }
+    }
+
+    pub fn visit_nodes<F: FnMut(&Node<D>)>(&self, mut cb: F) {
+        for n_idx in self.graph.node_indices() {
+            cb(&self.graph[n_idx]);
         }
     }
 
