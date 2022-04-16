@@ -1,9 +1,7 @@
-use crate::{Dimensions, ForceGraph, Simulation, SimulationParameters};
+use crate::Simulation;
 use macroquad::prelude::*;
 
-pub async fn run_window<D: Clone + PartialEq>(graph: ForceGraph<D>) {
-    let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
-
+pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     loop {
         clear_background(WHITE);
 

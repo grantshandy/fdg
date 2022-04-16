@@ -1,3 +1,5 @@
+use std::ops::Range;
+
 use glam::Vec3;
 use log::trace;
 use petgraph::{
@@ -8,7 +10,7 @@ use petgraph::{
 use rand::Rng;
 //static GRAVITY: f32 = 0.000000000066743;
 
-use crate::sim::{Node, NODE_START_RANGE};
+use super::node::Node;
 
 /// Number of Dimensions to run our simulation in.
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
@@ -20,15 +22,15 @@ pub enum Dimensions {
 /// Settings for the simulation
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimulationParameters {
-    force_charge: f32,
-    force_spring: f32,
+    pub force_charge: f32,
+    pub node_start_range: Range<f32>,
 }
 
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
             force_charge: 150.0,
-            force_spring: 10.0,
+            node_start_range: -10.0..10.0,
         }
     }
 }
@@ -66,16 +68,17 @@ impl<D: Clone + PartialEq> Simulation<D> {
     /// Reset locations for every node back to the beginning
     pub fn reset_node_placement(&mut self) {
         let mut rng = rand::thread_rng();
+        let node_start_range = &self.parameters.node_start_range;
 
         for node in self.graph.node_weights_mut() {
             // put nodes in random locations
             node.location = Vec3::new(
-                rng.gen_range(NODE_START_RANGE),
-                rng.gen_range(NODE_START_RANGE),
+                rng.gen_range(node_start_range.clone()),
+                rng.gen_range(node_start_range.clone()),
                 // if we are in 2D set z to 0, this should let us calculate physics in 3d like normal but keep 2d relevant
                 match self.dimensions {
                     Dimensions::Two => 0.0,
-                    Dimensions::Three => rng.gen_range(NODE_START_RANGE),
+                    Dimensions::Three => rng.gen_range(node_start_range.clone()),
                 },
             );
 
