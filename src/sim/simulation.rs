@@ -27,7 +27,7 @@ pub struct SimulationParameters {
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            force_charge: -20.0,
+            force_charge: 150.0,
             force_spring: 10.0,
         }
     }
@@ -104,10 +104,11 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 //tjere is probably a better way to do this without using angles -- note for later
                 //calculates distance (r^2 in the gravitational equation) to save a few cpu cycles
                 let distance_squared = loc.distance_squared(other_node.location);
+                let displacement = loc - other_node.location; 
 
                 //computes angle between the two nodes in question
-                let angle = loc.angle_between(other_node.location);
-
+                let angle = (displacement.y).atan2(displacement.x);
+                
                 //calcualtes force according to gravitational equation
                 let force =
                     self.parameters.force_charge * node.mass * other_node.mass / distance_squared;
@@ -125,7 +126,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
 
             // calculate new velocity vector from acceleration vector
             node.velocity += node.acceleration * dt;
-
+            node.velocity *= 0.99;
             // calculate new location from velocity vector and time interval
             node.location += node.velocity * dt;
             // log out new node status
@@ -134,7 +135,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 node.name,
                 node.location.x,
                 node.location.y,
-                node.location.z
+                node.acceleration,
             );
         }
     }
