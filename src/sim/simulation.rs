@@ -6,6 +6,7 @@ use petgraph::{
     Undirected,
 };
 use rand::Rng;
+static GRAVITY: f32 = 0.000000000066743;
 
 use crate::sim::{Node, NODE_START_RANGE};
 
@@ -91,7 +92,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
         let nodes = self.graph.clone();
 
         for node in self.graph.node_weights_mut() {
-            let mut acceleration_vector_list: Vec<Vec3> = Vec::new();
+            let mut force_acc: Vec3 = Vec3::new(0.0, 0.0, 0.0);
 
             for other_node in nodes.node_weights() {
                 // skip duplicates
@@ -99,27 +100,34 @@ impl<D: Clone + PartialEq> Simulation<D> {
                     continue;
                 }
 
-                // calculate distance between node and other_node using distance formula
+                let loc: Vec3 = node.location;
+                //tjere is probably a better way to do this without using angles -- note for later
+                //calculates distance (r^2 in the gravitational equation) to save a few cpu cycles
+                let distance_squared = loc.distance_squared(other_node.location);
 
-                // calculate force vector for node from law of gravitation
-                // convert force vector into acceleration vector
-                // add acceleration vector to acceleration vector list
+                //computes angle between the two nodes in question
+                let angle = loc.angle_between(other_node.location);
 
-                // for our experiment now we'll add a test vector
+                //calcualtes force according to gravitational equation
+                let force = GRAVITY * node.mass * other_node.mass / distance_squared; 
 
-                acceleration_vector_list.push(Vec3::X);
+                //claculates force vector
+                let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
+
+                force_acc += fvector; 
+
             }
 
             // todo later: do this again but for edge (spring) forces between nodes
 
-            // set new node acceleration vector as the average of the acceleration vector list
-            let mut acceleration = node.acceleration;
+            // we actually don't need an acceleration varibale stored in each node but i will do it this way nonetheless, we can remove it later
+            node.acceleration = force_acc / node.mass;
 
-            node.acceleration = acceleration;
             // calculate new velocity vector from acceleration vector
+            node.velocity += node.acceleration * dt; 
 
             // calculate new location from velocity vector and time interval
-
+            node.location += node.velocity * dt;
             // log out new node status
             trace!(
                 "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
