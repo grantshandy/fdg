@@ -1,5 +1,3 @@
-use std::ops::Range;
-
 mod node;
 mod simulation;
 
