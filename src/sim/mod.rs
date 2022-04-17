@@ -32,7 +32,7 @@ pub struct SimulationParameters {
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            gravity: 150.0,
+            gravity: -150.0,
             node_start_range: -10.0..10.0,
             cooloff_factor: 0.99,
             ideal_spring_length: 100.0,
@@ -115,18 +115,22 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 //there is probably a better way to do this without using angles -- note for later
                 //calculates distance (r^2 in coulomb's equation) to save a few cpu cycles
                 let distance_squared = node.location.distance_squared(other_node.location);
+                if distance_squared < node.mass {
+                    continue;
+                }
                 let displacement = node.location - other_node.location;
 
                 //computes angle between the two nodes in question
                 let angle = (displacement.y).atan2(displacement.x);
 
                 //calculate force according to coulomb's equation
-                let force = (self.parameters.gravity * 10.0) * node.mass * other_node.mass
-                    / distance_squared;
+                let force = (self.parameters.gravity) * node.mass * other_node.mass / distance_squared;
 
                 //calculate force vector
-                let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
-
+                let mut fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
+                if distance_squared.sqrt() < other_node.mass {
+                    fvector *= -10.0;
+                }
                 force_final += fvector;
             }
 
@@ -158,6 +162,11 @@ impl<D: Clone + PartialEq> Simulation<D> {
 
             // multiply velocity by cooloff factor
             node.velocity *= self.parameters.cooloff_factor;
+            
+            
+        }
+        for node_index in graph_clone.node_indices() { 
+            let node = &mut self.graph[node_index];
 
             // calculate new location from velocity vector and time interval
             node.location += node.velocity * dt;
@@ -171,6 +180,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 node.location.z,
             );
         }
+        
     }
 
     /// Run callback with access to every node

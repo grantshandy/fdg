@@ -22,7 +22,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         }
 
         // Draw background
-        clear_background(LIGHTGRAY);
+        clear_background(WHITE);
 
         // Set camera
         {
@@ -51,7 +51,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             });
 
             sim.visit_nodes(|node| {
-                draw_circle(node.location.x, node.location.y, 10.0, BLACK);
+                draw_circle(node.location.x, node.location.y, node.mass, BLACK);
             });
         }
 
@@ -72,8 +72,8 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                 });
                 ui.separator();
                 ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut sim.parameters.gravity, 1.0..=50.0).text("Gravity"));
-                ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
+                ui.add(egui::Slider::new(&mut sim.parameters.gravity, -500.0..=500.0).text("Gravity"));
+                ui.add(egui::Slider::new(&mut range, 0.01..=500.0).text("Node Start Range"));
                 sim.parameters.node_start_range.start = -range;
                 sim.parameters.node_start_range.end = range;
 
