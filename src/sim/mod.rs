@@ -26,6 +26,7 @@ pub struct SimulationParameters {
     pub node_start_range: Range<f32>,
     pub cooloff_factor: f32,
     pub ideal_spring_length: f32,
+    pub spring_constant: f32
 }
 
 impl Default for SimulationParameters {
@@ -34,7 +35,8 @@ impl Default for SimulationParameters {
             gravity: 150.0,
             node_start_range: -10.0..10.0,
             cooloff_factor: 0.99,
-            ideal_spring_length: 7.0,
+            ideal_spring_length: 100.0,
+            spring_constant: 10.0
         }
     }
 }
@@ -126,6 +128,24 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
 
                 force_final += fvector;
+            }
+
+            for neighbor in self.graph.neighbors(node_index) {
+                let neighbor = &self.graph[neighbor];
+                let node = &self.graph[node_index];
+                let distance= node.location.distance(neighbor.location);
+                let displacement = node.location - neighbor.location;
+
+                //computes angle between the two nodes in question
+                let angle = (displacement.y).atan2(displacement.x);
+
+                //calculate force according to coulomb's equation
+                let force = (self.parameters.spring_constant * 10.0) * -(distance - self.parameters.ideal_spring_length);
+                 //calculate force vector
+                let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
+
+                force_final += fvector;
+
             }
 
             let node = &mut self.graph[node_index];
