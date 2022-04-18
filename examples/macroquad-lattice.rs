@@ -2,6 +2,7 @@ use fdg::{
     sim::{ForceGraph, ForceGraphHelper},
     Dimensions, Simulation, SimulationParameters,
 };
+use petgraph::graph::NodeIndex;
 
 #[macroquad::main("Force Graph Square Demo")]
 async fn main() {
@@ -9,13 +10,16 @@ async fn main() {
 
     let mut graph: ForceGraph<()> = ForceGraph::default();
 
-    let one = graph.add_force_node("One", ());
-    let two = graph.add_force_node("Two", ());
-    let three = graph.add_force_node("Three", ());
+    let mut indices: Vec<NodeIndex> = Vec::new();
 
-    graph.add_edge(one, two, ());
-    graph.add_edge(two, three, ());
-    graph.add_edge(three, one, ());
+    for x in 0..50 {
+        let i = graph.add_force_node(x.to_string(), ());
+        indices.push(i);
+
+        if x > 0 {
+            graph.add_edge(indices[x as usize], indices[(x - 1) as usize], ());
+        }
+    }
 
     let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
 

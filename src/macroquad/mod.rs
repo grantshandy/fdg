@@ -6,6 +6,10 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let mut range: f32 = 10.0;
 
     loop {
+        if is_key_down(KeyCode::R) {
+            sim.reset_node_placement();
+        }
+
         // Update zoom
         {
             let mouse_wheel_y = mouse_wheel().1;
@@ -72,7 +76,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                 });
                 ui.separator();
                 ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut sim.parameters.gravity, 1.0..=50.0).text("Gravity"));
+                ui.add(egui::Slider::new(&mut sim.parameters.gravity, 1.0..=400.0).text("Gravity"));
                 ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
                 sim.parameters.node_start_range.start = -range;
                 sim.parameters.node_start_range.end = range;
