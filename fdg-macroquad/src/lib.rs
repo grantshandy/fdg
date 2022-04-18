@@ -1,4 +1,4 @@
-use crate::{Simulation, SimulationParameters};
+use fdg_sim::{Simulation, SimulationParameters};
 use macroquad::prelude::*;
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
@@ -78,7 +78,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                 });
                 ui.separator();
                 ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut sim.parameters.charge_constant, -100.0..=100.0).text("Charge Constant"));
+                ui.add(egui::Slider::new(&mut sim.parameters.charge_constant, -200.0..=200.0).text("Charge Constant"));
                 ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
                 sim.parameters.node_start_range.start = -range;
                 sim.parameters.node_start_range.end = range;

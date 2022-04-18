@@ -1,0 +1,15 @@
+[package]
+name = "fdg-macroquad"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+macroquad = "0.3"
+egui-macroquad = "0.9.0"
+egui = "0.17.0"
+fdg-sim = { path = "../fdg-sim" }
+
+[dev-dependencies]
+pretty_env_logger = "0.4"

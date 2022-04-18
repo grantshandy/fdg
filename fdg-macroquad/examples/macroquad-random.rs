@@ -1,9 +1,8 @@
-use fdg::{
-    sim::{ForceGraph, ForceGraphHelper},
-    Dimensions, Simulation, SimulationParameters,
+use fdg_sim::{
+    ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
+
     petgraph::graph::NodeIndex
 };
-use rand::Rng;
 
 #[macroquad::main("Force Graph Square Demo")]
 async fn main() {
@@ -13,13 +12,13 @@ async fn main() {
     let mut node_indices: Vec<NodeIndex> = Vec::new();
 
     let num_nodes = 500;
-    let num_edges = 900;
 
     for n in 0..num_nodes {
-        node_indices.push(graph.add_force_node(n.to_string(), (),))
+        node_indices.push(graph.add_force_node(format!("{n}"), (),))
     }
 
     // let mut rng  = rand::thread_rng();
+    // let num_edges = 900;
 
     // for _ in 0..num_edges {
     //     let a = node_indices[rng.gen_range(0..num_nodes)];
@@ -28,7 +27,7 @@ async fn main() {
     //     graph.add_edge(a, b, ());
     // }
 
-    let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
+    let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 
-    fdg::macroquad::run_window(&mut sim).await;
+    fdg_macroquad::run_window(&mut sim).await;
 }

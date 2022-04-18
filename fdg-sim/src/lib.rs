@@ -12,13 +12,6 @@ use rand::Rng;
 pub use glam::Vec3;
 pub use petgraph;
 
-/// Number of Dimensions to run our simulation in.
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Dimensions {
-    Two,
-    Three,
-}
-
 /// Settings for the simulation
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimulationParameters {
@@ -32,7 +25,7 @@ pub struct SimulationParameters {
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            charge_constant: 30.0,
+            charge_constant: 40.0,
             node_start_range: -10.0..10.0,
             cooloff_factor: 0.98,
             ideal_spring_length: 100.0,
@@ -48,21 +41,17 @@ pub struct Simulation<D: Clone + PartialEq> {
     graph: ForceGraph<D>,
     /// Simulation Parameters
     pub parameters: SimulationParameters,
-    /// Number of dimensions to run the simulation in
-    dimensions: Dimensions,
 }
 
 impl<D: Clone + PartialEq> Simulation<D> {
     /// Create a new simulation from a [`ForceGraph`]
     pub fn from_graph(
         graph: ForceGraph<D>,
-        dimensions: Dimensions,
         parameters: SimulationParameters,
     ) -> Self {
         let mut myself = Self {
             graph,
             parameters,
-            dimensions,
         };
 
         // place nodes in starting position
@@ -82,10 +71,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 rng.gen_range(node_start_range.clone()),
                 rng.gen_range(node_start_range.clone()),
                 // if we are in 2D set z to 0, this should let us calculate physics in 3d like normal but keep 2d relevant
-                match self.dimensions {
-                    Dimensions::Two => 0.0,
-                    Dimensions::Three => rng.gen_range(node_start_range.clone()),
-                },
+                0.0,
             );
 
             // reset velocity

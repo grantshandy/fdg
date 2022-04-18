@@ -1,5 +1,5 @@
-use fdg::{
-    sim::{ForceGraph, ForceGraphHelper}, Dimensions, SimulationParameters, Simulation,
+use fdg_sim::{
+    ForceGraph, ForceGraphHelper, SimulationParameters, Simulation,
 };
 
 #[macroquad::main("Force Graph Square Demo")]
@@ -18,7 +18,7 @@ async fn main() {
     graph.add_edge(e, r, ());
     graph.add_edge(r, q, ());
 
-    let mut sim = Simulation::from_graph(graph, Dimensions::Two, SimulationParameters::default());
+    let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 
-    fdg::macroquad::run_window(&mut sim).await;
+    fdg_macroquad::run_window(&mut sim).await;
 }
