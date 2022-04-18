@@ -22,7 +22,7 @@ pub enum Dimensions {
 /// Settings for the simulation
 #[derive(Clone, Debug, PartialEq)]
 pub struct SimulationParameters {
-    pub gravity: f32,
+    pub charge_constant: f32,
     pub node_start_range: Range<f32>,
     pub cooloff_factor: f32,
     pub ideal_spring_length: f32,
@@ -32,11 +32,11 @@ pub struct SimulationParameters {
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            gravity: 150.0,
+            charge_constant: 30.0,
             node_start_range: -10.0..10.0,
-            cooloff_factor: 0.99,
+            cooloff_factor: 0.98,
             ideal_spring_length: 100.0,
-            spring_constant: 10.0
+            spring_constant: 1.0
         }
     }
 }
@@ -121,7 +121,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 let angle = (displacement.y).atan2(displacement.x);
 
                 //calculate force according to coulomb's equation
-                let force = (self.parameters.gravity * 10.0) * node.mass * other_node.mass
+                let force = (self.parameters.charge_constant * 100.0) * node.mass * other_node.mass
                     / distance_squared;
 
                 //calculate force vector

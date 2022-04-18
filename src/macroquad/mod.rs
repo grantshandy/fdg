@@ -4,6 +4,8 @@ use macroquad::prelude::*;
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let mut zoom: f32 = 2.0;
     let mut range: f32 = 10.0;
+    let mut manual = false;
+    let mut time: f32 = 0.01;
 
     loop {
         if is_key_down(KeyCode::R) {
@@ -55,7 +57,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             });
 
             sim.visit_nodes(|node| {
-                draw_circle(node.location.x, node.location.y, 10.0, BLACK);
+                draw_circle(node.location.x, node.location.y, node.mass * 10.0, BLACK);
             });
         }
 
@@ -76,16 +78,24 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                 });
                 ui.separator();
                 ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut sim.parameters.gravity, 1.0..=400.0).text("Gravity"));
+                ui.add(egui::Slider::new(&mut sim.parameters.charge_constant, -100.0..=100.0).text("Charge Constant"));
                 ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
                 sim.parameters.node_start_range.start = -range;
                 sim.parameters.node_start_range.end = range;
-
                 ui.add(
                     egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
                         .text("Cool-Off Factor"),
                 );
-                ui.add(egui::Slider::new(&mut sim.parameters.spring_constant, 0.01..=50.0).text("Spring Constant"));
+                ui.add(egui::Slider::new(&mut sim.parameters.spring_constant, 0.01..=40.0).text("Spring Constant"));
+                ui.add(egui::Slider::new(&mut sim.parameters.ideal_spring_length, 1.0..=400.0).text("Ideal Spring Length"));
+                ui.separator();
+                ui.checkbox(&mut manual, "Manual");
+                ui.horizontal(|ui| {
+                    if ui.add_enabled(manual, egui::Button::new("Step")).clicked() || is_key_down(KeyCode::Right) {
+                        sim.step(time);
+                    }
+                    ui.add_enabled(manual, egui::Slider::new(&mut time, 0.0001..=1.0).text("Time"));
+                });
                 ui.separator();
                 ui.horizontal(|ui| {
                     let g = sim.get_graph();
@@ -99,7 +109,9 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         });
 
         // update sim
-        sim.step(get_frame_time());
+        if !manual {
+            sim.step(get_frame_time());
+        }
 
         // draw gui
         egui_macroquad::draw();
