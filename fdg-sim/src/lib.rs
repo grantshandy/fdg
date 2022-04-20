@@ -93,8 +93,8 @@ impl<D: Clone + PartialEq> Simulation<D> {
                     continue;
                 }
 
-                let other_node = &self.graph[other_index];
-                let node = &self.graph[node_index];
+                let other_node = &graph_clone[other_index];
+                let node = &graph_clone[node_index];
 
                 // The repulsive force here is Coulomb's law.
 
@@ -116,22 +116,21 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 force_final += fvector;
             }
 
-            for neighbor in self.graph.neighbors(node_index) {
-                let neighbor = &self.graph[neighbor];
-                let node = &self.graph[node_index];
+            for neighbor in graph_clone.neighbors(node_index) {
+                let neighbor = &graph_clone[neighbor];
+                let node = &graph_clone[node_index];
                 let distance= node.location.distance(neighbor.location);
                 let displacement = node.location - neighbor.location;
 
                 //computes angle between the two nodes in question
                 let angle = (displacement.y).atan2(displacement.x);
 
-                //calculate force according to coulomb's equation
+                //calculate force according to hooke's equation
                 let force = (self.parameters.spring_constant * 10.0) * -(distance - self.parameters.ideal_spring_length);
                  //calculate force vector
                 let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
 
                 force_final += fvector;
-
             }
 
             let node = &mut self.graph[node_index];
