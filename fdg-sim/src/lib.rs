@@ -247,3 +247,15 @@ impl<D> Node<D> {
         }
     }
 }
+
+pub struct Force<D> {
+    pub force_constant: f32,
+    pub cooloff_factor: f32,
+    pub callback: (dyn Fn(&mut Node<D>, Node<D>, f32, f32) + 'static),
+}
+
+impl<D> Force<D> {
+    pub fn run(&self, node_one: &mut Node<D>, node_two: Node<D>) {
+        (self.callback)(node_one, node_two, self.force_constant, self.cooloff_factor);
+    }
+}
