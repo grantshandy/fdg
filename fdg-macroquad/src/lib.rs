@@ -1,5 +1,5 @@
 use fdg_sim::{Simulation, SimulationParameters};
-use macroquad::prelude::*;
+use egui_macroquad::{egui, macroquad::prelude::*};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let mut zoom: f32 = 2.0;
@@ -65,7 +65,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
         // Draw gui
         egui_macroquad::ui(|egui_ctx| {
-            egui::Window::new("Settings").show(egui_ctx, |ui| {
+            egui::Window::new("Settings").default_size((50.0, 50.0)).show(egui_ctx, |ui| {
                 ui.horizontal(|ui| {
                     if ui.button("Restart Simulation").clicked() {
                         sim.reset_node_placement();

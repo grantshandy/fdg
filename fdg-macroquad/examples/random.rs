@@ -3,8 +3,9 @@ use fdg_sim::{
 
     petgraph::graph::NodeIndex
 };
+use rand::Rng;
 
-#[macroquad::main("Force Graph Square Demo")]
+#[macroquad::main("Force Graph Random Demo")]
 async fn main() {
     pretty_env_logger::init();
 
@@ -17,15 +18,15 @@ async fn main() {
         node_indices.push(graph.add_force_node(format!("{n}"), (),))
     }
 
-    // let mut rng  = rand::thread_rng();
-    // let num_edges = 900;
+    let mut rng  = rand::thread_rng();
+    let num_edges = 900;
 
-    // for _ in 0..num_edges {
-    //     let a = node_indices[rng.gen_range(0..num_nodes)];
-    //     let b = node_indices[rng.gen_range(0..num_nodes)];
+    for _ in 0..num_edges {
+        let a = node_indices[rng.gen_range(0..num_nodes)];
+        let b = node_indices[rng.gen_range(0..num_nodes)];
 
-    //     graph.add_edge(a, b, ());
-    // }
+        graph.add_edge(a, b, ());
+    }
 
     let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 

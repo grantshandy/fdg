@@ -25,7 +25,7 @@ pub struct SimulationParameters {
 impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
-            charge_constant: 40.0,
+            charge_constant: 100.0,
             node_start_range: -10.0..10.0,
             cooloff_factor: 0.98,
             ideal_spring_length: 100.0,
@@ -107,7 +107,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                 let angle = (displacement.y).atan2(displacement.x);
 
                 //calculate force according to coulomb's equation
-                let force = (self.parameters.charge_constant * 100.0) * node.mass * other_node.mass
+                let force = (self.parameters.charge_constant * 10.0) * node.mass * other_node.mass
                     / distance_squared;
 
                 //calculate force vector
