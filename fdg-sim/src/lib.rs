@@ -1,4 +1,4 @@
-use std::ops::Range;
+use std::sync::Arc;
 
 use log::trace;
 use petgraph::{
@@ -13,41 +13,37 @@ pub use glam::Vec3;
 pub use petgraph;
 
 /// Settings for the simulation
-#[derive(Clone, Debug, PartialEq)]
-pub struct SimulationParameters {
-    pub charge_constant: f32,
-    pub node_start_range: Range<f32>,
+#[derive(Clone)]
+pub struct SimulationParameters<D: Clone + PartialEq + 'static> {
     pub cooloff_factor: f32,
-    pub ideal_spring_length: f32,
-    pub spring_constant: f32
+    pub node_start_size: f32,
+    pub forces: Vec<Force<D>>,
 }
 
-impl Default for SimulationParameters {
+impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
     fn default() -> Self {
         Self {
-            charge_constant: 100.0,
-            node_start_range: -10.0..10.0,
             cooloff_factor: 0.98,
-            ideal_spring_length: 100.0,
-            spring_constant: 1.0
+            node_start_size: 20.0,
+            forces: vec![Force::coulomb()]
         }
     }
 }
 
 /// Contains our graph and runs the layout algorithm.
 #[derive(Clone)]
-pub struct Simulation<D: Clone + PartialEq> {
+pub struct Simulation<D: Clone + PartialEq + 'static> {
     /// Internal force graph
     graph: ForceGraph<D>,
     /// Simulation Parameters
-    pub parameters: SimulationParameters,
+    pub parameters: SimulationParameters<D>,
 }
 
 impl<D: Clone + PartialEq> Simulation<D> {
     /// Create a new simulation from a [`ForceGraph`]
     pub fn from_graph(
         graph: ForceGraph<D>,
-        parameters: SimulationParameters,
+        parameters: SimulationParameters<D>,
     ) -> Self {
         let mut myself = Self {
             graph,
@@ -63,13 +59,12 @@ impl<D: Clone + PartialEq> Simulation<D> {
     /// Reset locations for every node back to the beginning
     pub fn reset_node_placement(&mut self) {
         let mut rng = rand::thread_rng();
-        let node_start_range = &self.parameters.node_start_range;
 
         for node in self.graph.node_weights_mut() {
             // put nodes in random locations
             node.location = Vec3::new(
-                rng.gen_range(node_start_range.clone()),
-                rng.gen_range(node_start_range.clone()),
+                rng.gen_range(-(self.parameters.node_start_size / 2.0)..(self.parameters.node_start_size / 2.0)),
+                rng.gen_range(-(self.parameters.node_start_size / 2.0)..(self.parameters.node_start_size / 2.0)),
                 // if we are in 2D set z to 0, this should let us calculate physics in 3d like normal but keep 2d relevant
                 0.0,
             );
@@ -82,61 +77,26 @@ impl<D: Clone + PartialEq> Simulation<D> {
     /// step through the simulation
     /// dt is the time since the last step
     pub fn step(&mut self, dt: f32) {
-        let graph_clone = self.graph.clone();
+        let graph = self.graph.clone();
 
-        for node_index in graph_clone.node_indices() {
-            let mut force_final: Vec3 = Vec3::new(0.0, 0.0, 0.0);
+        for node_index in graph.node_indices() {
+            let mut final_force = Vec3::ZERO;
 
-            for other_index in graph_clone.node_indices() {
+            for other_node_index in graph.node_indices() {
                 // skip duplicates
-                if other_index == node_index {
+                if other_node_index == node_index {
                     continue;
                 }
 
-                let other_node = &graph_clone[other_index];
-                let node = &graph_clone[node_index];
-
-                // The repulsive force here is Coulomb's law.
-
-                //there is probably a better way to do this without using angles -- note for later
-                //calculates distance (r^2 in coulomb's equation) to save a few cpu cycles
-                let distance_squared = node.location.distance_squared(other_node.location);
-                let displacement = node.location - other_node.location;
-
-                //computes angle between the two nodes in question
-                let angle = (displacement.y).atan2(displacement.x);
-
-                //calculate force according to coulomb's equation
-                let force = (self.parameters.charge_constant * 10.0) * node.mass * other_node.mass
-                    / distance_squared;
-
-                //calculate force vector
-                let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
-
-                force_final += fvector;
-            }
-
-            for neighbor in graph_clone.neighbors(node_index) {
-                let neighbor = &graph_clone[neighbor];
-                let node = &graph_clone[node_index];
-                let distance= node.location.distance(neighbor.location);
-                let displacement = node.location - neighbor.location;
-
-                //computes angle between the two nodes in question
-                let angle = (displacement.y).atan2(displacement.x);
-
-                //calculate force according to hooke's equation
-                let force = (self.parameters.spring_constant * 10.0) * -(distance - self.parameters.ideal_spring_length);
-                 //calculate force vector
-                let fvector = Vec3::new(force * angle.cos(), force * angle.sin(), 0.0);
-
-                force_final += fvector;
+                for force in &self.parameters.forces {
+                    final_force += force.run(&graph[node_index], &graph[other_node_index]);
+                }
             }
 
             let node = &mut self.graph[node_index];
 
             // calculate acceleration vector
-            let acceleration = force_final / node.mass;
+            let acceleration = final_force / node.mass;
 
             // calculate new velocity vector from acceleration vector
             node.velocity += acceleration * dt;
@@ -248,14 +208,40 @@ impl<D> Node<D> {
     }
 }
 
-pub struct Force<D> {
-    pub force_constant: f32,
-    pub cooloff_factor: f32,
-    pub callback: (dyn Fn(&mut Node<D>, Node<D>, f32, f32) + 'static),
+#[derive(Clone)]
+pub struct Force<D: PartialEq + Clone + 'static> {
+    pub name: String,
+    pub force_charge: f32,
+    pub callback: Arc<dyn Fn(&Self, &Node<D>, &Node<D>) -> Vec3>,
 }
 
-impl<D> Force<D> {
-    pub fn run(&self, node_one: &mut Node<D>, node_two: Node<D>) {
-        (self.callback)(node_one, node_two, self.force_constant, self.cooloff_factor);
+impl<D: PartialEq + Clone> Force<D> {
+    pub fn run(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+        (self.callback)(&self, node_one, node_two)
+    }
+
+    pub fn coulomb() -> Self {
+        fn callback<D: Clone + PartialEq>(force: &Force<D>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+            //there is probably a better way to do this without using angles -- note for later
+            //calculates distance (r^2 in coulomb's equation) to save a few cpu cycles
+            let distance_squared = node_one.location.distance_squared(node_two.location);
+            let displacement = node_one.location - node_two.location;
+
+            //computes angle between the two nodes in question
+            let angle = (displacement.y).atan2(displacement.x);
+
+            //calculate force according to coulomb's equation
+            let force = (-force.force_charge * 10.0) * node_one.mass * node_two.mass
+                / distance_squared;
+
+            //calculate force vector
+            Vec3::new(force * angle.cos(), force * angle.sin(), 0.0)
+        }
+
+        Self {
+            name: "Coulomb".to_string(),
+            force_charge: -10.0,
+            callback: Arc::new(callback),
+        }
     }
 }

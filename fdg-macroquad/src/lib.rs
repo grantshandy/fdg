@@ -73,21 +73,20 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
                     if ui.button("Reset Settings").clicked() {
                         sim.parameters = SimulationParameters::default();
-                        range = sim.parameters.node_start_range.end;
+                        // range = sim.parameters.node_start_range.end;
                     }
                 });
                 ui.separator();
                 ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut sim.parameters.charge_constant, -200.0..=200.0).text("Charge Constant"));
                 ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
-                sim.parameters.node_start_range.start = -range;
-                sim.parameters.node_start_range.end = range;
                 ui.add(
                     egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
                         .text("Cool-Off Factor"),
                 );
-                ui.add(egui::Slider::new(&mut sim.parameters.spring_constant, 0.01..=40.0).text("Spring Constant"));
-                ui.add(egui::Slider::new(&mut sim.parameters.ideal_spring_length, 1.0..=400.0).text("Ideal Spring Length"));
+                for force in &mut sim.parameters.forces {
+                    ui.separator();
+                    ui.add(egui::Slider::new(&mut force.force_charge, -200.0..=200.0).text(format!("{} Force Charge", force.name)));
+                }
                 ui.separator();
                 ui.checkbox(&mut manual, "Manual");
                 ui.horizontal(|ui| {
