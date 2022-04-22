@@ -73,7 +73,6 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
                     if ui.button("Reset Settings").clicked() {
                         sim.parameters = SimulationParameters::default();
-                        // range = sim.parameters.node_start_range.end;
                     }
                 });
                 ui.separator();
@@ -83,10 +82,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                     egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
                         .text("Cool-Off Factor"),
                 );
-                for force in &mut sim.parameters.forces {
-                    ui.separator();
-                    ui.add(egui::Slider::new(&mut force.force_charge, -200.0..=200.0).text(format!("{} Force Charge", force.name)));
-                }
+                ui.add(egui::Slider::new(&mut sim.parameters.repellent_force.force_charge, -200.0..=200.0).text("Repellent Force Charge"));
                 ui.separator();
                 ui.checkbox(&mut manual, "Manual");
                 ui.horizontal(|ui| {

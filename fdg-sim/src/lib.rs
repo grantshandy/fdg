@@ -17,7 +17,7 @@ pub use petgraph;
 pub struct SimulationParameters<D: Clone + PartialEq + 'static> {
     pub cooloff_factor: f32,
     pub node_start_size: f32,
-    pub forces: Vec<Force<D>>,
+    pub repellent_force: Force<D>,
 }
 
 impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
@@ -25,7 +25,7 @@ impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
         Self {
             cooloff_factor: 0.98,
             node_start_size: 20.0,
-            forces: vec![Force::coulomb()]
+            repellent_force: Force::coulomb(),
         }
     }
 }
@@ -88,9 +88,7 @@ impl<D: Clone + PartialEq> Simulation<D> {
                     continue;
                 }
 
-                for force in &self.parameters.forces {
-                    final_force += force.run(&graph[node_index], &graph[other_node_index]);
-                }
+                final_force += self.parameters.repellent_force.run(&graph[node_index], &graph[other_node_index]);
             }
 
             let node = &mut self.graph[node_index];
