@@ -17,7 +17,8 @@ pub use petgraph;
 pub struct SimulationParameters<D: Clone + PartialEq + 'static> {
     pub cooloff_factor: f32,
     pub node_start_size: f32,
-    pub repellent_force: Force<D>,
+    pub general_force: Force<D>,
+    pub neighbor_force: Force<D>
 }
 
 impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
@@ -25,7 +26,8 @@ impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
         Self {
             cooloff_factor: 0.98,
             node_start_size: 20.0,
-            repellent_force: Force::coulomb(),
+            general_force: Force::coulomb(),
+            neighbor_force: Force::hooke(),
         }
     }
 }
@@ -88,7 +90,11 @@ impl<D: Clone + PartialEq> Simulation<D> {
                     continue;
                 }
 
-                final_force += self.parameters.repellent_force.run(&graph[node_index], &graph[other_node_index]);
+                final_force += self.parameters.general_force.apply(&graph[node_index], &graph[other_node_index]);
+            }
+
+            for neighbor_index in graph.neighbors(node_index) {
+                final_force += self.parameters.neighbor_force.apply(&graph[node_index], &graph[neighbor_index]);
             }
 
             let node = &mut self.graph[node_index];
@@ -214,7 +220,7 @@ pub struct Force<D: PartialEq + Clone + 'static> {
 }
 
 impl<D: PartialEq + Clone> Force<D> {
-    pub fn run(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+    pub fn apply(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
         (self.callback)(&self, node_one, node_two)
     }
 
@@ -238,6 +244,30 @@ impl<D: PartialEq + Clone> Force<D> {
 
         Self {
             name: "Coulomb".to_string(),
+            force_charge: -10.0,
+            callback: Arc::new(callback),
+        }
+    }
+
+    pub fn hooke() -> Self {
+        fn callback<D: Clone + PartialEq>(_force: &Force<D>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+            //there is probably a better way to do this without using angles -- note for later
+            //calculates distance (r^2 in coulomb's equation) to save a few cpu cycles
+            let distance = node_one.location.distance(node_two.location);
+            let displacement = node_one.location - node_two.location;
+
+            //computes angle between the two nodes in question
+            let angle = (displacement.y).atan2(displacement.x);
+
+            //calculate force according to coulomb's equation
+            let force = 10.0 * -(distance - 100.0);
+
+            //calculate force vector
+            Vec3::new(force * angle.cos(), force * angle.sin(), 0.0)
+        }
+
+        Self {
+            name: "Hooke".to_string(),
             force_charge: -10.0,
             callback: Arc::new(callback),
         }
