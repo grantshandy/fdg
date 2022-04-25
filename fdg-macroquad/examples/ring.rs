@@ -1,5 +1,5 @@
 use fdg_sim::{
-    ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, petgraph::graph::NodeIndex
+    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
 };
 
 #[macroquad::main("Force Graph Ring Demo")]

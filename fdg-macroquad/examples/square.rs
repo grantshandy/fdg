@@ -1,6 +1,4 @@
-use fdg_sim::{
-    ForceGraph, ForceGraphHelper, SimulationParameters, Simulation,
-};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 #[macroquad::main("Force Graph Square Demo")]
 async fn main() {

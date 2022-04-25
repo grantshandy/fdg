@@ -1,5 +1,5 @@
-use fdg_sim::{Simulation, SimulationParameters};
 use egui_macroquad::{egui, macroquad::prelude::*};
+use fdg_sim::{Simulation, SimulationParameters};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let mut zoom: f32 = 2.0;
@@ -65,42 +65,55 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
         // Draw gui
         egui_macroquad::ui(|egui_ctx| {
-            egui::Window::new("Settings").default_size((50.0, 50.0)).show(egui_ctx, |ui| {
-                ui.horizontal(|ui| {
-                    if ui.button("Restart Simulation").clicked() {
-                        sim.reset_node_placement();
-                    }
+            egui::Window::new("Settings")
+                .default_size((50.0, 50.0))
+                .show(egui_ctx, |ui| {
+                    ui.horizontal(|ui| {
+                        if ui.button("Restart Simulation").clicked() {
+                            sim.reset_node_placement();
+                        }
 
-                    if ui.button("Reset Settings").clicked() {
-                        sim.parameters = SimulationParameters::default();
-                    }
-                });
-                ui.separator();
-                ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
-                ui.add(
-                    egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
-                        .text("Cool-Off Factor"),
-                );
-                ui.add(egui::Slider::new(&mut sim.parameters.general_force.force_charge, -200.0..=200.0).text("General Force Charge"));
-                ui.separator();
-                ui.checkbox(&mut manual, "Manual");
-                ui.horizontal(|ui| {
-                    if ui.add_enabled(manual, egui::Button::new("Step")).clicked() || is_key_down(KeyCode::Right) {
-                        sim.step(time);
-                    }
-                    ui.add_enabled(manual, egui::Slider::new(&mut time, 0.0001..=1.0).text("Time"));
-                });
-                ui.separator();
-                ui.horizontal(|ui| {
-                    let g = sim.get_graph();
-                    ui.label(format!("Node Count: {}", g.node_count()));
+                        if ui.button("Reset Settings").clicked() {
+                            sim.parameters = SimulationParameters::default();
+                        }
+                    });
                     ui.separator();
-                    ui.label(format!("Edge Count: {}", g.edge_count()));
+                    ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
+                    ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
+                    // ui.add(
+                    //     egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
+                    //         .text("Cool-Off Factor"),
+                    // );
+                    // ui.add(
+                    //     egui::Slider::new(
+                    //         &mut sim.parameters.general_force.force_charge,
+                    //         -200.0..=200.0,
+                    //     )
+                    //     .text("General Force Charge"),
+                    // );
                     ui.separator();
-                    ui.label(format!("FPS: {}", get_fps()));
+                    ui.checkbox(&mut manual, "Manual");
+                    ui.horizontal(|ui| {
+                        if ui.add_enabled(manual, egui::Button::new("Step")).clicked()
+                            || is_key_down(KeyCode::Right)
+                        {
+                            sim.step(time);
+                        }
+                        ui.add_enabled(
+                            manual,
+                            egui::Slider::new(&mut time, 0.0001..=1.0).text("Time"),
+                        );
+                    });
+                    ui.separator();
+                    ui.horizontal(|ui| {
+                        let g = sim.get_graph();
+                        ui.label(format!("Node Count: {}", g.node_count()));
+                        ui.separator();
+                        ui.label(format!("Edge Count: {}", g.edge_count()));
+                        ui.separator();
+                        ui.label(format!("FPS: {}", get_fps()));
+                    });
                 });
-            });
         });
 
         // update sim

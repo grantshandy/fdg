@@ -1,7 +1,5 @@
 use fdg_sim::{
-    ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
-
-    petgraph::graph::NodeIndex
+    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
 };
 use rand::Rng;
 
@@ -15,10 +13,10 @@ async fn main() {
     let num_nodes = 500;
 
     for n in 0..num_nodes {
-        node_indices.push(graph.add_force_node(format!("{n}"), (),))
+        node_indices.push(graph.add_force_node(format!("{n}"), ()))
     }
 
-    let mut rng  = rand::thread_rng();
+    let mut rng = rand::thread_rng();
     let num_edges = 900;
 
     for _ in 0..num_edges {
