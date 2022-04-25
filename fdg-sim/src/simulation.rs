@@ -9,14 +9,14 @@ use rand::Rng;
 
 /// Settings for the simulation
 #[derive(Clone)]
-pub struct SimulationParameters<D: Clone + PartialEq + 'static> {
+pub struct SimulationParameters<D> {
     pub cooloff_factor: f32,
     pub node_start_size: f32,
     pub general_force: Force<D>,
     pub neighbor_force: Force<D>,
 }
 
-impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
+impl<D> Default for SimulationParameters<D> {
     fn default() -> Self {
         Self {
             cooloff_factor: 0.98,
@@ -29,14 +29,14 @@ impl<D: Clone + PartialEq + 'static> Default for SimulationParameters<D> {
 
 /// Contains our graph and runs the layout algorithm.
 #[derive(Clone)]
-pub struct Simulation<D: Clone + PartialEq + 'static> {
+pub struct Simulation<D: Clone> {
     /// Internal force graph
     graph: ForceGraph<D>,
     /// Simulation Parameters
     pub parameters: SimulationParameters<D>,
 }
 
-impl<D: Clone + PartialEq> Simulation<D> {
+impl<D: Clone> Simulation<D> {
     /// Create a new simulation from a [`ForceGraph`]
     pub fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters<D>) -> Self {
         let mut myself = Self { graph, parameters };

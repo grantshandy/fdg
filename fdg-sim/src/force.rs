@@ -1,22 +1,20 @@
-use std::sync::Arc;
-
 use super::Node;
 use glam::Vec3;
 
 #[derive(Clone)]
-pub struct Force<D: PartialEq + Clone + 'static> {
+pub struct Force<D> {
     pub name: String,
     pub force_charge: f32,
-    pub callback: Arc<dyn Fn(&Self, &Node<D>, &Node<D>) -> Vec3>,
+    pub callback: fn(&Self, &Node<D>, &Node<D>) -> Vec3,
 }
 
-impl<D: PartialEq + Clone> Force<D> {
+impl<D> Force<D> {
     pub fn apply(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
         (self.callback)(&self, node_one, node_two)
     }
 
     pub fn coulomb() -> Self {
-        fn callback<D: Clone + PartialEq>(
+        fn callback<D>(
             force: &Force<D>,
             node_one: &Node<D>,
             node_two: &Node<D>,
@@ -40,12 +38,12 @@ impl<D: PartialEq + Clone> Force<D> {
         Self {
             name: "Coulomb".to_string(),
             force_charge: -10.0,
-            callback: Arc::new(callback),
+            callback,
         }
     }
 
     pub fn hooke() -> Self {
-        fn callback<D: Clone + PartialEq>(
+        fn callback<D>(
             _force: &Force<D>,
             node_one: &Node<D>,
             node_two: &Node<D>,
@@ -68,12 +66,7 @@ impl<D: PartialEq + Clone> Force<D> {
         Self {
             name: "Hooke".to_string(),
             force_charge: -10.0,
-            callback: Arc::new(callback),
+            callback,
         }
     }
-}
-
-#[derive(Clone)]
-pub struct SimulationForces {
-    
 }
