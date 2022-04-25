@@ -1,4 +1,4 @@
-use super::{ForceGraph, ForceGraphHelper, Force};
+use super::{ForceGraph, ForceGraphHelper, SimulationForces};
 use glam::Vec3;
 use log::trace;
 use petgraph::{
@@ -12,8 +12,7 @@ use rand::Rng;
 pub struct SimulationParameters<D> {
     pub cooloff_factor: f32,
     pub node_start_size: f32,
-    pub general_force: Force<D>,
-    pub neighbor_force: Force<D>,
+    pub forces: SimulationForces<D>,
 }
 
 impl<D> Default for SimulationParameters<D> {
@@ -21,8 +20,7 @@ impl<D> Default for SimulationParameters<D> {
         Self {
             cooloff_factor: 0.98,
             node_start_size: 20.0,
-            general_force: Force::coulomb(),
-            neighbor_force: Force::hooke(),
+            forces: SimulationForces::default(),
         }
     }
 }
@@ -73,7 +71,7 @@ impl<D: Clone> Simulation<D> {
 
     /// step through the simulation
     /// dt is the time since the last step
-    pub fn step(&mut self, dt: f32) {
+    pub fn update(&mut self, dt: f32) {
         let graph = self.graph.clone();
 
         for node_index in graph.node_indices() {
@@ -87,15 +85,15 @@ impl<D: Clone> Simulation<D> {
 
                 final_force += self
                     .parameters
-                    .general_force
-                    .apply(&graph[node_index], &graph[other_node_index]);
+                    .forces
+                    .apply_general(&graph[node_index], &graph[other_node_index]);
             }
 
             for neighbor_index in graph.neighbors(node_index) {
                 final_force += self
                     .parameters
-                    .neighbor_force
-                    .apply(&graph[node_index], &graph[neighbor_index]);
+                    .forces
+                    .apply_neighbor(&graph[node_index], &graph[neighbor_index]);
             }
 
             let node = &mut self.graph[node_index];
@@ -168,6 +166,12 @@ impl<D: Clone> Simulation<D> {
     /// Clear all edges and nodes from the graph
     pub fn clear(&mut self) {
         self.graph.clear();
+    }
+}
+
+impl<D: Clone> Default for Simulation<D> {
+    fn default() -> Self {
+        return Self::from_graph(ForceGraph::default(), SimulationParameters::default());
     }
 }
 

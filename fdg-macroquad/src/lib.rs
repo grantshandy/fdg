@@ -80,10 +80,10 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                     ui.separator();
                     ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
                     ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
-                    // ui.add(
-                    //     egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
-                    //         .text("Cool-Off Factor"),
-                    // );
+                    ui.add(
+                        egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
+                            .text("Cool-Off Factor"),
+                    );
                     // ui.add(
                     //     egui::Slider::new(
                     //         &mut sim.parameters.general_force.force_charge,
@@ -97,7 +97,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                         if ui.add_enabled(manual, egui::Button::new("Step")).clicked()
                             || is_key_down(KeyCode::Right)
                         {
-                            sim.step(time);
+                            sim.update(time);
                         }
                         ui.add_enabled(
                             manual,
@@ -118,7 +118,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
         // update sim
         if !manual {
-            sim.step(get_frame_time());
+            sim.update(get_frame_time());
         }
 
         // draw gui

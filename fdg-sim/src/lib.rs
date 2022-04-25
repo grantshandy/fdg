@@ -1,10 +1,10 @@
+mod force;
 mod graph;
 mod simulation;
-mod force;
 
 pub use glam::Vec3;
 pub use petgraph;
 
-pub use simulation::{Simulation, SimulationParameters, Node};
+pub use force::SimulationForces;
 pub use graph::{ForceGraph, ForceGraphHelper};
-pub use force::Force;
+pub use simulation::{Node, Simulation, SimulationParameters};
