@@ -6,17 +6,17 @@ pub struct SimulationForces<D> {
     general_force_charge: f32,
     spring_constant: f32,
     ideal_spring_length: f32,
-    general_callback: fn(&Self, &Node<D>, &Node<D>) -> Vec3,
-    neighbor_callback: fn(&Self, &Node<D>, &Node<D>) -> Vec3,
+    repulsive_force: fn(&Self, &Node<D>, &Node<D>) -> Vec3,
+    attractive_force: fn(&Self, &Node<D>, &Node<D>) -> Vec3,
 }
 
 impl<D> SimulationForces<D> {
-    pub fn apply_general(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (self.general_callback)(&self, node_one, node_two)
+    pub fn apply_repulsive(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+        (self.repulsive_force)(&self, node_one, node_two)
     }
 
-    pub fn apply_neighbor(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (self.neighbor_callback)(&self, node_one, node_two)
+    pub fn apply_attractive(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+        (self.attractive_force)(&self, node_one, node_two)
     }
 }
 
@@ -57,8 +57,12 @@ impl<D> Default for SimulationForces<D> {
             general_force_charge: 100.0,
             ideal_spring_length: 100.0,
             spring_constant: 1.0,
-            general_callback: coulomb,
-            neighbor_callback: hooke,
+            repulsive_force: coulomb,
+            attractive_force: hooke,
         }
     }
+}
+
+impl<D> SimulationForces<D> {
+    
 }
