@@ -100,14 +100,14 @@ impl<D: Clone> Simulation<D> {
                 final_force += self
                     .parameters
                     .forces
-                    .apply_repulsive(&graph[node_index], &graph[other_node_index]);
+                    .apply_general_force(&graph[node_index], &graph[other_node_index]);
             }
 
             for neighbor_index in graph.neighbors(node_index) {
                 final_force += self
                     .parameters
                     .forces
-                    .apply_attractive(&graph[node_index], &graph[neighbor_index]);
+                    .apply_neighbor_force(&graph[node_index], &graph[neighbor_index]);
             }
 
             let node = &mut self.graph[node_index];

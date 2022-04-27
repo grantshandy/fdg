@@ -9,11 +9,11 @@ pub struct SimulationForces<D> {
 }
 
 impl<D> SimulationForces<D> {
-    pub fn apply_repulsive(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+    pub fn apply_general_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
         (self.general_force)(&self.dict, node_one, node_two)
     }
 
-    pub fn apply_attractive(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+    pub fn apply_neighbor_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
         (self.neighbor_force)(&self.dict, node_one, node_two)
     }
 }
