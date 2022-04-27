@@ -4,3 +4,4 @@ Cargo.lock
 flamegraph.svg
 perf.data
 perf.data.old
+/fdg-macroquad/examples/test.rs

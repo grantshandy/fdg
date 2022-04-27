@@ -7,20 +7,28 @@ use petgraph::{
 };
 use rand::Rng;
 
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Dimensions {
+    Two,
+    Three,
+}
+
 /// Settings for the simulation
 #[derive(Clone)]
 pub struct SimulationParameters<D> {
     pub cooloff_factor: f32,
     pub node_start_size: f32,
     pub forces: SimulationForces<D>,
+    pub dimensions: Dimensions,
 }
 
 impl<D> Default for SimulationParameters<D> {
     fn default() -> Self {
         Self {
-            cooloff_factor: 0.98,
-            node_start_size: 20.0,
+            cooloff_factor: 0.975,
+            node_start_size: 500.0,
             forces: SimulationForces::default(),
+            dimensions: Dimensions::Two,
         }
     }
 }
@@ -60,8 +68,14 @@ impl<D: Clone> Simulation<D> {
                     -(self.parameters.node_start_size / 2.0)
                         ..(self.parameters.node_start_size / 2.0),
                 ),
-                // if we are in 2D set z to 0, this should let us calculate physics in 3d like normal but keep 2d relevant
-                0.0,
+                if self.parameters.dimensions == Dimensions::Three {
+                    rng.gen_range(
+                        -(self.parameters.node_start_size / 2.0)
+                            ..(self.parameters.node_start_size / 2.0),
+                    )
+                } else {
+                    0.0
+                },
             );
 
             // reset velocity

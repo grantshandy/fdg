@@ -7,4 +7,4 @@ pub use petgraph;
 
 pub use force::SimulationForces;
 pub use graph::{ForceGraph, ForceGraphHelper};
-pub use simulation::{Node, Simulation, SimulationParameters};
+pub use simulation::{Dimensions, Node, Simulation, SimulationParameters};
