@@ -1,5 +1,5 @@
 use fdg_sim::{
-    petgraph::graph::NodeIndex, Dimensions, ForceGraph, ForceGraphHelper, Simulation,
+    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation,
     SimulationParameters,
 };
 
@@ -33,10 +33,5 @@ async fn main() {
         graph.add_edge(indices[(size * y) + (size - 1)], indices[(size * y)], ());
     }
 
-    let params = SimulationParameters {
-        dimensions: Dimensions::Three,
-        ..Default::default()
-    };
-
-    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, params)).await;
+    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, SimulationParameters::default())).await;
 }

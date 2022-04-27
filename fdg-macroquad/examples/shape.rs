@@ -1,4 +1,4 @@
-use fdg_sim::{Dimensions, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 #[macroquad::main("Force Graph Shape Demo")]
 async fn main() {
@@ -32,10 +32,5 @@ async fn main() {
     graph.add_edge(u, i, ());
     graph.add_edge(i, c, ());
 
-    let params = SimulationParameters {
-        dimensions: Dimensions::Three,
-        ..Default::default()
-    };
-
-    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, params)).await;
+    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, SimulationParameters::default())).await;
 }

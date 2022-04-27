@@ -1,4 +1,4 @@
-use fdg_sim::{Dimensions, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 #[macroquad::main("Force Graph Ring Demo")]
 async fn main() {
@@ -20,12 +20,7 @@ async fn main() {
         graph.add_edge(x.into(), center, ());
     }
 
-    let params = SimulationParameters {
-        dimensions: Dimensions::Two,
-        ..Default::default()
-    };
-
-    let mut sim = Simulation::from_graph(graph, params);
+    let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 
     fdg_macroquad::run_window(&mut sim).await;
 }

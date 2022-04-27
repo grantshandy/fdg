@@ -1,5 +1,5 @@
 use fdg_sim::{
-    petgraph::graph::NodeIndex, Dimensions, ForceGraph, ForceGraphHelper, Simulation,
+    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation,
     SimulationParameters,
 };
 
@@ -10,7 +10,7 @@ async fn main() {
     let mut graph: ForceGraph<()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
-    let size = 25;
+    let size = 5;
 
     for _ in 0..size {
         for _ in 0..size {
@@ -30,10 +30,5 @@ async fn main() {
         }
     }
 
-    let params = SimulationParameters {
-        dimensions: Dimensions::Three,
-        ..Default::default()
-    };
-
-    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, params)).await;
+    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, SimulationParameters::default())).await;
 }
