@@ -1,2 +1,5 @@
 [workspace]
 members = ["fdg-sim", "fdg-macroquad"]
+
+[profile.release]
+debug = true

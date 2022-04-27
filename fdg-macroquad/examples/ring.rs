@@ -1,29 +1,24 @@
-use fdg_sim::{
-    ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, petgraph::graph::NodeIndex
-};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 #[macroquad::main("Force Graph Ring Demo")]
 async fn main() {
     pretty_env_logger::init();
 
     let mut graph: ForceGraph<()> = ForceGraph::default();
-    let mut edge_indices: Vec<NodeIndex> = Vec::new();
 
-    let center = graph.add_force_node("Center", ());
-    let nodes: usize = 10;
+    let nodes = 5;
 
-    for x in 0..nodes {
-        let i = graph.add_force_node(x.to_string(), ());
-        edge_indices.push(i);
-
-        graph.add_edge(i, center, ());
+    graph.add_force_node("", ());
+    for x in 1..nodes {
+        graph.add_force_node("", ());
+        graph.add_edge(x.into(), (x - 1).into(), ());
     }
+    graph.add_edge(0.into(), (nodes - 1).into(), ());
 
-    // for x in 1..nodes {
-    //     graph.add_edge(edge_indices[x], edge_indices[x - 1], ());
-    // }
-
-    graph.add_edge(0.into(), 1.into(), ());
+    let center = graph.add_force_node("", ());
+    for x in 0..nodes {
+        graph.add_edge(x.into(), center, ());
+    }
 
     let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 

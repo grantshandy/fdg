@@ -1,11 +1,10 @@
-use fdg_sim::{Simulation, SimulationParameters};
 use egui_macroquad::{egui, macroquad::prelude::*};
+use fdg_sim::Simulation;
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let mut zoom: f32 = 2.0;
-    let mut range: f32 = 10.0;
-    let mut manual = false;
-    let mut time: f32 = 0.01;
+    let mut speed: f32 = 1.0;
+    let orig_params = sim.parameters.clone();
 
     loop {
         if is_key_down(KeyCode::R) {
@@ -65,53 +64,43 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
         // Draw gui
         egui_macroquad::ui(|egui_ctx| {
-            egui::Window::new("Settings").default_size((50.0, 50.0)).show(egui_ctx, |ui| {
-                ui.horizontal(|ui| {
-                    if ui.button("Restart Simulation").clicked() {
-                        sim.reset_node_placement();
-                    }
+            egui::Window::new("Settings")
+                .default_size((50.0, 50.0))
+                .show(egui_ctx, |ui| {
+                    ui.horizontal(|ui| {
+                        if ui.button("Restart Simulation").clicked() {
+                            sim.reset_node_placement();
+                        }
 
-                    if ui.button("Reset Settings").clicked() {
-                        sim.parameters = SimulationParameters::default();
-                        range = sim.parameters.node_start_range.end;
-                    }
-                });
-                ui.separator();
-                ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                ui.add(egui::Slider::new(&mut sim.parameters.charge_constant, -200.0..=200.0).text("Charge Constant"));
-                ui.add(egui::Slider::new(&mut range, 0.01..=50.0).text("Node Start Range"));
-                sim.parameters.node_start_range.start = -range;
-                sim.parameters.node_start_range.end = range;
-                ui.add(
-                    egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
-                        .text("Cool-Off Factor"),
-                );
-                ui.add(egui::Slider::new(&mut sim.parameters.spring_constant, 0.01..=40.0).text("Spring Constant"));
-                ui.add(egui::Slider::new(&mut sim.parameters.ideal_spring_length, 1.0..=400.0).text("Ideal Spring Length"));
-                ui.separator();
-                ui.checkbox(&mut manual, "Manual");
-                ui.horizontal(|ui| {
-                    if ui.add_enabled(manual, egui::Button::new("Step")).clicked() || is_key_down(KeyCode::Right) {
-                        sim.step(time);
-                    }
-                    ui.add_enabled(manual, egui::Slider::new(&mut time, 0.0001..=1.0).text("Time"));
-                });
-                ui.separator();
-                ui.horizontal(|ui| {
-                    let g = sim.get_graph();
-                    ui.label(format!("Node Count: {}", g.node_count()));
+                        if ui.button("Reset Settings").clicked() {
+                            sim.parameters = orig_params.clone();
+                            speed = 1.0;
+                        }
+                    });
                     ui.separator();
-                    ui.label(format!("Edge Count: {}", g.edge_count()));
+                    ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
+                    ui.add(
+                        egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
+                            .text("Cool-Off Factor"),
+                    );
+                    ui.add(
+                        egui::Slider::new(&mut speed, 0.1..=5.0)
+                            .text("Speed"),
+                    );
                     ui.separator();
-                    ui.label(format!("FPS: {}", get_fps()));
+                    ui.horizontal(|ui| {
+                        let g = sim.get_graph();
+                        ui.label(format!("Node Count: {}", g.node_count()));
+                        ui.separator();
+                        ui.label(format!("Edge Count: {}", g.edge_count()));
+                        ui.separator();
+                        ui.label(format!("FPS: {}", get_fps()));
+                    });
                 });
-            });
         });
 
         // update sim
-        if !manual {
-            sim.step(get_frame_time());
-        }
+        sim.update(0.035 * speed);
 
         // draw gui
         egui_macroquad::draw();
