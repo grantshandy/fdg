@@ -1,5 +1,6 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::{Simulation, Dimensions};
+use fdg_sim::SimulationParameters;
+pub use fdg_sim::{Simulation, Dimensions};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters.clone();
@@ -70,7 +71,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             }
 
             set_camera(&Camera3D {
-                position: vec3(x, radius * 1.5, y),
+                position: vec3(x, radius * 4.0, y),
                 up: vec3(0., 1.0, 0.),
                 target: vec3(0.0, 0.0, 0.0),
                 ..Default::default()
@@ -104,7 +105,10 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                         }
 
                         if ui.button("Reset Settings").clicked() {
-                            sim.parameters = orig_params.clone();
+                            sim.parameters = SimulationParameters {
+                                dimensions: sim.parameters.dimensions,
+                                ..orig_params.clone()
+                            };
                             sim_speed = 1.0;
                             orbit_speed = 1.0;
                             zoom = 1.0;

@@ -68,14 +68,13 @@ impl<D: Clone> Simulation<D> {
                     -(self.parameters.node_start_size / 2.0)
                         ..(self.parameters.node_start_size / 2.0),
                 ),
-                if self.parameters.dimensions == Dimensions::Three {
-                    rng.gen_range(
+                match self.parameters.dimensions {
+                    Dimensions::Three => rng.gen_range(
                         -(self.parameters.node_start_size / 2.0)
                             ..(self.parameters.node_start_size / 2.0),
-                    )
-                } else {
-                    0.0
-                },
+                    ),
+                    Dimensions::Two => 0.0,
+                }
             );
 
             // reset velocity
