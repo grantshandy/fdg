@@ -12,6 +12,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
     let mut orbit_speed: f32 = 1.0;
     let mut orbit: bool = true;
+    let mut show_grid: bool = true;
 
     loop {
         // Draw background
@@ -24,31 +25,20 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         let mouse_wheel_y = mouse_wheel().1;
 
         if mouse_wheel_y < 0. {
-            if sim.parameters.dimensions == Dimensions::Two {
-                zoom -= 0.25;
-                if zoom < 0.05 {
-                    zoom = 0.05;
-                }
-            } else {
-                zoom -= 0.025;
-                if zoom < 0.05 {
-                    zoom = 0.05;
-                }
+            zoom -= 0.025;
+            if zoom < 0.05 {
+                zoom = 0.05;
             }
         }
 
         if mouse_wheel_y > 0. {
-            if sim.parameters.dimensions == Dimensions::Two {
-                zoom += 0.25;
-            } else {
-                zoom += 0.025;
-            }
+            zoom += 0.025;
         }
 
         // Draw edges and nodes
         if sim.parameters.dimensions == Dimensions::Two {
-            let w = screen_width() * zoom;
-            let h = screen_height() * zoom;
+            let w = screen_width() * (1.0 / zoom);
+            let h = screen_height() * (1.0 / zoom);
 
             set_camera(&Camera2D::from_display_rect(Rect::new(
                 -(w / 2.0),
@@ -80,13 +70,15 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             }
 
             set_camera(&Camera3D {
-                position: vec3(x, radius, y),
+                position: vec3(x, radius * 1.5, y),
                 up: vec3(0., 1.0, 0.),
                 target: vec3(0.0, 0.0, 0.0),
                 ..Default::default()
             });
 
-            draw_grid(200, 25.0, DARKBLUE, GRAY);
+            if show_grid {
+                draw_grid(200, 25.0, DARKBLUE, GRAY);
+            }
 
             sim.visit_edges(|source, target| {
                 draw_line_3d(
@@ -117,17 +109,30 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                             orbit_speed = 1.0;
                             zoom = 1.0;
                         }
+
+                        let txt = match sim.parameters.dimensions {
+                            Dimensions::Two => "View in 3D",
+                            Dimensions::Three => "View in 2D",
+                        };
+    
+                        if ui.button(txt).clicked() {
+                            sim.parameters.dimensions = match sim.parameters.dimensions {
+                                Dimensions::Two => Dimensions::Three,
+                                Dimensions::Three => Dimensions::Two,
+                            };
+    
+                            sim.reset_node_placement();
+                        }
                     });
                     ui.separator();
-                    if sim.parameters.dimensions == Dimensions::Two {
-                        ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
-                    } else {
-                        ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
+                    ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
+                    if sim.parameters.dimensions == Dimensions::Three {
                         ui.add(
                             egui::Slider::new(&mut orbit_speed, 0.1..=5.0)
                                 .text("Orbit Speed"),
                         );
                         ui.checkbox(&mut orbit, "Orbit");
+                        ui.checkbox(&mut show_grid, "Show Grid");
                     }
                     ui.separator();
                     ui.add(

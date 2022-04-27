@@ -1,6 +1,6 @@
 use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, Dimensions, petgraph::graph::NodeIndex};
 
-#[macroquad::main("Force Graph Mesh Demo")]
+#[macroquad::main("Force Graph Cylinder Demo")]
 async fn main() {
     pretty_env_logger::init();
 
@@ -27,7 +27,7 @@ async fn main() {
         }
 
         // cylinder
-        // graph.add_edge(indices[(size * y) + (size - 1)], indices[(size * y)], ());
+        graph.add_edge(indices[(size * y) + (size - 1)], indices[(size * y)], ());
     }
 
     let params = SimulationParameters {

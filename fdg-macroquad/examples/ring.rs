@@ -21,7 +21,7 @@ async fn main() {
     }
 
     let params = SimulationParameters {
-        dimensions: Dimensions::Three,
+        dimensions: Dimensions::Two,
         ..Default::default()
     };
 
