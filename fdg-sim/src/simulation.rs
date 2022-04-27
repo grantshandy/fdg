@@ -74,7 +74,7 @@ impl<D: Clone> Simulation<D> {
                             ..(self.parameters.node_start_size / 2.0),
                     ),
                     Dimensions::Two => 0.0,
-                }
+                },
             );
 
             // reset velocity

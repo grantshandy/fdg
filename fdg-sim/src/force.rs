@@ -21,7 +21,7 @@ impl<D> SimulationForces<D> {
 /// The default implementation of [`SimulationForces`] uses hooke and coulomb's law.
 impl<D> Default for SimulationForces<D> {
     fn default() -> Self {
-        SimulationForces::fruchterman_reingold(40.0)
+        SimulationForces::fruchterman_reingold(60.0)
     }
 }
 

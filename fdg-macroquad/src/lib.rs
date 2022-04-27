@@ -1,6 +1,6 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
 use fdg_sim::SimulationParameters;
-pub use fdg_sim::{Simulation, Dimensions};
+pub use fdg_sim::{Dimensions, Simulation};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters.clone();
@@ -71,7 +71,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             }
 
             set_camera(&Camera3D {
-                position: vec3(x, radius * 4.0, y),
+                position: vec3(x, radius * 1.5, y),
                 up: vec3(0., 1.0, 0.),
                 target: vec3(0.0, 0.0, 0.0),
                 ..Default::default()
@@ -90,7 +90,12 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             });
 
             sim.visit_nodes(|node| {
-                draw_sphere(vec3(node.location.x, node.location.y, node.location.z), node.mass * 5.0, None, BLACK);
+                draw_sphere(
+                    vec3(node.location.x, node.location.y, node.location.z),
+                    node.mass * 5.0,
+                    None,
+                    BLACK,
+                );
             });
         }
 
@@ -114,27 +119,25 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                             zoom = 1.0;
                         }
 
-                        let txt = match sim.parameters.dimensions {
-                            Dimensions::Two => "View in 3D",
-                            Dimensions::Three => "View in 2D",
-                        };
-    
-                        if ui.button(txt).clicked() {
+                        if ui
+                            .button(match sim.parameters.dimensions {
+                                Dimensions::Two => "View in 3D",
+                                Dimensions::Three => "View in 2D",
+                            })
+                            .clicked()
+                        {
                             sim.parameters.dimensions = match sim.parameters.dimensions {
                                 Dimensions::Two => Dimensions::Three,
                                 Dimensions::Three => Dimensions::Two,
                             };
-    
+
                             sim.reset_node_placement();
                         }
                     });
                     ui.separator();
                     ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
                     if sim.parameters.dimensions == Dimensions::Three {
-                        ui.add(
-                            egui::Slider::new(&mut orbit_speed, 0.1..=5.0)
-                                .text("Orbit Speed"),
-                        );
+                        ui.add(egui::Slider::new(&mut orbit_speed, 0.1..=5.0).text("Orbit Speed"));
                         ui.checkbox(&mut orbit, "Orbit");
                         ui.checkbox(&mut show_grid, "Show Grid");
                     }
@@ -143,10 +146,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                         egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
                             .text("Cool-Off Factor"),
                     );
-                    ui.add(
-                        egui::Slider::new(&mut sim_speed, 0.1..=5.0)
-                            .text("Simulation Speed"),
-                    );
+                    ui.add(egui::Slider::new(&mut sim_speed, 0.1..=5.0).text("Simulation Speed"));
                     ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();

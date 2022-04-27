@@ -1,4 +1,7 @@
-use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, Dimensions, petgraph::graph::NodeIndex};
+use fdg_sim::{
+    petgraph::graph::NodeIndex, Dimensions, ForceGraph, ForceGraphHelper, Simulation,
+    SimulationParameters,
+};
 
 #[macroquad::main("Force Graph Lattice Demo")]
 async fn main() {
@@ -11,7 +14,7 @@ async fn main() {
 
     for _ in 0..size {
         for _ in 0..size {
-            indices.push(graph.add_force_node("",()));
+            indices.push(graph.add_force_node("", ()));
         }
     }
 
