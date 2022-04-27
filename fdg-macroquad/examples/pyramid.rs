@@ -1,6 +1,6 @@
 use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, Dimensions};
 
-#[macroquad::main("Force Graph Ring Demo")]
+#[macroquad::main("Force Graph Pyramid Demo")]
 async fn main() {
     pretty_env_logger::init();
 

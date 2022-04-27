@@ -2,10 +2,16 @@ use egui_macroquad::{egui, macroquad::prelude::*};
 use fdg_sim::{Simulation, Dimensions};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
-    let mut zoom: f32 = 2.0;
-    let mut speed: f32 = 1.0;
-    let mut view: f32 = 999.0;
     let orig_params = sim.parameters.clone();
+
+    let mut zoom: f32 = 2.0;
+    let mut sim_speed: f32 = 1.0;
+
+    let mut angle: f32 = 0.0;
+    let radius = 200.0;
+
+    let mut orbit_speed: f32 = 1.0;
+    let mut orbit: bool = true;
 
     loop {
         // Draw background
@@ -15,20 +21,32 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             sim.reset_node_placement();
         }
 
-        // Draw edges and nodes
-        if sim.parameters.dimensions == Dimensions::Two {
-            let mouse_wheel_y = mouse_wheel().1;
+        let mouse_wheel_y = mouse_wheel().1;
 
-            if mouse_wheel_y < 0. {
+        if mouse_wheel_y < 0. {
+            if sim.parameters.dimensions == Dimensions::Two {
                 zoom -= 0.25;
-                if zoom < 0.5 {
-                    zoom = 0.5;
+                if zoom < 0.05 {
+                    zoom = 0.05;
+                }
+            } else {
+                zoom -= 0.025;
+                if zoom < 0.05 {
+                    zoom = 0.05;
                 }
             }
-            if mouse_wheel_y > 0. {
-                zoom += 0.25;
-            }
+        }
 
+        if mouse_wheel_y > 0. {
+            if sim.parameters.dimensions == Dimensions::Two {
+                zoom += 0.25;
+            } else {
+                zoom += 0.025;
+            }
+        }
+
+        // Draw edges and nodes
+        if sim.parameters.dimensions == Dimensions::Two {
             let w = screen_width() * zoom;
             let h = screen_height() * zoom;
 
@@ -45,7 +63,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                     source.location.y,
                     target.location.x,
                     target.location.y,
-                    4.0,
+                    2.5,
                     RED,
                 );
             });
@@ -54,16 +72,21 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                 draw_circle(node.location.x, node.location.y, node.mass * 10.0, BLACK);
             });
         } else {
+            let adj_radius = radius * (1.0 / (zoom / 2.0));
+            let (x, y) = (adj_radius * angle.cos(), adj_radius * angle.sin());
+
+            if orbit {
+                angle += 0.0015 * orbit_speed;
+            }
+
             set_camera(&Camera3D {
-                position: vec3(view, view, view),
+                position: vec3(x, radius, y),
                 up: vec3(0., 1.0, 0.),
                 target: vec3(0.0, 0.0, 0.0),
                 ..Default::default()
             });
 
-            println!("{view}");
-
-            view -= 2.5;
+            draw_grid(200, 25.0, DARKBLUE, GRAY);
 
             sim.visit_edges(|source, target| {
                 draw_line_3d(
@@ -74,7 +97,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             });
 
             sim.visit_nodes(|node| {
-                draw_sphere(vec3(node.location.x, node.location.y, node.location.z), node.mass * 10.0, None, BLACK);
+                draw_sphere(vec3(node.location.x, node.location.y, node.location.z), node.mass * 5.0, None, BLACK);
             });
         }
 
@@ -90,20 +113,30 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
 
                         if ui.button("Reset Settings").clicked() {
                             sim.parameters = orig_params.clone();
-                            speed = 1.0;
+                            sim_speed = 1.0;
+                            orbit_speed = 1.0;
+                            zoom = 1.0;
                         }
                     });
                     ui.separator();
                     if sim.parameters.dimensions == Dimensions::Two {
                         ui.add(egui::Slider::new(&mut zoom, 0.5..=15.0).text("Zoom"));
+                    } else {
+                        ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
+                        ui.add(
+                            egui::Slider::new(&mut orbit_speed, 0.1..=5.0)
+                                .text("Orbit Speed"),
+                        );
+                        ui.checkbox(&mut orbit, "Orbit");
                     }
+                    ui.separator();
                     ui.add(
                         egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
                             .text("Cool-Off Factor"),
                     );
                     ui.add(
-                        egui::Slider::new(&mut speed, 0.1..=5.0)
-                            .text("Speed"),
+                        egui::Slider::new(&mut sim_speed, 0.1..=5.0)
+                            .text("Simulation Speed"),
                     );
                     ui.separator();
                     ui.horizontal(|ui| {
@@ -118,7 +151,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         });
 
         // update sim
-        sim.update(0.035 * speed);
+        sim.update(0.035 * sim_speed);
 
         // draw gui
         egui_macroquad::draw();
