@@ -112,19 +112,12 @@ impl<D: Clone> Simulation<D> {
 
             let node = &mut self.graph[node_index];
 
-            // calculate acceleration vector
             let acceleration = final_force / node.mass;
-
-            // calculate new velocity vector from acceleration vector
             node.velocity += acceleration * dt;
-
-            // multiply velocity by cooloff factor
             node.velocity *= self.parameters.cooloff_factor;
 
-            // calculate new location from velocity vector and time interval
             node.location += node.velocity * dt;
 
-            // log out new node status
             trace!(
                 "Node \"{}\" coords: {{ x: {}, y: {}, z: {} }}",
                 node.name,
