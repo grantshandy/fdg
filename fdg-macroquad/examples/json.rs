@@ -4,8 +4,7 @@ use fdg_sim::{Simulation, SimulationParameters};
 async fn main() {
     pretty_env_logger::init();
 
-    let json = include_str!("datasets/les_miserables.json");
-
+    let json = include_str!("datasets/cube.json");
     let graph = fdg_sim::graph_from_json(json).unwrap();
     let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 

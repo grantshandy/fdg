@@ -1,6 +1,5 @@
 use fdg_sim::{
-    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation,
-    SimulationParameters,
+    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
 };
 
 #[macroquad::main("Force Graph Lattice Demo")]
@@ -10,7 +9,7 @@ async fn main() {
     let mut graph: ForceGraph<()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
-    let size = 5;
+    let size = 25;
 
     for _ in 0..size {
         for _ in 0..size {
@@ -30,5 +29,9 @@ async fn main() {
         }
     }
 
-    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, SimulationParameters::default())).await;
+    fdg_macroquad::run_window(&mut Simulation::from_graph(
+        graph,
+        SimulationParameters::default(),
+    ))
+    .await;
 }

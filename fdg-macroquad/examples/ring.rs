@@ -15,10 +15,10 @@ async fn main() {
     }
     graph.add_edge(0.into(), (nodes - 1).into(), ());
 
-    let center = graph.add_force_node("", ());
-    for x in 0..nodes {
-        graph.add_edge(x.into(), center, ());
-    }
+    // let center = graph.add_force_node("", ());
+    // for x in 0..nodes {
+    //     graph.add_edge(x.into(), center, ());
+    // }
 
     let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
 

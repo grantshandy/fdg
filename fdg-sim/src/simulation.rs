@@ -194,6 +194,8 @@ pub struct Node<D> {
     pub velocity: Vec3,
     /// Mass (defaults to 1)
     pub mass: f32,
+    /// Color
+    pub color: [u8; 4],
 }
 
 impl<D> Node<D> {
@@ -205,6 +207,7 @@ impl<D> Node<D> {
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
             mass: 1.0,
+            color: [0, 0, 0, 255],
         }
     }
 }
