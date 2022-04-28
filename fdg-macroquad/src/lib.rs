@@ -6,7 +6,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters.clone();
 
     let mut zoom: f32 = 2.0;
-    let mut sim_speed: f32 = 1.0;
+    let mut sim_speed: u8 = 1;
 
     let mut angle: f32 = 0.0;
     let radius = 200.0;
@@ -130,7 +130,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                                 dimensions: sim.parameters.dimensions,
                                 ..orig_params.clone()
                             };
-                            sim_speed = 1.0;
+                            sim_speed = 1;
                             orbit_speed = 1.0;
                             zoom = 1.0;
                         }
@@ -164,7 +164,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                         egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
                             .text("Cool-Off Factor"),
                     );
-                    ui.add(egui::Slider::new(&mut sim_speed, 0.1..=5.0).text("Simulation Speed"));
+                    ui.add(egui::Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
                     ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
@@ -178,7 +178,9 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         });
 
         // update sim
-        sim.update(0.035 * sim_speed);
+        for _ in 0..sim_speed {
+            sim.update(0.035);
+        }
 
         // draw gui
         egui_macroquad::draw();
