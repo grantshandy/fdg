@@ -1,9 +1,8 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::SimulationParameters;
-pub use fdg_sim::{Dimensions, Simulation};
+use fdg_sim::{Dimensions, Simulation, SimulationParameters};
 
-pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
-    let orig_params = sim.parameters.clone();
+pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
+    let orig_params = sim.parameters().clone();
 
     let mut zoom: f32 = 2.0;
     let mut sim_speed: u8 = 1;
@@ -40,7 +39,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
         }
 
         // Draw edges and nodes
-        if sim.parameters.dimensions == Dimensions::Two {
+        if sim.parameters().dimensions == Dimensions::Two {
             let w = screen_width() * (1.0 / zoom);
             let h = screen_height() * (1.0 / zoom);
 
@@ -52,7 +51,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             )));
 
             if show_edges {
-                sim.visit_edges(|source, target| {
+                sim.visit_edges(&mut |source, target| {
                     draw_line(
                         source.location.x,
                         source.location.y,
@@ -65,12 +64,17 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             }
 
             if show_nodes {
-                sim.visit_nodes(|node| {
+                sim.visit_nodes(&mut |node| {
                     draw_circle(
                         node.location.x,
                         node.location.y,
                         node.mass * 10.0,
-                        Color::from_rgba(node.color[0], node.color[1], node.color[2], node.color[3]),
+                        Color::from_rgba(
+                            node.color[0],
+                            node.color[1],
+                            node.color[2],
+                            node.color[3],
+                        ),
                     );
                 });
             }
@@ -94,17 +98,17 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
             }
 
             if show_edges {
-                sim.visit_edges(|source, target| {
+                sim.visit_edges(&mut |source, target| {
                     draw_line_3d(
                         vec3(source.location.x, source.location.y, source.location.z),
                         vec3(target.location.x, target.location.y, target.location.z),
                         RED,
                     );
-                });    
+                });
             }
 
             if show_nodes {
-                sim.visit_nodes(|node| {
+                sim.visit_nodes(&mut |node| {
                     draw_sphere(
                         vec3(node.location.x, node.location.y, node.location.z),
                         node.mass * 5.0,
@@ -126,8 +130,9 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                         }
 
                         if ui.button("Reset Settings").clicked() {
-                            sim.parameters = SimulationParameters {
-                                dimensions: sim.parameters.dimensions,
+                            let mut _p = sim.parameters_mut();
+                            _p = &mut SimulationParameters {
+                                dimensions: sim.parameters().dimensions,
                                 ..orig_params.clone()
                             };
                             sim_speed = 1;
@@ -136,13 +141,13 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                         }
 
                         if ui
-                            .button(match sim.parameters.dimensions {
+                            .button(match sim.parameters().dimensions {
                                 Dimensions::Two => "View in 3D",
                                 Dimensions::Three => "View in 2D",
                             })
                             .clicked()
                         {
-                            sim.parameters.dimensions = match sim.parameters.dimensions {
+                            sim.parameters_mut().dimensions = match sim.parameters().dimensions {
                                 Dimensions::Two => Dimensions::Three,
                                 Dimensions::Three => Dimensions::Two,
                             };
@@ -152,7 +157,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                     });
                     ui.separator();
                     ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
-                    if sim.parameters.dimensions == Dimensions::Three {
+                    if sim.parameters().dimensions == Dimensions::Three {
                         ui.add(egui::Slider::new(&mut orbit_speed, 0.1..=5.0).text("Orbit Speed"));
                         ui.checkbox(&mut orbit, "Orbit");
                         ui.checkbox(&mut show_grid, "Show Grid");
@@ -161,8 +166,12 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut Simulation<D>) {
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.separator();
                     ui.add(
-                        egui::Slider::new(&mut sim.parameters.cooloff_factor, 0.0..=1.0)
+                        egui::Slider::new(&mut sim.parameters_mut().cooloff_factor, 0.0..=1.0)
                             .text("Cool-Off Factor"),
+                    );
+                    ui.add(
+                        egui::Slider::new(&mut sim.parameters_mut().node_start_size, 0.5..=1000.0)
+                            .text("Node Start Area"),
                     );
                     ui.add(egui::Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
                     ui.separator();

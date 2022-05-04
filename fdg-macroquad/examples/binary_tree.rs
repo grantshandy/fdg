@@ -1,4 +1,7 @@
-use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, petgraph::graph::NodeIndex};
+use fdg_sim::{
+    petgraph::graph::NodeIndex, CpuSimulation, ForceGraph, ForceGraphHelper, Simulation,
+    SimulationParameters,
+};
 
 #[macroquad::main("Force Graph Binary Tree Demo")]
 async fn main() {
@@ -9,7 +12,11 @@ async fn main() {
 
     tree(&mut graph, parent, 9);
 
-    fdg_macroquad::run_window(&mut Simulation::from_graph(graph, SimulationParameters::default())).await;
+    fdg_macroquad::run_window(&mut CpuSimulation::from_graph(
+        graph,
+        SimulationParameters::default(),
+    ))
+    .await;
 }
 
 fn tree(graph: &mut ForceGraph<()>, parent: NodeIndex, depth: u8) {

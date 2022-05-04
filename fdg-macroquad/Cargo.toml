@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 egui-macroquad = "0.9"
-fdg-sim = { path = "../fdg-sim" }
+fdg-sim = { path = "../fdg-sim", features = ["json"] }
 macroquad = "0.3"
 
 [dev-dependencies]

@@ -1,7 +1,10 @@
+#[cfg(feature = "json")]
 use std::collections::HashMap;
 
 use super::Node;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph, Undirected};
+
+#[cfg(feature = "json")]
 use serde_json::Value;
 
 /// A helper type that creates a [`StableGraph`] with our custom [`Node`].
@@ -18,7 +21,33 @@ impl<D> ForceGraphHelper<D> for ForceGraph<D> {
     }
 }
 
-/// https://github.com/jsongraph/json-graph-specification
+/// Generate a graph from json formatted in the [json graph specification](https://github.com/jsongraph/json-graph-specification).
+/// Not all features are implemented, but basic graphs should work:
+/// ```json
+/// {
+///     "graph": {
+///         "nodes": {
+///             "1": {},
+///             "2": {},
+///             "3": {}
+///         },
+///         "edges": [
+///             {
+///                 "source": "1",
+///                 "target": "2"
+///             },
+///             {
+///                 "source": "2",
+///                 "target": "3"
+///             },
+///             {
+///                 "source": "3",
+///                 "target": "1"
+///             }
+///         ]
+///     }
+/// }
+#[cfg(feature = "json")]
 pub fn graph_from_json(json: impl AsRef<str>) -> Option<ForceGraph<String>> {
     let mut final_graph: ForceGraph<String> = ForceGraph::default();
     let mut indices: HashMap<String, NodeIndex> = HashMap::new();
