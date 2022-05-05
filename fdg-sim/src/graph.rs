@@ -62,11 +62,11 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Option<ForceGraph<String>> {
     };
 
     if let Some(nodes) = graph.get("nodes") {
-        if let Some(nodes) = nodes.as_object() {
-            for (name, value) in nodes {
-                let index = final_graph.add_force_node(name, value.to_string());
-                indices.insert(name.clone(), index);
-            }
+        let nodes = nodes.as_object()?;
+
+        for (name, value) in nodes {
+            let index = final_graph.add_force_node(name, value.to_string());
+            indices.insert(name.clone(), index);
         }
 
         if let Some(edges) = graph.get("edges") {
