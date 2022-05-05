@@ -2,7 +2,7 @@
 Force directed graph simulation
 
 [![Latest version](https://img.shields.io/crates/v/fdg_sim.svg)](https://crates.io/crates/fdg_sim)
-[![Documentation](https://docs.rs/fdg_sim/badge.svg)](https://docs.rs/fdg-sim)
+[![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/skylinecc/fdg/blob/main/LICENSE)
 
 ![example graph](https://d3-wiki.readthedocs.io/zh_CN/master/force.png)
