@@ -12,7 +12,7 @@ use crate::{Dimensions, ForceGraph, ForceGraphHelper, Node, Simulation, Simulati
 #[derive(Clone)]
 pub struct CpuSimulation<D: Clone> {
     graph: ForceGraph<D>,
-    pub parameters: SimulationParameters,
+    parameters: SimulationParameters,
     forces: Forces<D>,
 }
 

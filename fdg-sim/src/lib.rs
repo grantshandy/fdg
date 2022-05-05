@@ -11,10 +11,10 @@ pub use cpu::{CpuSimulation, Forces};
 pub use gpu::GpuSimulation;
 
 pub use {
+    glam::Vec3,
     graph::{ForceGraph, ForceGraphHelper},
-    simulation::{Dimensions, Node, Simulation, SimulationParameters},
     petgraph,
-    glam::Vec3
+    simulation::{Dimensions, Node, Simulation, SimulationParameters},
 };
 
 #[cfg(feature = "json")]

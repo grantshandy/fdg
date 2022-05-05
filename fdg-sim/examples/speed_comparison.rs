@@ -1,7 +1,7 @@
-use fdg_sim::{CpuSimulation, ForceGraph, ForceGraphHelper, SimulationParameters, Simulation};
+use chrono::prelude::*;
+use fdg_sim::{CpuSimulation, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 use petgraph::graph::NodeIndex;
 use rand::Rng;
-use chrono::prelude::*;
 
 const NUM_NODES: u32 = 400;
 const NUM_EDGES: u32 = 400;
