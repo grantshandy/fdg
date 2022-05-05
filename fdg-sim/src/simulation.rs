@@ -1,4 +1,4 @@
-use super::{ForceGraph, Forces};
+use super::ForceGraph;
 use glam::Vec3;
 use petgraph::graph::{EdgeIndex, NodeIndex};
 
@@ -12,7 +12,7 @@ pub enum Dimensions {
 /// A general trait for running a simulation.
 pub trait Simulation<D: Clone> {
     /// Create a new [`Simulation`] from a [`ForceGraph`].
-    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters<D>) -> Self;
+    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters) -> Self;
     /// Reset the location of all the nodes to random positions.
     fn reset_node_placement(&mut self);
     /// Update node locations over a given interval.
@@ -34,27 +34,25 @@ pub trait Simulation<D: Clone> {
     /// Clear all data in the internal graph.
     fn clear(&mut self);
     /// Get a reference to the internal parameters.
-    fn parameters(&self) -> &SimulationParameters<D>;
+    fn parameters(&self) -> &SimulationParameters;
     /// Get a mutable reference to the internal parameters.
-    fn parameters_mut(&mut self) -> &mut SimulationParameters<D>;
+    fn parameters_mut(&mut self) -> &mut SimulationParameters;
     // TODO: Add `get_node_from_coordinates` and lock location of certain nodes.
 }
 
 /// Parameters for the simulation.
 #[derive(Clone)]
-pub struct SimulationParameters<D> {
+pub struct SimulationParameters {
     pub cooloff_factor: f32,
     pub node_start_size: f32,
-    pub forces: Forces<D>,
     pub dimensions: Dimensions,
 }
 
-impl<D> Default for SimulationParameters<D> {
+impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
             cooloff_factor: 0.975,
             node_start_size: 500.0,
-            forces: Forces::default(),
             dimensions: Dimensions::Two,
         }
     }

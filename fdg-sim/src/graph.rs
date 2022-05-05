@@ -1,11 +1,10 @@
 #[cfg(feature = "json")]
 use std::collections::HashMap;
+#[cfg(feature = "json")]
+use serde_json::Value;
 
 use super::Node;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph, Undirected};
-
-#[cfg(feature = "json")]
-use serde_json::Value;
 
 /// A helper type that creates a [`StableGraph`] with our custom [`Node`].
 pub type ForceGraph<D> = StableGraph<Node<D>, (), Undirected>;

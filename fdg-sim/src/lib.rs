@@ -1,15 +1,17 @@
 #![doc = include_str!("../README.md")]
 
+#[cfg(feature = "gpu")]
+mod gpu;
 mod cpu;
-mod force;
 mod graph;
 mod simulation;
 
 pub use glam::Vec3;
 pub use petgraph;
 
-pub use cpu::CpuSimulation;
-pub use force::Forces;
+#[cfg(feature = "gpu")]
+use gpu::GpuSimulation;
+pub use cpu::{CpuSimulation, Forces};
 pub use graph::{ForceGraph, ForceGraphHelper};
 pub use simulation::{Dimensions, Node, Simulation, SimulationParameters};
 

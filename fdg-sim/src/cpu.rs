@@ -12,12 +12,23 @@ use crate::{Dimensions, ForceGraph, ForceGraphHelper, Node, Simulation, Simulati
 #[derive(Clone)]
 pub struct CpuSimulation<D: Clone> {
     graph: ForceGraph<D>,
-    pub parameters: SimulationParameters<D>,
+    pub parameters: SimulationParameters,
+    forces: Forces<D>,
+}
+
+impl<D: Clone> CpuSimulation<D> {
+    pub fn set_force(&mut self, forces: Forces<D>) {
+        self.forces = forces;
+    }
 }
 
 impl<D: Clone> Simulation<D> for CpuSimulation<D> {
-    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters<D>) -> Self {
-        let mut myself = Self { graph, parameters };
+    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters) -> Self {
+        let mut myself = Self {
+            graph,
+            parameters,
+            forces: Forces::fruchterman_reingold(35.0),
+        };
 
         myself.reset_node_placement();
 
@@ -62,16 +73,12 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
                     continue;
                 }
 
-                final_force += self
-                    .parameters
-                    .forces
+                final_force += self.forces
                     .apply_general_force(&graph[node_index], &graph[other_node_index]);
             }
 
             for neighbor_index in graph.neighbors(node_index) {
-                final_force += self
-                    .parameters
-                    .forces
+                final_force += self.forces
                     .apply_neighbor_force(&graph[node_index], &graph[neighbor_index]);
             }
 
@@ -132,11 +139,11 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
         self.graph.clear();
     }
 
-    fn parameters(&self) -> &SimulationParameters<D> {
+    fn parameters(&self) -> &SimulationParameters {
         &self.parameters
     }
 
-    fn parameters_mut(&mut self) -> &mut SimulationParameters<D> {
+    fn parameters_mut(&mut self) -> &mut SimulationParameters {
         &mut self.parameters
     }
 }
@@ -144,5 +151,54 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
 impl<D: Clone> Default for CpuSimulation<D> {
     fn default() -> Self {
         return Self::from_graph(ForceGraph::default(), SimulationParameters::default());
+    }
+}
+
+/// Forces that dictate how your nodes move.
+#[derive(Clone)]
+pub struct Forces<D> {
+    general_force: fn(&Vec<f32>, &Node<D>, &Node<D>) -> Vec3,
+    neighbor_force: fn(&Vec<f32>, &Node<D>, &Node<D>) -> Vec3,
+    dict: Vec<f32>,
+}
+
+impl<D> Forces<D> {
+    pub fn apply_general_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+        (self.general_force)(&self.dict, node_one, node_two)
+    }
+
+    pub fn apply_neighbor_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+        (self.neighbor_force)(&self.dict, node_one, node_two)
+    }
+}
+
+/// The default implementation of [`Forces`] uses Fruchterman & Reingold (1991).
+impl<D> Default for Forces<D> {
+    fn default() -> Self {
+        Forces::fruchterman_reingold(60.0)
+    }
+}
+
+impl<D> Forces<D> {
+    pub fn fruchterman_reingold(ideal_distance: f32) -> Self {
+        let dict = vec![ideal_distance];
+
+        fn general_force<D>(dict: &Vec<f32>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+            -((dict[0] * dict[0]) / node_one.location.distance(node_two.location))
+                * ((node_two.location - node_one.location)
+                    / node_one.location.distance(node_two.location))
+        }
+
+        fn neighbor_force<D>(dict: &Vec<f32>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
+            (node_one.location.distance_squared(node_two.location) / dict[0])
+                * ((node_two.location - node_one.location)
+                    / node_one.location.distance(node_two.location))
+        }
+
+        Self {
+            general_force,
+            neighbor_force,
+            dict,
+        }
     }
 }

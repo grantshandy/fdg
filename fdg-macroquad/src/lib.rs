@@ -113,7 +113,12 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                         vec3(node.location.x, node.location.y, node.location.z),
                         node.mass * 5.0,
                         None,
-                        Color::from_rgba(node.color[0], node.color[1], node.color[2], node.color[3]),
+                        Color::from_rgba(
+                            node.color[0],
+                            node.color[1],
+                            node.color[2],
+                            node.color[3],
+                        ),
                     );
                 });
             }
