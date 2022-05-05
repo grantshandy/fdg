@@ -42,7 +42,7 @@ fn main() {
             gpu.update(TIME_DIFFERENCE);
         }
         let d = Utc::now().signed_duration_since(b).num_seconds();
-        println!("CpuSimulation took {d} seconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.");
+        println!("GpuSimulation took {d} seconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.");
     }
 
     println!("CpuSimulation took {d} seconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.");
