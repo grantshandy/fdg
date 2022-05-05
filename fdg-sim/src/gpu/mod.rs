@@ -1,8 +1,8 @@
 // go crazy here ethan
 
-use petgraph::graph::{NodeIndex, EdgeIndex};
+use petgraph::graph::{EdgeIndex, NodeIndex};
 
-use crate::{ForceGraph, Simulation, SimulationParameters, Node};
+use crate::{ForceGraph, Node, Simulation, SimulationParameters};
 
 pub struct GpuSimulation<D: Clone> {
     graph: ForceGraph<D>,
@@ -33,11 +33,7 @@ impl<D: Clone> Simulation<D> for GpuSimulation<D> {
         todo!()
     }
 
-    fn add_edge(
-        &mut self,
-        a: NodeIndex,
-        b: NodeIndex,
-    ) -> EdgeIndex {
+    fn add_edge(&mut self, a: NodeIndex, b: NodeIndex) -> EdgeIndex {
         todo!()
     }
 

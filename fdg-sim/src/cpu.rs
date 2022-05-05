@@ -73,12 +73,14 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
                     continue;
                 }
 
-                final_force += self.forces
+                final_force += self
+                    .forces
                     .apply_general_force(&graph[node_index], &graph[other_node_index]);
             }
 
             for neighbor_index in graph.neighbors(node_index) {
-                final_force += self.forces
+                final_force += self
+                    .forces
                     .apply_neighbor_force(&graph[node_index], &graph[neighbor_index]);
             }
 

@@ -1,7 +1,7 @@
 #[cfg(feature = "json")]
-use std::collections::HashMap;
-#[cfg(feature = "json")]
 use serde_json::Value;
+#[cfg(feature = "json")]
+use std::collections::HashMap;
 
 use super::Node;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph, Undirected};
