@@ -12,7 +12,7 @@ pub enum Dimensions {
 /// A general trait for running a simulation.
 pub trait Simulation<D: Clone> {
     /// Create a new [`Simulation`] from a [`ForceGraph`].
-    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters) -> Self;
+    fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters) -> Self;
     /// Reset the location of all the nodes to random positions.
     fn reset_node_placement(&mut self);
     /// Update node locations over a given interval.

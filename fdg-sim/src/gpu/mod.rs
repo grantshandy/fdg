@@ -9,7 +9,7 @@ pub struct GpuSimulation<D: Clone> {
 }
 
 impl<D: Clone> Simulation<D> for GpuSimulation<D> {
-    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters) -> Self {
+    fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters) -> Self {
         todo!()
     }
 

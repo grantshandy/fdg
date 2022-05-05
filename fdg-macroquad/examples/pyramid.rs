@@ -21,7 +21,7 @@ async fn main() {
     graph.add_edge(center, three, ());
     graph.add_edge(center, four, ());
 
-    let mut sim = CpuSimulation::from_graph(graph, SimulationParameters::default());
+    let mut sim = CpuSimulation::from_graph(&graph, SimulationParameters::default());
 
     fdg_macroquad::run_window(&mut sim).await;
 }

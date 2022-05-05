@@ -13,7 +13,7 @@ async fn main() {
     tree(&mut graph, parent, 9);
 
     fdg_macroquad::run_window(&mut CpuSimulation::from_graph(
-        graph,
+        &graph,
         SimulationParameters::default(),
     ))
     .await;

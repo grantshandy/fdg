@@ -31,7 +31,7 @@ async fn main() {
     }
 
     fdg_macroquad::run_window(&mut CpuSimulation::from_graph(
-        graph,
+        &graph,
         SimulationParameters::default(),
     ))
     .await;

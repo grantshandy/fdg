@@ -44,7 +44,7 @@ async fn main() {
     graph.add_edge(pyramid_center, pyramid_four, ());
 
     fdg_macroquad::run_window(&mut CpuSimulation::from_graph(
-        graph,
+        &graph,
         SimulationParameters::default(),
     ))
     .await;

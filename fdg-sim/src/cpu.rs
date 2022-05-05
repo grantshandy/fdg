@@ -23,9 +23,9 @@ impl<D: Clone> CpuSimulation<D> {
 }
 
 impl<D: Clone> Simulation<D> for CpuSimulation<D> {
-    fn from_graph(graph: ForceGraph<D>, parameters: SimulationParameters) -> Self {
+    fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters) -> Self {
         let mut myself = Self {
-            graph,
+            graph: graph.clone(),
             parameters,
             forces: Forces::fruchterman_reingold(35.0),
         };
@@ -152,7 +152,7 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
 
 impl<D: Clone> Default for CpuSimulation<D> {
     fn default() -> Self {
-        return Self::from_graph(ForceGraph::default(), SimulationParameters::default());
+        return Self::from_graph(&ForceGraph::default(), SimulationParameters::default());
     }
 }
 

@@ -11,7 +11,7 @@ pub use petgraph;
 
 pub use cpu::{CpuSimulation, Forces};
 #[cfg(feature = "gpu")]
-use gpu::GpuSimulation;
+pub use gpu::GpuSimulation;
 pub use graph::{ForceGraph, ForceGraphHelper};
 pub use simulation::{Dimensions, Node, Simulation, SimulationParameters};
 
