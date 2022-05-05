@@ -6,14 +6,16 @@ mod gpu;
 mod graph;
 mod simulation;
 
-pub use glam::Vec3;
-pub use petgraph;
-
 pub use cpu::{CpuSimulation, Forces};
 #[cfg(feature = "gpu")]
 pub use gpu::GpuSimulation;
-pub use graph::{ForceGraph, ForceGraphHelper};
-pub use simulation::{Dimensions, Node, Simulation, SimulationParameters};
+
+pub use {
+    graph::{ForceGraph, ForceGraphHelper},
+    simulation::{Dimensions, Node, Simulation, SimulationParameters},
+    petgraph,
+    glam::Vec3
+};
 
 #[cfg(feature = "json")]
 pub use graph::graph_from_json;
