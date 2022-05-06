@@ -195,7 +195,7 @@ impl<D> Forces<D> {
 /// The default implementation of [`Forces`] uses Fruchterman & Reingold (1991).
 impl<D> Default for Forces<D> {
     fn default() -> Self {
-        Forces::fruchterman_reingold(60.0)
+        Forces::fruchterman_reingold(45.0)
     }
 }
 

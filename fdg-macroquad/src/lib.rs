@@ -42,8 +42,8 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
 
         // Draw edges and nodes
         if sim.parameters().dimensions == Dimensions::Two {
-            let w = screen_width(); // * (1.0 / zoom);
-            let h = screen_height(); // * (1.0 / zoom);
+            let w = screen_width() * (1.0 / zoom);
+            let h = screen_height() * (1.0 / zoom);
 
             set_camera(&Camera2D::from_display_rect(Rect::new(
                 -(w / 2.0),
@@ -52,20 +52,14 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 h,
             )));
 
-            let mouse = mouse_position();
-            let mouse_x = mouse.0 - (screen_width() / 2.0);
-            let mouse_y = mouse.1 - (screen_height() / 2.0);
+            let mut mouse = mouse_position();
+            mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
+            mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
 
-            println!("{mouse_x},{mouse_y}");
-
-            match sim.find(Vec3::new(mouse_x, mouse_y, 0.0), node_size) {
+            match sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
                 Some(node) => current_node_name = Some(node.name.clone()),
                 None => current_node_name = None,
             };
-
-            for n in sim.get_graph().node_weights() {
-                println!("{},{}", n.location.x, n.location.y);
-            }
 
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
@@ -95,6 +89,15 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                     );
                 });
             }
+
+            set_default_camera();
+
+            // draw node tooltip
+            if let Some(node_name) = current_node_name.clone() {
+                let mouse = mouse_position();
+                draw_text(&node_name, mouse.0 + 10.0, mouse.1 - 10.0, 30.0, DARKBLUE);                
+            }
+
         } else {
             let adj_radius = radius * (1.0 / (zoom / 2.0));
             let (x, y) = (adj_radius * angle.cos(), adj_radius * angle.sin());
@@ -205,10 +208,6 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                         ui.separator();
                         ui.label(format!("FPS: {}", get_fps()));
                     });
-                    if let Some(node) = current_node_name.clone() {
-                        ui.separator();
-                        ui.label(&format!("Node: {node}"));
-                    }
                 });
         });
 
