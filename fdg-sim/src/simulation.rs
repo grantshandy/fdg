@@ -37,7 +37,8 @@ pub trait Simulation<D: Clone> {
     fn parameters(&self) -> &SimulationParameters;
     /// Get a mutable reference to the internal parameters.
     fn parameters_mut(&mut self) -> &mut SimulationParameters;
-    // TODO: Add `get_node_from_coordinates` and lock location of certain nodes.
+    /// Get a node index from X,Y,Z coordinates and a range.
+    fn find(&self, query: Vec3, radius: f32) -> Option<&Node<D>>;
 }
 
 /// Parameters for the simulation.
@@ -69,10 +70,10 @@ pub struct Node<D> {
     pub location: Vec3,
     /// 3D velocity
     pub velocity: Vec3,
-    /// Mass (defaults to 1)
-    pub mass: f32,
     /// Color
     pub color: [u8; 4],
+    /// Mass
+    pub mass: f32,
 }
 
 impl<D> Node<D> {
@@ -83,8 +84,8 @@ impl<D> Node<D> {
             data,
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
-            mass: 1.0,
             color: [0, 0, 0, 255],
+            mass: 1.0,
         }
     }
 
@@ -95,8 +96,8 @@ impl<D> Node<D> {
             data,
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
-            mass: 1.0,
             color,
+            mass: 1.0,
         }
     }
 }

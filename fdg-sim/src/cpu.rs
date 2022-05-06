@@ -148,6 +148,24 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
     fn parameters_mut(&mut self) -> &mut SimulationParameters {
         &mut self.parameters
     }
+
+    // thrown together code, should be revised for performance.
+    fn find(&self, query: Vec3, radius: f32) -> Option<&Node<D>> {
+        let query_x = (query.x - radius)..=(query.x + radius);
+        let query_y = (query.y - radius)..=(query.y + radius);
+        let query_z = (query.z - radius)..=(query.z + radius);
+
+        for node in self.graph.node_weights() {
+            if query_x.contains(&node.location.x)
+                && query_y.contains(&node.location.y)
+                && query_z.contains(&node.location.z)
+            {
+                return Some(node);
+            }
+        }
+
+        None
+    }
 }
 
 impl<D: Clone> Default for CpuSimulation<D> {

@@ -1,11 +1,13 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::{Dimensions, Simulation, SimulationParameters};
+use fdg_sim::{Dimensions, Simulation, SimulationParameters, Vec3};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
     let orig_params = sim.parameters().clone();
 
     let mut zoom: f32 = 2.0;
     let mut sim_speed: u8 = 1;
+    let node_size = 10.0;
+    let mut current_node_name: Option<String> = None;
 
     let mut angle: f32 = 0.0;
     let radius = 200.0;
@@ -40,8 +42,8 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
 
         // Draw edges and nodes
         if sim.parameters().dimensions == Dimensions::Two {
-            let w = screen_width() * (1.0 / zoom);
-            let h = screen_height() * (1.0 / zoom);
+            let w = screen_width(); // * (1.0 / zoom);
+            let h = screen_height(); // * (1.0 / zoom);
 
             set_camera(&Camera2D::from_display_rect(Rect::new(
                 -(w / 2.0),
@@ -49,6 +51,21 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 w,
                 h,
             )));
+
+            let mouse = mouse_position();
+            let mouse_x = mouse.0 - (screen_width() / 2.0);
+            let mouse_y = mouse.1 - (screen_height() / 2.0);
+
+            println!("{mouse_x},{mouse_y}");
+
+            match sim.find(Vec3::new(mouse_x, mouse_y, 0.0), node_size) {
+                Some(node) => current_node_name = Some(node.name.clone()),
+                None => current_node_name = None,
+            };
+
+            for n in sim.get_graph().node_weights() {
+                println!("{},{}", n.location.x, n.location.y);
+            }
 
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
@@ -68,7 +85,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                     draw_circle(
                         node.location.x,
                         node.location.y,
-                        node.mass * 10.0,
+                        node_size,
                         Color::from_rgba(
                             node.color[0],
                             node.color[1],
@@ -111,7 +128,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 sim.visit_nodes(&mut |node| {
                     draw_sphere(
                         vec3(node.location.x, node.location.y, node.location.z),
-                        node.mass * 5.0,
+                        5.0,
                         None,
                         Color::from_rgba(
                             node.color[0],
@@ -188,6 +205,10 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                         ui.separator();
                         ui.label(format!("FPS: {}", get_fps()));
                     });
+                    if let Some(node) = current_node_name.clone() {
+                        ui.separator();
+                        ui.label(&format!("Node: {node}"));
+                    }
                 });
         });
 

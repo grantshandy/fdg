@@ -6,11 +6,11 @@ async fn main() {
 
     let mut graph: ForceGraph<()> = ForceGraph::default();
 
-    let one = graph.add_force_node("", ());
-    let two = graph.add_force_node("", ());
-    let three = graph.add_force_node("", ());
-    let four = graph.add_force_node("", ());
-    let center = graph.add_force_node("", ());
+    let one = graph.add_force_node("one", ());
+    let two = graph.add_force_node("two", ());
+    let three = graph.add_force_node("three", ());
+    let four = graph.add_force_node("four", ());
+    let center = graph.add_force_node("five", ());
 
     graph.add_edge(one, two, ());
     graph.add_edge(two, three, ());

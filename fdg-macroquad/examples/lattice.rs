@@ -12,9 +12,9 @@ async fn main() {
 
     let size = 25;
 
-    for _ in 0..size {
-        for _ in 0..size {
-            indices.push(graph.add_force_node("", ()));
+    for x in 0..size {
+        for y in 0..size {
+            indices.push(graph.add_force_node(format!("{x},{y}"), ()));
         }
     }
 
