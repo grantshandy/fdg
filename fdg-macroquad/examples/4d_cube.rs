@@ -41,14 +41,14 @@ fn add_layer(graph: &mut ForceGraph<()>, inner: [NodeIndex; 8]) -> [NodeIndex; 8
 }
 
 fn gen_cube(graph: &mut ForceGraph<()>) -> [NodeIndex; 8] {
-    let one = graph.add_force_node("", ());
-    let two = graph.add_force_node("", ());
-    let three = graph.add_force_node("", ());
-    let four = graph.add_force_node("", ());
-    let five = graph.add_force_node("", ());
-    let six = graph.add_force_node("", ());
-    let seven = graph.add_force_node("", ());
-    let eight = graph.add_force_node("", ());
+    let one = graph.add_force_node("one", ());
+    let two = graph.add_force_node("two", ());
+    let three = graph.add_force_node("three", ());
+    let four = graph.add_force_node("four", ());
+    let five = graph.add_force_node("five", ());
+    let six = graph.add_force_node("six", ());
+    let seven = graph.add_force_node("seven", ());
+    let eight = graph.add_force_node("eight", ());
 
     graph.add_edge(one, two, ());
     graph.add_edge(two, three, ());

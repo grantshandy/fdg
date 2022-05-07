@@ -10,7 +10,7 @@ async fn main() {
     let two = graph.add_force_node("two", ());
     let three = graph.add_force_node("three", ());
     let four = graph.add_force_node("four", ());
-    let center = graph.add_force_node("five", ());
+    let center = graph.add_force_node("center", ());
 
     graph.add_edge(one, two, ());
     graph.add_edge(two, three, ());

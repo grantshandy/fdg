@@ -53,7 +53,7 @@ impl Default for SimulationParameters {
     fn default() -> Self {
         Self {
             cooloff_factor: 0.975,
-            node_start_size: 500.0,
+            node_start_size: 200.0,
             dimensions: Dimensions::Two,
         }
     }

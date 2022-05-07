@@ -1,13 +1,16 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::{Dimensions, Simulation, SimulationParameters, Vec3};
+use fdg_sim::{Dimensions, Simulation, Vec3};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
     let orig_params = sim.parameters().clone();
 
     let mut zoom: f32 = 2.0;
     let mut sim_speed: u8 = 1;
-    let node_size = 10.0;
-    let mut current_node_name: Option<String> = None;
+
+    let default_node_size = 5.0;
+    let default_edge_size = 1.5;
+    let mut node_size = default_node_size;
+    let mut edge_size = default_edge_size;
 
     let mut angle: f32 = 0.0;
     let radius = 200.0;
@@ -52,15 +55,6 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 h,
             )));
 
-            let mut mouse = mouse_position();
-            mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
-            mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
-
-            match sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
-                Some(node) => current_node_name = Some(node.name.clone()),
-                None => current_node_name = None,
-            };
-
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
                     draw_line(
@@ -68,7 +62,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                         source.location.y,
                         target.location.x,
                         target.location.y,
-                        2.5,
+                        edge_size,
                         RED,
                     );
                 });
@@ -90,14 +84,19 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 });
             }
 
-            set_default_camera();
-
             // draw node tooltip
-            if let Some(node_name) = current_node_name.clone() {
-                let mouse = mouse_position();
-                draw_text(&node_name, mouse.0 + 10.0, mouse.1 - 10.0, 30.0, DARKBLUE);                
+            if show_nodes {
+                let mut mouse = mouse_position();
+                mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
+                mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
+    
+                set_default_camera();
+    
+                if let Some(node) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size * 1.5) {
+                    let mouse = mouse_position();
+                    draw_text(&node.name, mouse.0 + 10.0, mouse.1 - 10.0, 30.0, DARKBLUE);
+                }
             }
-
         } else {
             let adj_radius = radius * (1.0 / (zoom / 2.0));
             let (x, y) = (adj_radius * angle.cos(), adj_radius * angle.sin());
@@ -131,7 +130,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 sim.visit_nodes(&mut |node| {
                     draw_sphere(
                         vec3(node.location.x, node.location.y, node.location.z),
-                        5.0,
+                        node_size,
                         None,
                         Color::from_rgba(
                             node.color[0],
@@ -155,14 +154,14 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                         }
 
                         if ui.button("Reset Settings").clicked() {
-                            let mut _p = sim.parameters_mut();
-                            _p = &mut SimulationParameters {
-                                dimensions: sim.parameters().dimensions,
-                                ..orig_params.clone()
-                            };
+                            let mut p = sim.parameters_mut();
+                            p.cooloff_factor = orig_params.cooloff_factor;
+                            p.node_start_size = orig_params.node_start_size;
                             sim_speed = 1;
                             orbit_speed = 1.0;
                             zoom = 1.0;
+                            node_size = default_node_size;
+                            edge_size = default_edge_size;
                         }
 
                         if ui
@@ -182,13 +181,28 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                     });
                     ui.separator();
                     ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
-                    if sim.parameters().dimensions == Dimensions::Three {
-                        ui.add(egui::Slider::new(&mut orbit_speed, 0.1..=5.0).text("Orbit Speed"));
-                        ui.checkbox(&mut orbit, "Orbit");
-                        ui.checkbox(&mut show_grid, "Show Grid");
+                    match sim.parameters().dimensions {
+                        Dimensions::Three => {
+                            ui.add_enabled(
+                                orbit,
+                                egui::Slider::new(&mut orbit_speed, 0.1..=5.0).text("Orbit Speed"),
+                            );
+                            ui.checkbox(&mut orbit, "Orbit");
+                            ui.checkbox(&mut show_grid, "Show Grid");
+                        }
+                        Dimensions::Two => {
+                            ui.add_enabled(
+                                show_edges,
+                                egui::Slider::new(&mut edge_size, 1.0..=10.0).text("Edge Size"),
+                            );
+                        }
                     }
-                    ui.checkbox(&mut show_nodes, "Show Nodes");
+                    ui.add_enabled(
+                        show_nodes,
+                        egui::Slider::new(&mut node_size, 1.0..=25.0).text("Node Size"),
+                    );
                     ui.checkbox(&mut show_edges, "Show Edges");
+                    ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.separator();
                     ui.add(
                         egui::Slider::new(&mut sim.parameters_mut().cooloff_factor, 0.0..=1.0)
