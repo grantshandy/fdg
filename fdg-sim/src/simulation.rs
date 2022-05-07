@@ -31,6 +31,7 @@ pub trait Simulation<D: Clone> {
     fn remove_edge(&mut self, index: EdgeIndex);
     /// Get a reference to the internal [`ForceGraph`].
     fn get_graph(&self) -> &ForceGraph<D>;
+    fn get_graph_mut(&mut self) -> &mut ForceGraph<D>;
     /// Clear all data in the internal graph.
     fn clear(&mut self);
     /// Get a reference to the internal parameters.
@@ -38,7 +39,7 @@ pub trait Simulation<D: Clone> {
     /// Get a mutable reference to the internal parameters.
     fn parameters_mut(&mut self) -> &mut SimulationParameters;
     /// Get a node index from X,Y,Z coordinates and a range.
-    fn find(&self, query: Vec3, radius: f32) -> Option<&Node<D>>;
+    fn find(&self, query: Vec3, radius: f32) -> Option<NodeIndex>;
 }
 
 /// Parameters for the simulation.
@@ -74,6 +75,7 @@ pub struct Node<D> {
     pub color: [u8; 4],
     /// Mass
     pub mass: f32,
+    pub locked: bool,
 }
 
 impl<D> Node<D> {
@@ -86,6 +88,7 @@ impl<D> Node<D> {
             velocity: Vec3::ZERO,
             color: [0, 0, 0, 255],
             mass: 1.0,
+            locked: false,
         }
     }
 
@@ -98,6 +101,7 @@ impl<D> Node<D> {
             velocity: Vec3::ZERO,
             color,
             mass: 1.0,
+            locked: false,
         }
     }
 }

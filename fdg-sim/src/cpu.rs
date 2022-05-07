@@ -65,6 +65,10 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
         let graph = self.graph.clone();
 
         for node_index in graph.node_indices() {
+            if graph[node_index].locked {
+                continue;
+            }
+
             let mut final_force = Vec3::ZERO;
 
             for other_node_index in graph.node_indices() {
@@ -129,6 +133,10 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
         &self.graph
     }
 
+    fn get_graph_mut(&mut self) -> &mut ForceGraph<D> {
+        &mut self.graph
+    }
+
     fn remove_node(&mut self, index: NodeIndex) -> Option<Node<D>> {
         self.graph.remove_node(index)
     }
@@ -150,17 +158,19 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
     }
 
     // thrown together code, should be revised for performance.
-    fn find(&self, query: Vec3, radius: f32) -> Option<&Node<D>> {
+    fn find(&self, query: Vec3, radius: f32) -> Option<NodeIndex> {
         let query_x = (query.x - radius)..=(query.x + radius);
         let query_y = (query.y - radius)..=(query.y + radius);
         let query_z = (query.z - radius)..=(query.z + radius);
 
-        for node in self.graph.node_weights() {
+        for index in self.graph.node_indices() {
+            let node = &self.graph[index];
+
             if query_x.contains(&node.location.x)
                 && query_y.contains(&node.location.y)
                 && query_z.contains(&node.location.z)
             {
-                return Some(node);
+                return Some(index);
             }
         }
 

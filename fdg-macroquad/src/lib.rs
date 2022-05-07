@@ -1,5 +1,5 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::{Dimensions, Simulation, Vec3};
+use fdg_sim::{Dimensions, Simulation, Vec3, petgraph::graph::NodeIndex};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
     let orig_params = sim.parameters().clone();
@@ -21,6 +21,8 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
 
     let mut show_edges: bool = true;
     let mut show_nodes: bool = true;
+
+    let mut dragging_node: Option<NodeIndex> = None;
 
     loop {
         // Draw background
@@ -55,6 +57,35 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 h,
             )));
 
+            let mut mouse = mouse_position();
+            mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
+            mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
+
+            let hovered_node = if let Some(index) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size * 1.5) {
+                if is_mouse_button_down(MouseButton::Left) && dragging_node.is_none() {
+                    dragging_node = Some(index);
+                }
+
+                Some(index)
+            } else {
+                None
+            };
+
+            if let Some(index) = dragging_node {
+                let node = &mut sim.get_graph_mut()[index];
+
+                if is_mouse_button_down(MouseButton::Left) {
+                    node.locked = true;
+                    node.color = [169, 169, 169, 255];
+                    node.location.x = mouse.0;
+                    node.location.y = mouse.1;
+                } else if is_mouse_button_released(MouseButton::Left) {
+                    node.locked = false;
+                    node.color = [0, 0, 0, 255];
+                    dragging_node = None;
+                }
+            }
+
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
                     draw_line(
@@ -84,17 +115,17 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 });
             }
 
-            // draw node tooltip
-            if show_nodes {
-                let mut mouse = mouse_position();
-                mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
-                mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
-    
+            if dragging_node.is_some() || hovered_node.is_some() {
                 set_default_camera();
-    
-                if let Some(node) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size * 1.5) {
-                    let mouse = mouse_position();
-                    draw_text(&node.name, mouse.0 + 10.0, mouse.1 - 10.0, 30.0, DARKBLUE);
+
+                if let Some(index) = dragging_node {
+                    let node = &sim.get_graph()[index];
+                    let screen_mouse = mouse_position();
+                    draw_text(&node.name, screen_mouse.0 + 10.0, screen_mouse.1 - 10.0, 30.0, DARKBLUE);
+                } else if let Some(index) = hovered_node {
+                    let node = &sim.get_graph()[index];
+                    let screen_mouse = mouse_position();
+                    draw_text(&node.name, screen_mouse.0 + 10.0, screen_mouse.1 - 10.0, 30.0, DARKBLUE);
                 }
             }
         } else {

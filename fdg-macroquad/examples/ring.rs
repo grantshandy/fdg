@@ -6,7 +6,7 @@ async fn main() {
 
     let mut graph: ForceGraph<()> = ForceGraph::default();
 
-    let nodes = 15;
+    let nodes = 100;
 
     graph.add_force_node("", ());
     for x in 1..nodes {
