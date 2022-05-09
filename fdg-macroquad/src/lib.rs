@@ -3,6 +3,7 @@ use fdg_sim::{Dimensions, Simulation, Vec3, petgraph::graph::NodeIndex};
 
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
     let orig_params = sim.parameters().clone();
+    let ideal_distance = sim.forces().dict()[0];
 
     let mut zoom: f32 = 2.0;
     let mut sim_speed: u8 = 1;
@@ -94,7 +95,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                         target.location.x,
                         target.location.y,
                         edge_size,
-                        RED,
+                        Color::new(source.location.distance(target.location) / ideal_distance, 0.0, 0.0, 1.0),
                     );
                 });
             }
