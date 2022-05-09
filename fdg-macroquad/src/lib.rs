@@ -152,7 +152,6 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
                     let x = source.location.distance(target.location) / ideal_distance;
-
                     draw_line_3d(
                         vec3(source.location.x, source.location.y, source.location.z),
                         vec3(target.location.x, target.location.y, target.location.z),
