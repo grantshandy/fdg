@@ -1,7 +1,5 @@
+/Cargo.lock
+/flamegraph.svg
+/perf.data
+/perf.data.old
 /target
-Cargo.lock
-/.vscode/
-flamegraph.svg
-perf.data
-perf.data.old
-/fdg-macroquad/examples/test.rs

@@ -1,7 +1,7 @@
 use chrono::prelude::*;
 use fdg_sim::{CpuSimulation, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 use petgraph::graph::NodeIndex;
-use rand::Rng;
+use quad_rand::RandomRange;
 
 const NUM_NODES: u32 = 400;
 const NUM_EDGES: u32 = 400;
@@ -11,15 +11,14 @@ const NUM_CALCULATIONS: u32 = 100;
 fn main() {
     let mut graph: ForceGraph<()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
-    let mut rng = rand::thread_rng();
 
     for _ in 0..NUM_NODES {
         indices.push(graph.add_force_node("", ()));
     }
 
     for _ in 0..NUM_EDGES {
-        let source = indices[rng.gen_range(0..indices.len())];
-        let target = indices[rng.gen_range(0..indices.len())];
+        let source = indices[RandomRange::gen_range(0, indices.len())];
+        let target = indices[RandomRange::gen_range(0, indices.len())];
 
         graph.add_edge(source, target, ());
     }

@@ -4,7 +4,7 @@ use petgraph::{
     graph::{EdgeIndex, NodeIndex},
     visit::{EdgeRef, IntoEdgeReferences},
 };
-use rand::Rng;
+use quad_rand::RandomRange;
 
 use crate::{Dimensions, ForceGraph, ForceGraphHelper, Node, Simulation, SimulationParameters, Forces};
 
@@ -36,22 +36,18 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
     }
 
     fn reset_node_placement(&mut self) {
-        let mut rng = rand::thread_rng();
 
         for node in self.graph.node_weights_mut() {
             node.location = Vec3::new(
-                rng.gen_range(
-                    -(self.parameters.node_start_size / 2.0)
-                        ..(self.parameters.node_start_size / 2.0),
+                RandomRange::gen_range(
+                    -(self.parameters.node_start_size / 2.0), self.parameters.node_start_size / 2.0
                 ),
-                rng.gen_range(
-                    -(self.parameters.node_start_size / 2.0)
-                        ..(self.parameters.node_start_size / 2.0),
+                RandomRange::gen_range(
+                    -(self.parameters.node_start_size / 2.0), self.parameters.node_start_size / 2.0
                 ),
                 match self.parameters.dimensions {
-                    Dimensions::Three => rng.gen_range(
-                        -(self.parameters.node_start_size / 2.0)
-                            ..(self.parameters.node_start_size / 2.0),
+                    Dimensions::Three => RandomRange::gen_range(
+                        -(self.parameters.node_start_size / 2.0), self.parameters.node_start_size / 2.0
                     ),
                     Dimensions::Two => 0.0,
                 },

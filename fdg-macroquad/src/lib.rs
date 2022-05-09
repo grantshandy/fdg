@@ -1,6 +1,8 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
 use fdg_sim::{Dimensions, Simulation, Vec3, petgraph::graph::NodeIndex};
 
+pub use {fdg_sim, egui_macroquad::macroquad};
+
 pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
     let orig_params = sim.parameters().clone();
     let ideal_distance = sim.forces().dict()[0];

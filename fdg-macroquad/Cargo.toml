@@ -12,4 +12,3 @@ macroquad = "0.3"
 
 [dev-dependencies]
 pretty_env_logger = "0.4"
-rand = "0.8.5"
