@@ -89,13 +89,14 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
 
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
+                    let x = source.location.distance(target.location) / ideal_distance;
                     draw_line(
                         source.location.x,
                         source.location.y,
                         target.location.x,
                         target.location.y,
                         edge_size,
-                        Color::new(source.location.distance(target.location) / ideal_distance, 0.0, 0.0, 1.0),
+                        Color::new(x * x, 0.0, 0.0, 1.0 / (x / 2.0)),
                     );
                 });
             }
@@ -150,10 +151,12 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
 
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
+                    let x = source.location.distance(target.location) / ideal_distance;
+
                     draw_line_3d(
                         vec3(source.location.x, source.location.y, source.location.z),
                         vec3(target.location.x, target.location.y, target.location.z),
-                        RED,
+                        Color::new(x * x, 0.0, 0.0, 1.0 / (x / 2.0)),
                     );
                 });
             }
