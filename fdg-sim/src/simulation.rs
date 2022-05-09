@@ -32,6 +32,7 @@ pub trait Simulation<D: Clone> {
     /// Get a reference to the internal [`ForceGraph`].
     fn get_graph(&self) -> &ForceGraph<D>;
     fn get_graph_mut(&mut self) -> &mut ForceGraph<D>;
+    fn set_graph(&mut self, graph: &ForceGraph<D>);
     /// Clear all data in the internal graph.
     fn clear(&mut self);
     /// Get a reference to the internal parameters.
@@ -102,6 +103,18 @@ impl<D> Node<D> {
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
             color,
+            mass: 1.0,
+            locked: false,
+        }
+    }
+
+    pub fn new_with_coords(name: impl AsRef<str>, data: D, location: Vec3) -> Self {
+        Self {
+            name: name.as_ref().to_string(),
+            data,
+            location,
+            velocity: Vec3::ZERO,
+            color: [0, 0, 0, 255],
             mass: 1.0,
             locked: false,
         }
