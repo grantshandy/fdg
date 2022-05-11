@@ -176,6 +176,10 @@ impl<D: Clone> Simulation<D> for CpuSimulation<D> {
     fn forces(&self) -> &Forces<D> {
         &self.forces
     }
+
+    fn set_graph(&mut self, graph: &ForceGraph<D>) {
+        self.graph = graph.clone();
+    }
 }
 
 impl<D: Clone> Default for CpuSimulation<D> {

@@ -1,10 +1,11 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::{Dimensions, Simulation, Vec3, petgraph::graph::NodeIndex};
+use fdg_sim::{Dimensions, Simulation, Vec3, petgraph::graph::NodeIndex, Node};
 
 pub use {fdg_sim, egui_macroquad::macroquad};
 
-pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
+pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulation<D>) {
     let orig_params = sim.parameters().clone();
+    let orig_graph = sim.get_graph().clone();
     let ideal_distance = sim.forces().dict()[0];
 
     let mut zoom: f32 = 2.0;
@@ -26,6 +27,9 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
     let mut show_nodes: bool = true;
 
     let mut dragging_node: Option<NodeIndex> = None;
+    let mut selected_node: Option<NodeIndex> = None;
+    let selected_color = Color::from_rgba(169, 169, 169, 255);
+    let mut editable: bool = true;
 
     loop {
         // Draw background
@@ -64,13 +68,66 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
             mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
             mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
 
-            let hovered_node = if let Some(index) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size * 1.5) {
-                if is_mouse_button_down(MouseButton::Left) && dragging_node.is_none() {
-                    dragging_node = Some(index);
+            let hovered_node = if let Some(hovered) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
+                if dragging_node.is_none() {    
+                    if editable && is_key_down(KeyCode::LeftShift) {
+                        if let Some(selected_node_index) = selected_node {
+                            let selected_node = &sim.get_graph()[selected_node_index];
+                            let hovered_node = &sim.get_graph()[hovered];
+                            draw_line(
+                                selected_node.location.x,
+                                selected_node.location.y,
+                                hovered_node.location.x,
+                                hovered_node.location.y,
+                                edge_size,
+                                Color::new(1.0, 0.0, 0.0, 0.5),
+                            );
+
+                            if selected_node != hovered_node && is_mouse_button_down(MouseButton::Left) {
+                                let g = sim.get_graph_mut();
+                                g.add_edge(hovered, selected_node_index, ());
+                            }  
+                        }
+                    }
+
+                    if is_mouse_button_down(MouseButton::Left) {
+                        dragging_node = Some(hovered);
+                        selected_node = Some(hovered);
+                    }
                 }
 
-                Some(index)
+                Some(hovered)
             } else {
+                if editable && dragging_node.is_none() {
+                    if is_key_down(KeyCode::LeftShift) {
+                        if let Some(selected_node) = selected_node {
+                            let selected_node = &sim.get_graph()[selected_node];
+                            draw_line(
+                                selected_node.location.x,
+                                selected_node.location.y,
+                                mouse.0,
+                                mouse.1,
+                                edge_size,
+                                Color::new(1.0, 0.0, 0.0, 0.5),
+                            );
+                        }
+    
+                        draw_circle(mouse.0, mouse.1, node_size, Color::new(selected_color.r, selected_color.g, selected_color.b, 0.5));
+    
+                        if is_mouse_button_down(MouseButton::Left) {
+                            let new_node = sim.get_graph_mut().add_node(Node::new_with_coords("", D::default(), Vec3::new(mouse.0, mouse.1, 0.0)));
+    
+                            if let Some(selected_node) = selected_node {
+                                sim.get_graph_mut().add_edge(selected_node, new_node, ());
+                            }
+                        }
+                    }
+                }
+
+                if is_mouse_button_down(MouseButton::Left) && dragging_node.is_none() {
+                    selected_node = None;
+                }
+
                 None
             };
 
@@ -105,16 +162,31 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
 
             if show_nodes {
                 sim.visit_nodes(&mut |node| {
+                    let default_color = Color::from_rgba(
+                        node.color[0],
+                        node.color[1],
+                        node.color[2],
+                        node.color[3],
+                    );
+
+                    let color = match selected_node {
+                        Some(selected_node) => {
+                            if &sim.get_graph()[selected_node] == node {
+                                selected_color
+                            } else {
+                                default_color
+                            }
+                        }
+                        None => {
+                            default_color
+                        }
+                    };
+
                     draw_circle(
                         node.location.x,
                         node.location.y,
                         node_size,
-                        Color::from_rgba(
-                            node.color[0],
-                            node.color[1],
-                            node.color[2],
-                            node.color[3],
-                        ),
+                        color,
                     );
                 });
             }
@@ -186,6 +258,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                 .show(egui_ctx, |ui| {
                     ui.horizontal(|ui| {
                         if ui.button("Restart Simulation").clicked() {
+                            sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
                         }
 
@@ -239,6 +312,7 @@ pub async fn run_window<D: Clone + PartialEq>(sim: &mut impl Simulation<D>) {
                     );
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
+                    ui.checkbox(&mut editable, "Editable");
                     ui.separator();
                     ui.add(
                         egui::Slider::new(&mut sim.parameters_mut().cooloff_factor, 0.0..=1.0)
