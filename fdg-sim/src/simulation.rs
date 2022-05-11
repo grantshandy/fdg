@@ -17,14 +17,14 @@ pub enum Dimensions {
 
 /// Parameters for the simulation.
 #[derive(Clone)]
-pub struct SimulationParameters<D, F> {
+pub struct SimulationParameters<D> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: Force<D, F>,
+    pub force: dyn Force<D>,
 }
 
-impl<D, F> SimulationParameters<D, F> {
-    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<D, F>) -> Self {
+impl<D> SimulationParameters<D> {
+    pub fn new(node_start_size: f32, dimensions: Dimensions, force: dyn Force<D>) -> Self {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
@@ -35,13 +35,13 @@ impl<D, F> SimulationParameters<D, F> {
 
 /// A simulation that runs all physics on the CPU.
 #[derive(Clone)]
-pub struct Simulation<D: Clone, F> {
+pub struct Simulation<D: Clone> {
     graph: ForceGraph<D>,
-    parameters: SimulationParameters<D, F>,
+    parameters: SimulationParameters<D>,
 }
 
-impl<D: Clone, F> Simulation<D, F> {
-    pub fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters<D, F>) -> Self {
+impl<D: Clone> Simulation<D> {
+    pub fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters<D>) -> Self {
         let mut myself = Self {
             graph: graph.clone(),
             parameters,
@@ -123,11 +123,11 @@ impl<D: Clone, F> Simulation<D, F> {
         self.graph.clear();
     }
 
-    pub fn parameters(&self) -> &SimulationParameters<D, F> {
+    pub fn parameters(&self) -> &SimulationParameters<D> {
         &self.parameters
     }
 
-    pub fn parameters_mut(&mut self) -> &mut SimulationParameters<D, F> {
+    pub fn parameters_mut(&mut self) -> &mut SimulationParameters<D> {
         &mut self.parameters
     }
 
@@ -156,7 +156,7 @@ impl<D: Clone, F> Simulation<D, F> {
     }
 }
 
-impl<D: Clone, F> Default for Simulation<D, F> {
+impl<D: Clone> Default for Simulation<D> {
     fn default() -> Self {
         return Self::from_graph(
             &ForceGraph::default(),
