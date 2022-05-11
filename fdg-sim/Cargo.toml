@@ -14,7 +14,6 @@ categories = ["visualization"]
 
 [dependencies]
 glam = "0.20"
-log = "0.4"
 petgraph = "0.6"
 quad-rand = "0.2"
 regex = "1.5"

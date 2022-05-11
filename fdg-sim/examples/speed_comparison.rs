@@ -1,5 +1,5 @@
 use chrono::prelude::*;
-use fdg_sim::{CpuSimulation, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 use petgraph::graph::NodeIndex;
 use quad_rand::RandomRange;
 
@@ -24,25 +24,12 @@ fn main() {
     }
 
     let b = Utc::now();
-    let mut cpu = CpuSimulation::from_graph(&graph, SimulationParameters::default());
+    let mut cpu = Simulation::from_graph(&graph, SimulationParameters::default());
     for n in 0..NUM_CALCULATIONS {
         println!("Running CPU calculation {n}/{NUM_CALCULATIONS}");
         cpu.update(TIME_DIFFERENCE);
     }
     let d = Utc::now().signed_duration_since(b).num_seconds();
-
-    #[cfg(feature = "gpu")]
-    {
-        use fdg_sim::GpuSimulation;
-        let b = Utc::now();
-        let mut gpu = GpuSimulation::from_graph(&graph, SimulationParameters::default());
-        for n in 0..NUM_CALCULATIONS {
-            println!("Running GPU calculation {n}/{NUM_CALCULATIONS}");
-            gpu.update(TIME_DIFFERENCE);
-        }
-        let d = Utc::now().signed_duration_since(b).num_seconds();
-        println!("GpuSimulation took {d} seconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.");
-    }
 
     println!("CpuSimulation took {d} seconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.");
 }

@@ -1,9 +1,9 @@
 use egui_macroquad::{egui, macroquad::prelude::*};
-use fdg_sim::{Dimensions, Simulation, Vec3, petgraph::graph::NodeIndex, Node};
+use fdg_sim::{petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
 
-pub use {fdg_sim, egui_macroquad::macroquad};
+pub use {egui_macroquad::macroquad, fdg_sim};
 
-pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulation<D>) {
+pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
     let ideal_distance = sim.forces().dict()[0];
@@ -68,8 +68,10 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulatio
             mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
             mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
 
-            let hovered_node = if let Some(hovered) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
-                if dragging_node.is_none() {    
+            let hovered_node = if let Some(hovered) =
+                sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size)
+            {
+                if dragging_node.is_none() {
                     if editable && is_key_down(KeyCode::LeftShift) {
                         if let Some(selected_node_index) = selected_node {
                             let selected_node = &sim.get_graph()[selected_node_index];
@@ -83,10 +85,12 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulatio
                                 Color::new(1.0, 0.0, 0.0, 0.5),
                             );
 
-                            if selected_node != hovered_node && is_mouse_button_down(MouseButton::Left) {
+                            if selected_node != hovered_node
+                                && is_mouse_button_down(MouseButton::Left)
+                            {
                                 let g = sim.get_graph_mut();
                                 g.add_edge(hovered, selected_node_index, ());
-                            }  
+                            }
                         }
                     }
 
@@ -111,12 +115,21 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulatio
                                 Color::new(1.0, 0.0, 0.0, 0.5),
                             );
                         }
-    
-                        draw_circle(mouse.0, mouse.1, node_size, Color::new(selected_color.r, selected_color.g, selected_color.b, 0.5));
-    
+
+                        draw_circle(
+                            mouse.0,
+                            mouse.1,
+                            node_size,
+                            Color::new(selected_color.r, selected_color.g, selected_color.b, 0.5),
+                        );
+
                         if is_mouse_button_down(MouseButton::Left) {
-                            let new_node = sim.get_graph_mut().add_node(Node::new_with_coords("", D::default(), Vec3::new(mouse.0, mouse.1, 0.0)));
-    
+                            let new_node = sim.get_graph_mut().add_node(Node::new_with_coords(
+                                "",
+                                D::default(),
+                                Vec3::new(mouse.0, mouse.1, 0.0),
+                            ));
+
                             if let Some(selected_node) = selected_node {
                                 sim.get_graph_mut().add_edge(selected_node, new_node, ());
                             }
@@ -177,17 +190,10 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulatio
                                 default_color
                             }
                         }
-                        None => {
-                            default_color
-                        }
+                        None => default_color,
                     };
 
-                    draw_circle(
-                        node.location.x,
-                        node.location.y,
-                        node_size,
-                        color,
-                    );
+                    draw_circle(node.location.x, node.location.y, node_size, color);
                 });
             }
 
@@ -197,11 +203,23 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut impl Simulatio
                 if let Some(index) = dragging_node {
                     let node = &sim.get_graph()[index];
                     let screen_mouse = mouse_position();
-                    draw_text(&node.name, screen_mouse.0 + 10.0, screen_mouse.1 - 10.0, 30.0, DARKBLUE);
+                    draw_text(
+                        &node.name,
+                        screen_mouse.0 + 10.0,
+                        screen_mouse.1 - 10.0,
+                        30.0,
+                        DARKBLUE,
+                    );
                 } else if let Some(index) = hovered_node {
                     let node = &sim.get_graph()[index];
                     let screen_mouse = mouse_position();
-                    draw_text(&node.name, screen_mouse.0 + 10.0, screen_mouse.1 - 10.0, 30.0, DARKBLUE);
+                    draw_text(
+                        &node.name,
+                        screen_mouse.0 + 10.0,
+                        screen_mouse.1 - 10.0,
+                        30.0,
+                        DARKBLUE,
+                    );
                 }
             }
         } else {

@@ -1,48 +1,15 @@
+use crate::{ForceGraphHelper, Forces};
+
 use super::ForceGraph;
 use glam::Vec3;
-use petgraph::graph::{EdgeIndex, NodeIndex};
+use petgraph::{graph::{EdgeIndex, NodeIndex}, visit::{EdgeRef, IntoEdgeReferences}};
+use quad_rand::RandomRange;
 
 /// Number of dimensions to run the simulation in.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Dimensions {
     Two,
     Three,
-}
-
-/// A general trait for running a simulation.
-pub trait Simulation<D: Clone> {
-    /// Create a new [`Simulation`] from a [`ForceGraph`].
-    fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters) -> Self;
-    /// Reset the location of all the nodes to random positions.
-    fn reset_node_placement(&mut self);
-    /// Update node locations over a given interval.
-    fn update(&mut self, dt: f32);
-    /// Run a callback on every node.
-    fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>));
-    /// Run a callback on every set of edge endpoints.
-    fn visit_edges(&self, cb: &mut impl Fn(&Node<D>, &Node<D>));
-    /// Add a new node to the internal graph.
-    fn add_node(&mut self, name: impl AsRef<str>, data: D) -> NodeIndex;
-    /// Add an edge to the internal graph.
-    fn add_edge(&mut self, a: NodeIndex, b: NodeIndex) -> EdgeIndex;
-    /// Remove a node from the internal graph.
-    fn remove_node(&mut self, index: NodeIndex) -> Option<Node<D>>;
-    /// Remove an edge to the internal graph.
-    fn remove_edge(&mut self, index: EdgeIndex);
-    /// Get a reference to the internal [`ForceGraph`].
-    fn get_graph(&self) -> &ForceGraph<D>;
-    fn get_graph_mut(&mut self) -> &mut ForceGraph<D>;
-    fn set_graph(&mut self, graph: &ForceGraph<D>);
-    /// Clear all data in the internal graph.
-    fn clear(&mut self);
-    /// Get a reference to the internal parameters.
-    fn parameters(&self) -> &SimulationParameters;
-    /// Get a mutable reference to the internal parameters.
-    fn parameters_mut(&mut self) -> &mut SimulationParameters;
-    /// Get a node index from X,Y,Z coordinates and a range.
-    fn find(&self, query: Vec3, radius: f32) -> Option<NodeIndex>;
-    /// Return a reference for the force parameters.
-    fn forces(&self) -> &Forces<D>;
 }
 
 /// Parameters for the simulation.
@@ -121,55 +88,172 @@ impl<D> Node<D> {
     }
 }
 
-/// Forces that dictate how your nodes move.
+/// A simulation that runs all physics on the CPU.
 #[derive(Clone)]
-pub struct Forces<D> {
-    general_force: fn(&Vec<f32>, &Node<D>, &Node<D>) -> Vec3,
-    neighbor_force: fn(&Vec<f32>, &Node<D>, &Node<D>) -> Vec3,
-    dict: Vec<f32>,
+pub struct Simulation<D: Clone> {
+    graph: ForceGraph<D>,
+    parameters: SimulationParameters,
+    forces: Forces<D>,
 }
 
-impl<D> Forces<D> {
-    pub fn apply_general_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (self.general_force)(&self.dict, node_one, node_two)
+impl<D: Clone> Simulation<D> {
+    pub fn set_force(&mut self, forces: Forces<D>) {
+        self.forces = forces;
     }
 
-    pub fn apply_neighbor_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (self.neighbor_force)(&self.dict, node_one, node_two)
+    pub fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters) -> Self {
+        let mut myself = Self {
+            graph: graph.clone(),
+            parameters,
+            forces: Forces::fruchterman_reingold(35.0),
+        };
+
+        myself.reset_node_placement();
+
+        myself
     }
 
-    pub fn dict(&self) -> &Vec<f32> {
-        &self.dict
+    pub fn reset_node_placement(&mut self) {
+
+        for node in self.graph.node_weights_mut() {
+            node.location = Vec3::new(
+                RandomRange::gen_range(
+                    -(self.parameters.node_start_size / 2.0), self.parameters.node_start_size / 2.0
+                ),
+                RandomRange::gen_range(
+                    -(self.parameters.node_start_size / 2.0), self.parameters.node_start_size / 2.0
+                ),
+                match self.parameters.dimensions {
+                    Dimensions::Three => RandomRange::gen_range(
+                        -(self.parameters.node_start_size / 2.0), self.parameters.node_start_size / 2.0
+                    ),
+                    Dimensions::Two => 0.0,
+                },
+            );
+
+            node.velocity = Vec3::ZERO;
+        }
+    }
+
+    pub fn update(&mut self, dt: f32) {
+        let graph = self.graph.clone();
+
+        for node_index in graph.node_indices() {
+            if graph[node_index].locked {
+                continue;
+            }
+
+            let mut final_force = Vec3::ZERO;
+
+            for other_node_index in graph.node_indices() {
+                // skip duplicates
+                if other_node_index == node_index {
+                    continue;
+                }
+
+                final_force += self
+                    .forces
+                    .apply_general_force(&graph[node_index], &graph[other_node_index]);
+            }
+
+            for neighbor_index in graph.neighbors(node_index) {
+                final_force += self
+                    .forces
+                    .apply_neighbor_force(&graph[node_index], &graph[neighbor_index]);
+            }
+
+            let node = &mut self.graph[node_index];
+
+            let acceleration = final_force / node.mass;
+            node.velocity += acceleration * dt;
+            node.velocity *= self.parameters.cooloff_factor;
+
+            node.location += node.velocity * dt;
+        }
+    }
+
+    pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>)) {
+        for n_idx in self.graph.node_indices() {
+            cb(&self.graph[n_idx]);
+        }
+    }
+
+    pub fn visit_edges(&self, cb: &mut impl Fn(&Node<D>, &Node<D>)) {
+        for edge_ref in self.graph.edge_references() {
+            cb(
+                &self.graph[edge_ref.source()],
+                &self.graph[edge_ref.target()],
+            );
+        }
+    }
+
+    pub fn add_node(&mut self, name: impl AsRef<str>, data: D) -> NodeIndex {
+        self.graph.add_force_node(name, data)
+    }
+
+    pub fn add_edge(&mut self, a: NodeIndex, b: NodeIndex) -> EdgeIndex {
+        self.graph.add_edge(a, b, ())
+    }
+
+    pub fn get_graph(&self) -> &ForceGraph<D> {
+        &self.graph
+    }
+
+    pub fn get_graph_mut(&mut self) -> &mut ForceGraph<D> {
+        &mut self.graph
+    }
+
+    pub fn remove_node(&mut self, index: NodeIndex) -> Option<Node<D>> {
+        self.graph.remove_node(index)
+    }
+
+    pub fn remove_edge(&mut self, index: EdgeIndex) {
+        self.graph.remove_edge(index);
+    }
+
+    pub fn clear(&mut self) {
+        self.graph.clear();
+    }
+
+    pub fn parameters(&self) -> &SimulationParameters {
+        &self.parameters
+    }
+
+    pub fn parameters_mut(&mut self) -> &mut SimulationParameters {
+        &mut self.parameters
+    }
+
+    // thrown together code, should be revised for performance.
+    pub fn find(&self, query: Vec3, radius: f32) -> Option<NodeIndex> {
+        let query_x = (query.x - radius)..=(query.x + radius);
+        let query_y = (query.y - radius)..=(query.y + radius);
+        let query_z = (query.z - radius)..=(query.z + radius);
+
+        for index in self.graph.node_indices() {
+            let node = &self.graph[index];
+
+            if query_x.contains(&node.location.x)
+                && query_y.contains(&node.location.y)
+                && query_z.contains(&node.location.z)
+            {
+                return Some(index);
+            }
+        }
+
+        None
+    }
+
+    pub fn forces(&self) -> &Forces<D> {
+        &self.forces
+    }
+
+    pub fn set_graph(&mut self, graph: &ForceGraph<D>) {
+        self.graph = graph.clone();
     }
 }
 
-/// The default implementation of [`Forces`] uses Fruchterman & Reingold (1991).
-impl<D> Default for Forces<D> {
+impl<D: Clone> Default for Simulation<D> {
     fn default() -> Self {
-        Forces::fruchterman_reingold(45.0)
-    }
-}
-
-impl<D> Forces<D> {
-    pub fn fruchterman_reingold(ideal_distance: f32) -> Self {
-        let dict = vec![ideal_distance];
-
-        fn general_force<D>(dict: &Vec<f32>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-            -((dict[0] * dict[0]) / node_one.location.distance(node_two.location))
-                * ((node_two.location - node_one.location)
-                    / node_one.location.distance(node_two.location))
-        }
-
-        fn neighbor_force<D>(dict: &Vec<f32>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-            (node_one.location.distance_squared(node_two.location) / dict[0])
-                * ((node_two.location - node_one.location)
-                    / node_one.location.distance(node_two.location))
-        }
-
-        Self {
-            general_force,
-            neighbor_force,
-            dict,
-        }
+        return Self::from_graph(&ForceGraph::default(), SimulationParameters::default());
     }
 }

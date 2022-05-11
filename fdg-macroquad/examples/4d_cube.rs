@@ -1,6 +1,5 @@
 use fdg_sim::{
-    petgraph::graph::NodeIndex, CpuSimulation, ForceGraph, ForceGraphHelper, Simulation,
-    SimulationParameters,
+    petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
 };
 
 #[macroquad::main("Force Graph 4D Cube Demo")]
@@ -17,7 +16,7 @@ async fn main() {
         cube = add_layer(&mut graph, cube);
     }
 
-    fdg_macroquad::run_window(&mut CpuSimulation::from_graph(
+    fdg_macroquad::run_window(&mut Simulation::from_graph(
         &graph,
         SimulationParameters::default(),
     ))

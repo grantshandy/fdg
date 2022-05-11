@@ -1,4 +1,4 @@
-use fdg_sim::{CpuSimulation, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 #[macroquad::main("Force Graph Pyramid Demo")]
 async fn main() {
@@ -21,7 +21,7 @@ async fn main() {
     graph.add_edge(center, three, ());
     graph.add_edge(center, four, ());
 
-    let mut sim = CpuSimulation::from_graph(&graph, SimulationParameters::default());
+    let mut sim = Simulation::from_graph(&graph, SimulationParameters::default());
 
     fdg_macroquad::run_window(&mut sim).await;
 }
