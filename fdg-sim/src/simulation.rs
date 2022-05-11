@@ -1,4 +1,4 @@
-use crate::{ForceGraphHelper, Force, FruchtermanReingold};
+use crate::{Force, ForceGraphHelper, FruchtermanReingold};
 
 use super::ForceGraph;
 use glam::Vec3;
@@ -20,15 +20,15 @@ pub enum Dimensions {
 pub struct SimulationParameters<D, F> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: Force<D, F>
+    pub force: Force<D, F>,
 }
 
-impl<D, F> Default for SimulationParameters<D, F> {
-    fn default() -> Self {
+impl<D, F> SimulationParameters<D, F> {
+    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<D, F>) -> Self {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: FruchtermanReingold::new(35.0)
+            force,
         }
     }
 }
@@ -158,7 +158,10 @@ impl<D: Clone, F> Simulation<D, F> {
 
 impl<D: Clone, F> Default for Simulation<D, F> {
     fn default() -> Self {
-        return Self::from_graph(&ForceGraph::default(), SimulationParameters::default());
+        return Self::from_graph(
+            &ForceGraph::default(),
+            SimulationParameters::new(100.0, Dimensions::Two, FruchtermanReingold::new(35.0)),
+        );
     }
 }
 
