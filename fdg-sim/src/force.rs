@@ -1,55 +1,85 @@
 use glam::Vec3;
 
-use crate::Node;
+use crate::ForceGraph;
 
 /// Forces that dictate how your nodes move.
 #[derive(Clone)]
-pub struct Forces<D> {
-    general_force: fn(&Vec<f32>, &Node<D>, &Node<D>) -> Vec3,
-    neighbor_force: fn(&Vec<f32>, &Node<D>, &Node<D>) -> Vec3,
-    dict: Vec<f32>,
+pub struct Force<D, F> {
+    internal_update: fn(&mut F, f32, Vec<(String, f32)>, &mut ForceGraph<D>),
+    // For internal data, e.g. shaders, cache, etc.
+    internal_data: F,
+    // For data you want the user to be able to edit in real time.
+    pub dict: Vec<(String, f32)>,
 }
 
-impl<D> Forces<D> {
-    pub fn apply_general_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (self.general_force)(&self.dict, node_one, node_two)
-    }
-
-    pub fn apply_neighbor_force(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (self.neighbor_force)(&self.dict, node_one, node_two)
-    }
-
-    pub fn dict(&self) -> &Vec<f32> {
-        &self.dict
+impl<D: Clone, F: Clone> Force<D, F> {
+    pub fn update(&mut self, graph: &mut ForceGraph<D>, dt: f32) {
+        (self.internal_update)(&mut self.internal_data, dt, self.dict, &mut graph);
     }
 }
 
-/// The default implementation of [`Forces`] uses Fruchterman & Reingold (1991).
-impl<D> Default for Forces<D> {
-    fn default() -> Self {
-        Forces::fruchterman_reingold(45.0)
-    }
-}
+#[derive(Clone)]
+pub struct FruchtermanReingold;
 
-impl<D> Forces<D> {
-    pub fn fruchterman_reingold(ideal_distance: f32) -> Self {
-        let dict = vec![ideal_distance];
-
-        fn general_force<D>(dict: &Vec<f32>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-            -((dict[0] * dict[0]) / node_one.location.distance(node_two.location))
-                * ((node_two.location - node_one.location)
-                    / node_one.location.distance(node_two.location))
+impl FruchtermanReingold {
+    pub fn new<D: Clone>(scale: f32) -> Force<D, Self> {
+        let dict = vec![
+            ("Scale".to_string(), scale),
+            ("Cooloff Factor".to_string(), 0.975),
+        ];
+    
+        fn internal_update<D: Clone>(
+            _data: &mut FruchtermanReingold,
+            dt: f32,
+            dict: Vec<(String, f32)>,
+            graph: &mut ForceGraph<D>,
+        ) {
+            let graph_clone = graph.clone();
+    
+            for node_index in graph_clone.node_indices() {
+                if graph[node_index].locked {
+                    continue;
+                }
+    
+                let mut final_force = Vec3::ZERO;
+    
+                for other_node_index in graph_clone.node_indices() {
+                    // skip duplicates
+                    if other_node_index == node_index {
+                        continue;
+                    }
+    
+                    let node_one = &graph_clone[node_index];
+                    let node_two = &graph_clone[other_node_index];
+    
+                    final_force += (node_one.location.distance_squared(node_two.location) / dict[0].1)
+                        * ((node_two.location - node_one.location)
+                            / node_one.location.distance(node_two.location));
+                }
+    
+                for neighbor_index in graph_clone.neighbors(node_index) {
+                    let node_one = &graph_clone[node_index];
+                    let node_two = &graph_clone[neighbor_index];
+    
+                    final_force += -((dict[0].1 * dict[0].1)
+                        / node_one.location.distance(node_two.location))
+                        * ((node_two.location - node_one.location)
+                            / node_one.location.distance(node_two.location));
+                }
+    
+                let node = &mut graph[node_index];
+    
+                let acceleration = final_force / node.mass;
+                node.velocity += acceleration * dt;
+                node.velocity *= dict[1].1;
+    
+                node.location += node.velocity * dt;
+            }
         }
-
-        fn neighbor_force<D>(dict: &Vec<f32>, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-            (node_one.location.distance_squared(node_two.location) / dict[0])
-                * ((node_two.location - node_one.location)
-                    / node_one.location.distance(node_two.location))
-        }
-
-        Self {
-            general_force,
-            neighbor_force,
+    
+        Force {
+            internal_update,
+            internal_data: FruchtermanReingold,
             dict,
         }
     }

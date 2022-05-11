@@ -1,15 +1,15 @@
 #![doc = include_str!("../README.md")]
 
+mod force;
 mod graph;
 mod simulation;
-mod force;
 
 pub use {
+    force::{Force, FruchtermanReingold},
     glam::Vec3,
     graph::{ForceGraph, ForceGraphHelper},
     petgraph,
     simulation::{Dimensions, Node, Simulation, SimulationParameters},
-    force::Forces,
 };
 
 #[cfg(feature = "json")]
