@@ -283,6 +283,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         if ui.button("Reset Settings").clicked() {
                             let mut p = sim.parameters_mut();
                             p.node_start_size = orig_params.node_start_size;
+                            p.force.lock().unwrap().reset();
                             sim_speed = 1;
                             orbit_speed = 1.0;
                             zoom = 1.0;
@@ -337,13 +338,14 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut editable, "Editable");
                     ui.separator();
                     // TODO
-                    // if !sim.parameters().force.dict().is_empty() {
-                    //     for (name, value, range) in sim.parameters_mut().force.dict_mut() {
-                    //         let (low, high) = range.clone().into_inner();
-                    //         ui.add(Slider::new(value, low..=high).text(name));
-                    //     }
-                    //     ui.separator();
-                    // }
+                    if !sim.parameters().force.lock().unwrap().dict().is_empty() {
+                        let mut p = sim.parameters_mut().force.lock().unwrap();
+                        for (name, value, range) in p.dict_mut() {
+                            let (low, high) = range.clone().into_inner();
+                            ui.add(Slider::new(value, low..=high).text(name));
+                        }
+                        ui.separator();
+                    }
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
                         ui.label(format!("Node Count: {}", g.node_count()));

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 
 use crate::{
     force::{Force, FruchtermanReingold},
@@ -25,7 +25,7 @@ pub enum Dimensions {
 pub struct SimulationParameters<D> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: Arc<dyn Force<D>>,
+    pub force: Arc<Mutex<dyn Force<D>>>,
 }
 
 impl<D: Clone> SimulationParameters<D> {
@@ -37,7 +37,7 @@ impl<D: Clone> SimulationParameters<D> {
         Self {
             node_start_size,
             dimensions,
-            force: Arc::new(force),
+            force: Arc::new(Mutex::new(force)),
         }
     }
 }
@@ -47,7 +47,7 @@ impl<D: Clone> Default for SimulationParameters<D> {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: Arc::new(FruchtermanReingold::new::<D>(45.0, 0.975)),
+            force: Arc::new(Mutex::new(FruchtermanReingold::new::<D>(45.0, 0.975))),
         }
     }
 }
@@ -96,7 +96,7 @@ impl<D: Clone> Simulation<D> {
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.parameters.force.update(&mut self.graph, dt);
+        self.parameters.force.lock().unwrap().update(&mut self.graph, dt);
     }
 
     pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>)) {
@@ -135,10 +135,10 @@ impl<D: Clone> Simulation<D> {
     }
 
     pub fn set_force(&mut self, force: impl Force<D> + 'static) {
-        self.parameters.force = Arc::new(force);
+        self.parameters.force = Arc::new(Mutex::new(force));
     }
 
-    pub fn get_force(&self) -> Arc<dyn Force<D>> {
+    pub fn get_force(&self) -> Arc<Mutex<dyn Force<D>>> {
         Arc::clone(&self.parameters.force)
     }
 
