@@ -1,4 +1,4 @@
-use egui_macroquad::{egui, macroquad::prelude::*};
+use egui_macroquad::{egui::{self, Slider}, macroquad::prelude::*};
 use fdg_sim::{petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
 
 pub use {egui_macroquad::macroquad, fdg_sim};
@@ -6,7 +6,6 @@ pub use {egui_macroquad::macroquad, fdg_sim};
 pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
-    let ideal_distance = sim.forces().dict()[0];
 
     let mut zoom: f32 = 2.0;
     let mut sim_speed: u8 = 1;
@@ -161,14 +160,13 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
 
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
-                    let x = source.location.distance(target.location) / ideal_distance;
                     draw_line(
                         source.location.x,
                         source.location.y,
                         target.location.x,
                         target.location.y,
                         edge_size,
-                        Color::new(x * x, 0.0, 0.0, 1.0 / (x / 2.0)),
+                        RED,
                     );
                 });
             }
@@ -243,11 +241,10 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
 
             if show_edges {
                 sim.visit_edges(&mut |source, target| {
-                    let x = source.location.distance(target.location) / ideal_distance;
                     draw_line_3d(
                         vec3(source.location.x, source.location.y, source.location.z),
                         vec3(target.location.x, target.location.y, target.location.z),
-                        Color::new(x * x, 0.0, 0.0, 1.0 / (x / 2.0)),
+                        RED,
                     );
                 });
             }
@@ -282,7 +279,6 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
 
                         if ui.button("Reset Settings").clicked() {
                             let mut p = sim.parameters_mut();
-                            p.cooloff_factor = orig_params.cooloff_factor;
                             p.node_start_size = orig_params.node_start_size;
                             sim_speed = 1;
                             orbit_speed = 1.0;
@@ -307,12 +303,13 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         }
                     });
                     ui.separator();
-                    ui.add(egui::Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
+                    ui.add(Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
+                    ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
                     match sim.parameters().dimensions {
                         Dimensions::Three => {
                             ui.add_enabled(
                                 orbit,
-                                egui::Slider::new(&mut orbit_speed, 0.1..=5.0).text("Orbit Speed"),
+                                Slider::new(&mut orbit_speed, 0.1..=5.0).text("Orbit Speed"),
                             );
                             ui.checkbox(&mut orbit, "Orbit");
                             ui.checkbox(&mut show_grid, "Show Grid");
@@ -320,28 +317,30 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         Dimensions::Two => {
                             ui.add_enabled(
                                 show_edges,
-                                egui::Slider::new(&mut edge_size, 1.0..=10.0).text("Edge Size"),
+                                Slider::new(&mut edge_size, 1.0..=10.0).text("Edge Size"),
                             );
                         }
                     }
                     ui.add_enabled(
                         show_nodes,
-                        egui::Slider::new(&mut node_size, 1.0..=25.0).text("Node Size"),
+                        Slider::new(&mut node_size, 1.0..=25.0).text("Node Size"),
+                    );
+                    ui.add(
+                        Slider::new(&mut sim.parameters_mut().node_start_size, 0.5..=1000.0)
+                            .text("Node Start Area"),
                     );
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
                     ui.separator();
-                    ui.add(
-                        egui::Slider::new(&mut sim.parameters_mut().cooloff_factor, 0.0..=1.0)
-                            .text("Cool-Off Factor"),
-                    );
-                    ui.add(
-                        egui::Slider::new(&mut sim.parameters_mut().node_start_size, 0.5..=1000.0)
-                            .text("Node Start Area"),
-                    );
-                    ui.add(egui::Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
-                    ui.separator();
+                    // TODO
+                    // if !sim.parameters().force.dict().is_empty() {
+                    //     for (name, value, range) in sim.parameters_mut().force.dict_mut() {
+                    //         let (low, high) = range.clone().into_inner();
+                    //         ui.add(Slider::new(value, low..=high).text(name));
+                    //     }
+                    //     ui.separator();
+                    // }
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
                         ui.label(format!("Node Count: {}", g.node_count()));

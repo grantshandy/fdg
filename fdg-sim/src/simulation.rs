@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{Force, ForceGraphHelper, FruchtermanReingold};
 
 use super::ForceGraph;
@@ -20,15 +22,25 @@ pub enum Dimensions {
 pub struct SimulationParameters<D> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: dyn Force<D>,
+    pub force: Arc<dyn Force<D>>,
 }
 
-impl<D> SimulationParameters<D> {
-    pub fn new(node_start_size: f32, dimensions: Dimensions, force: dyn Force<D>) -> Self {
+impl<D: Clone> SimulationParameters<D> {
+    pub fn new(node_start_size: f32, dimensions: Dimensions, force: impl Force<D> + 'static) -> Self {
+        Self {
+            node_start_size,
+            dimensions,
+            force: Arc::new(force),
+        }
+    }
+}
+
+impl<D: Clone> Default for SimulationParameters<D> {
+    fn default() -> Self {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force,
+            force: Arc::new(FruchtermanReingold::new::<D>(10.0, 0.975)),
         }
     }
 }
@@ -77,7 +89,7 @@ impl<D: Clone> Simulation<D> {
     }
 
     pub fn update(&mut self, dt: f32) {
-        todo!()
+        self.parameters.force.update(&mut self.graph, dt);
     }
 
     pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>)) {
@@ -109,6 +121,18 @@ impl<D: Clone> Simulation<D> {
 
     pub fn get_graph_mut(&mut self) -> &mut ForceGraph<D> {
         &mut self.graph
+    }
+
+    pub fn set_graph(&mut self, graph: &ForceGraph<D>) {
+        self.graph = graph.clone();
+    }
+
+    pub fn set_force(&mut self, force: impl Force<D> + 'static) {
+        self.parameters.force = Arc::new(force);
+    }
+
+    pub fn get_force(&self) -> Arc<dyn Force<D>> {
+        Arc::clone(&self.parameters.force)
     }
 
     pub fn remove_node(&mut self, index: NodeIndex) -> Option<Node<D>> {
@@ -150,17 +174,13 @@ impl<D: Clone> Simulation<D> {
 
         None
     }
-
-    pub fn set_graph(&mut self, graph: &ForceGraph<D>) {
-        self.graph = graph.clone();
-    }
 }
 
 impl<D: Clone> Default for Simulation<D> {
     fn default() -> Self {
         return Self::from_graph(
             &ForceGraph::default(),
-            SimulationParameters::new(100.0, Dimensions::Two, FruchtermanReingold::new(35.0)),
+            SimulationParameters::default(),
         );
     }
 }
