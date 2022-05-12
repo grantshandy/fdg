@@ -1,6 +1,6 @@
 use std::sync::Arc;
 
-use crate::{Force, ForceGraphHelper, FruchtermanReingold};
+use crate::{force::{FruchtermanReingold, Force}, ForceGraphHelper};
 
 use super::ForceGraph;
 use glam::Vec3;

@@ -1,11 +1,10 @@
 #![doc = include_str!("../README.md")]
 
-mod force;
+pub mod force;
 mod graph;
 mod simulation;
 
 pub use {
-    force::{Force, FruchtermanReingold},
     glam::Vec3,
     graph::{ForceGraph, ForceGraphHelper},
     petgraph,
