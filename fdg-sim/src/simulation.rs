@@ -47,7 +47,7 @@ impl<D: Clone> Default for SimulationParameters<D> {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: Arc::new(FruchtermanReingold::new::<D>(10.0, 0.95)),
+            force: Arc::new(FruchtermanReingold::new::<D>(45.0, 0.975)),
         }
     }
 }

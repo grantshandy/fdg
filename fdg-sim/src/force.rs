@@ -48,7 +48,6 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
             let mut final_force = Vec3::ZERO;
 
             for other_node_index in graph_clone.node_indices() {
-                // skip duplicates
                 if other_node_index == node_index {
                     continue;
                 }
@@ -59,7 +58,7 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                 final_force += -((self.dict[0].1 * self.dict[0].1)
                     / node_one.location.distance(node_two.location))
                     * ((node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location));
+                        / node_one.location.distance(node_two.location))
             }
 
             for neighbor_index in graph.neighbors(node_index) {
@@ -69,7 +68,7 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                 final_force += (node_one.location.distance_squared(node_two.location)
                     / self.dict[0].1)
                     * ((node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location));
+                        / node_one.location.distance(node_two.location))
             }
 
             let node = &mut graph[node_index];
