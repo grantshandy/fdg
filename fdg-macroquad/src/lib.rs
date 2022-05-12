@@ -1,4 +1,7 @@
-use egui_macroquad::{egui::{self, Slider}, macroquad::prelude::*};
+use egui_macroquad::{
+    egui::{self, Slider},
+    macroquad::prelude::*,
+};
 use fdg_sim::{petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
 
 pub use {egui_macroquad::macroquad, fdg_sim};

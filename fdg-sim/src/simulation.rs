@@ -1,6 +1,9 @@
 use std::sync::Arc;
 
-use crate::{force::{FruchtermanReingold, Force}, ForceGraphHelper};
+use crate::{
+    force::{Force, FruchtermanReingold},
+    ForceGraphHelper,
+};
 
 use super::ForceGraph;
 use glam::Vec3;
@@ -26,7 +29,11 @@ pub struct SimulationParameters<D> {
 }
 
 impl<D: Clone> SimulationParameters<D> {
-    pub fn new(node_start_size: f32, dimensions: Dimensions, force: impl Force<D> + 'static) -> Self {
+    pub fn new(
+        node_start_size: f32,
+        dimensions: Dimensions,
+        force: impl Force<D> + 'static,
+    ) -> Self {
         Self {
             node_start_size,
             dimensions,
@@ -40,7 +47,7 @@ impl<D: Clone> Default for SimulationParameters<D> {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: Arc::new(FruchtermanReingold::new::<D>(10.0, 0.975)),
+            force: Arc::new(FruchtermanReingold::new::<D>(10.0, 0.95)),
         }
     }
 }
@@ -178,10 +185,7 @@ impl<D: Clone> Simulation<D> {
 
 impl<D: Clone> Default for Simulation<D> {
     fn default() -> Self {
-        return Self::from_graph(
-            &ForceGraph::default(),
-            SimulationParameters::default(),
-        );
+        return Self::from_graph(&ForceGraph::default(), SimulationParameters::default());
     }
 }
 

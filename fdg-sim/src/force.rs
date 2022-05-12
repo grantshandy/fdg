@@ -2,7 +2,7 @@ use std::ops::RangeInclusive;
 
 use glam::Vec3;
 
-use crate::{ForceGraph, Node};
+use crate::ForceGraph;
 
 /// A trait that contains all the methods that you need to create a force on the simulation.
 pub trait Force<D: Clone> {
@@ -19,7 +19,7 @@ pub trait Force<D: Clone> {
 #[derive(Clone)]
 pub struct FruchtermanReingold {
     dict: Vec<(String, f32, RangeInclusive<f32>)>,
-    dict_original: Vec<(String, f32, RangeInclusive<f32>)>
+    dict_original: Vec<(String, f32, RangeInclusive<f32>)>,
 }
 
 impl FruchtermanReingold {
@@ -33,18 +33,6 @@ impl FruchtermanReingold {
             dict: dict.clone(),
             dict_original: dict,
         }
-    }
-
-    fn repulsive_force<D>(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        -((self.dict[0].1 * self.dict[0].1) / node_one.location.distance(node_two.location))
-            * ((node_two.location - node_one.location)
-                / node_one.location.distance(node_two.location))
-    }
-
-    fn attractive_force<D>(&self, node_one: &Node<D>, node_two: &Node<D>) -> Vec3 {
-        (node_one.location.distance_squared(node_two.location) / self.dict[0].1)
-            * ((node_two.location - node_one.location)
-                / node_one.location.distance(node_two.location))
     }
 }
 
@@ -65,14 +53,23 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                     continue;
                 }
 
-                let node = &graph[node_index];
-                let other_node = &graph[other_node_index];
+                let node_one = &graph[node_index];
+                let node_two = &graph[other_node_index];
 
-                final_force += self.repulsive_force(node, other_node);
+                final_force += -((self.dict[0].1 * self.dict[0].1)
+                    / node_one.location.distance(node_two.location))
+                    * ((node_two.location - node_one.location)
+                        / node_one.location.distance(node_two.location));
             }
 
             for neighbor_index in graph.neighbors(node_index) {
-                final_force += self.attractive_force(&graph[node_index], &graph[neighbor_index]);
+                let node_one = &graph[node_index];
+                let node_two = &graph[neighbor_index];
+
+                final_force += (node_one.location.distance_squared(node_two.location)
+                    / self.dict[0].1)
+                    * ((node_two.location - node_one.location)
+                        / node_one.location.distance(node_two.location));
             }
 
             let node = &mut graph[node_index];
@@ -80,7 +77,6 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
             let acceleration = final_force / node.mass;
             node.velocity += acceleration * dt;
             node.velocity *= self.dict[1].1;
-
             node.location += node.velocity * dt;
         }
     }
