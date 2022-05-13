@@ -27,7 +27,7 @@ pub struct FruchtermanReingold {
 impl FruchtermanReingold {
     pub fn new<D: Clone>(scale: f32, cooloff_factor: f32) -> Self {
         let dict = vec![
-            ("Scale".to_string(), scale, 1.0..=100.0),
+            ("Scale".to_string(), scale, 1.0..=200.0),
             ("Cooloff Factor".to_string(), cooloff_factor, 0.0..=1.0),
         ];
 

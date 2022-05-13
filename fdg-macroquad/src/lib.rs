@@ -32,6 +32,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let mut selected_node: Option<NodeIndex> = None;
     let selected_color = Color::from_rgba(169, 169, 169, 255);
     let mut editable: bool = false;
+    let mut running: bool = true;
 
     loop {
         // Draw background
@@ -275,6 +276,20 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                 .fixed_size([50.0, 50.0])
                 .show(egui_ctx, |ui| {
                     ui.horizontal(|ui| {
+                        let running_text = if running {
+                            "Stop"
+                        } else {
+                            "Start"
+                        };
+    
+                        if ui.button(running_text).clicked() {
+                            if running {
+                                running = false;
+                            } else {
+                                running = true;
+                            }
+                        }
+
                         if ui.button("Restart Simulation").clicked() {
                             sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
@@ -361,8 +376,10 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         });
 
         // update sim
-        for _ in 0..sim_speed {
-            sim.update(0.035);
+        if running {
+            for _ in 0..sim_speed {
+                sim.update(0.035);
+            }
         }
 
         // draw gui
