@@ -272,7 +272,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         // Draw gui
         egui_macroquad::ui(|egui_ctx| {
             egui::Window::new("Settings")
-                .default_size((50.0, 50.0))
+                .fixed_size([50.0, 50.0])
                 .show(egui_ctx, |ui| {
                     ui.horizontal(|ui| {
                         if ui.button("Restart Simulation").clicked() {
@@ -336,16 +336,19 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
-                    ui.separator();
-                    // TODO
-                    if !sim.parameters().force.lock().unwrap().dict().is_empty() {
-                        let mut p = sim.parameters_mut().force.lock().unwrap();
-                        for (name, value, range) in p.dict_mut() {
-                            let (low, high) = range.clone().into_inner();
-                            ui.add(Slider::new(value, low..=high).text(name));
-                        }
-                        ui.separator();
+                    ui.separator();  
+                    let mut force = sim.parameters_mut().force();
+                    ui.vertical_centered(|ui| {
+                        ui.set_max_width(150.0);
+                        ui.horizontal(|ui| {
+                            ui.label(force.name());
+                        });
+                    });
+                    for (name, value, range) in force.dict_mut() {
+                        ui.add(Slider::new(value, range.clone()).text(name));
                     }
+                    drop(force);
+                    ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
                         ui.label(format!("Node Count: {}", g.node_count()));

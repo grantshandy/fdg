@@ -10,7 +10,7 @@ async fn main() {
 
     // create center cube
     let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
-    let layers: u8 = 5;
+    let layers: u8 = 1;
 
     for _ in 0..layers {
         cube = add_layer(&mut graph, cube);

@@ -14,6 +14,8 @@ pub trait Force<D: Clone> {
     fn dict(&self) -> &Vec<(String, f32, RangeInclusive<f32>)>;
     /// Reset your internal dictionary to the original settings.
     fn reset(&mut self);
+    /// Retrieve a name for your force
+    fn name(&self) -> &'static str;
 }
 
 #[derive(Clone)]
@@ -90,5 +92,9 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
 
     fn reset(&mut self) {
         self.dict = self.dict_original.clone();
+    }
+
+    fn name(&self) -> &'static str {
+        "Fruchterman-Reingold (1991)"
     }
 }

@@ -1,4 +1,4 @@
-use std::sync::{Arc, Mutex};
+use std::sync::{Arc, Mutex, MutexGuard};
 
 use crate::{
     force::{Force, FruchtermanReingold},
@@ -39,6 +39,12 @@ impl<D: Clone> SimulationParameters<D> {
             dimensions,
             force: Arc::new(Mutex::new(force)),
         }
+    }
+}
+
+impl<D: Clone> SimulationParameters<D> {
+    pub fn force(&self) -> MutexGuard<dyn Force<D> + 'static> {
+        self.force.lock().unwrap()
     }
 }
 
@@ -96,7 +102,7 @@ impl<D: Clone> Simulation<D> {
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.parameters.force.lock().unwrap().update(&mut self.graph, dt);
+        self.parameters.force().update(&mut self.graph, dt);
     }
 
     pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>)) {
