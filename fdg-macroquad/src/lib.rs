@@ -31,7 +31,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let mut dragging_node: Option<NodeIndex> = None;
     let mut selected_node: Option<NodeIndex> = None;
     let selected_color = Color::from_rgba(169, 169, 169, 255);
-    let mut editable: bool = true;
+    let mut editable: bool = false;
 
     loop {
         // Draw background
