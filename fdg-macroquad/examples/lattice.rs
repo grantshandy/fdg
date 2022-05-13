@@ -9,7 +9,7 @@ async fn main() {
     let mut graph: ForceGraph<()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
-    let size = 50;
+    let size = 25;
 
     for x in 0..size {
         for y in 0..size {

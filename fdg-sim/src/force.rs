@@ -52,8 +52,8 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                     continue;
                 }
 
-                let node_one = &graph[node_index];
-                let node_two = &graph[other_node_index];
+                let node_one = &graph_clone[node_index];
+                let node_two = &graph_clone[other_node_index];
 
                 final_force += -((self.dict[0].1 * self.dict[0].1)
                     / node_one.location.distance(node_two.location))
@@ -61,9 +61,9 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                         / node_one.location.distance(node_two.location))
             }
 
-            for neighbor_index in graph.neighbors(node_index) {
-                let node_one = &graph[node_index];
-                let node_two = &graph[neighbor_index];
+            for neighbor_index in graph_clone.neighbors(node_index) {
+                let node_one = &graph_clone[node_index];
+                let node_two = &graph_clone[neighbor_index];
 
                 final_force += (node_one.location.distance_squared(node_two.location)
                     / self.dict[0].1)
