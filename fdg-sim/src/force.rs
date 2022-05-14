@@ -9,9 +9,9 @@ pub trait Force<D: Clone> {
     /// Move the graph in any way you need.
     fn update(&self, graph: &mut ForceGraph<D>, dt: f32);
     /// Retrieve a mutable version of your internal dictionary that cooresponds to reused variables.
-    fn dict_mut(&mut self) -> &mut Vec<(String, f32, RangeInclusive<f32>)>;
+    fn dict_mut(&mut self) -> &mut [(String, f32, RangeInclusive<f32>)];
     /// Retrieve your internal dictionary that cooresponds to reused variables.
-    fn dict(&self) -> &Vec<(String, f32, RangeInclusive<f32>)>;
+    fn dict(&self) -> &[(String, f32, RangeInclusive<f32>)];
     /// Reset your internal dictionary to the original settings.
     fn reset(&mut self);
     /// Retrieve a name for your force
@@ -82,11 +82,11 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
         }
     }
 
-    fn dict_mut(&mut self) -> &mut Vec<(String, f32, RangeInclusive<f32>)> {
+    fn dict_mut(&mut self) -> &mut [(String, f32, RangeInclusive<f32>)] {
         &mut self.dict
     }
 
-    fn dict(&self) -> &Vec<(String, f32, RangeInclusive<f32>)> {
+    fn dict(&self) -> &[(String, f32, RangeInclusive<f32>)] {
         &self.dict
     }
 

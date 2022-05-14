@@ -1,5 +1,5 @@
 use egui_macroquad::{
-    egui::{self, Slider},
+    egui::{self, Slider, Checkbox},
     macroquad::prelude::*,
 };
 use fdg_sim::{petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
@@ -22,17 +22,20 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let radius = 200.0;
 
     let mut orbit_speed: f32 = 1.0;
-    let mut orbit: bool = true;
-    let mut show_grid: bool = true;
+    let mut orbit = true;
+    let mut show_grid = true;
 
-    let mut show_edges: bool = true;
-    let mut show_nodes: bool = true;
+    let mut show_edges = true;
+    let mut show_nodes = true;
 
     let mut dragging_node: Option<NodeIndex> = None;
     let mut selected_node: Option<NodeIndex> = None;
     let selected_color = Color::from_rgba(169, 169, 169, 255);
-    let mut editable: bool = false;
-    let mut running: bool = true;
+    let mut editable = false;
+    let mut manual = false;
+    let mut running = true;
+    let default_manual_step_length: f32 = 0.035;
+    let mut manual_step_length = default_manual_step_length;
 
     loop {
         // Draw background
@@ -276,20 +279,6 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                 .fixed_size([50.0, 50.0])
                 .show(egui_ctx, |ui| {
                     ui.horizontal(|ui| {
-                        let running_text = if running {
-                            "Stop"
-                        } else {
-                            "Start"
-                        };
-    
-                        if ui.button(running_text).clicked() {
-                            if running {
-                                running = false;
-                            } else {
-                                running = true;
-                            }
-                        }
-
                         if ui.button("Restart Simulation").clicked() {
                             sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
@@ -304,6 +293,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                             zoom = 1.0;
                             node_size = default_node_size;
                             edge_size = default_edge_size;
+                            manual_step_length = default_manual_step_length;
                         }
 
                         if ui
@@ -322,8 +312,30 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         }
                     });
                     ui.separator();
+                    ui.add(Checkbox::new(&mut manual, "Manual"));
+                    if manual {
+                        ui.add(Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"));
+                        if ui.button("Step").clicked() {
+                            sim.update(manual_step_length);
+                        }
+                    } else {
+                        ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
+                        let running_text = if running {
+                            "Stop"
+                        } else {
+                            "Start"
+                        };
+    
+                        if ui.button(running_text).clicked() {
+                            if running {
+                                running = false;
+                            } else {
+                                running = true;
+                            }
+                        }
+                    }
+                    ui.separator();
                     ui.add(Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
-                    ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
                     match sim.parameters().dimensions {
                         Dimensions::Three => {
                             ui.add_enabled(
@@ -376,7 +388,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         });
 
         // update sim
-        if running {
+        if running && !manual {
             for _ in 0..sim_speed {
                 sim.update(0.035);
             }
