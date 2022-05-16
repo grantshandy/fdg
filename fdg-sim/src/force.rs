@@ -9,9 +9,9 @@ pub trait Force<D: Clone> {
     /// Move the graph in any way you need.
     fn update(&self, graph: &mut ForceGraph<D>, dt: f32);
     /// Retrieve a mutable version of your internal dictionary that cooresponds to reused variables.
-    fn dict_mut(&mut self) -> &mut [(String, f32, RangeInclusive<f32>)];
+    fn dict_mut(&mut self) -> &mut [(&'static str, f32, RangeInclusive<f32>)];
     /// Retrieve your internal dictionary that cooresponds to reused variables.
-    fn dict(&self) -> &[(String, f32, RangeInclusive<f32>)];
+    fn dict(&self) -> &[(&'static str, f32, RangeInclusive<f32>)];
     /// Reset your internal dictionary to the original settings.
     fn reset(&mut self);
     /// Retrieve a name for your force
@@ -20,15 +20,15 @@ pub trait Force<D: Clone> {
 
 #[derive(Clone)]
 pub struct FruchtermanReingold {
-    dict: Vec<(String, f32, RangeInclusive<f32>)>,
-    dict_original: Vec<(String, f32, RangeInclusive<f32>)>,
+    dict: Vec<(&'static str, f32, RangeInclusive<f32>)>,
+    dict_original: Vec<(&'static str, f32, RangeInclusive<f32>)>,
 }
 
 impl FruchtermanReingold {
     pub fn new<D: Clone>(scale: f32, cooloff_factor: f32) -> Self {
         let dict = vec![
-            ("Scale".to_string(), scale, 1.0..=200.0),
-            ("Cooloff Factor".to_string(), cooloff_factor, 0.0..=1.0),
+            ("Scale", scale, 1.0..=200.0),
+            ("Cooloff Factor", cooloff_factor, 0.0..=1.0),
         ];
 
         Self {
@@ -82,11 +82,11 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
         }
     }
 
-    fn dict_mut(&mut self) -> &mut [(String, f32, RangeInclusive<f32>)] {
+    fn dict_mut(&mut self) -> &mut [(&'static str, f32, RangeInclusive<f32>)] {
         &mut self.dict
     }
 
-    fn dict(&self) -> &[(String, f32, RangeInclusive<f32>)] {
+    fn dict(&self) -> &[(&'static str, f32, RangeInclusive<f32>)] {
         &self.dict
     }
 
@@ -97,4 +97,8 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
     fn name(&self) -> &'static str {
         "Fruchterman-Reingold (1991)"
     }
+}
+
+pub struct ForceAtlas2 {
+    
 }

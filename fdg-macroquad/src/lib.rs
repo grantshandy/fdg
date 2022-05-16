@@ -1,5 +1,5 @@
 use egui_macroquad::{
-    egui::{self, Slider, Checkbox},
+    egui::{self, Checkbox, Slider},
     macroquad::prelude::*,
 };
 use fdg_sim::{petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
@@ -314,18 +314,16 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.separator();
                     ui.add(Checkbox::new(&mut manual, "Manual"));
                     if manual {
-                        ui.add(Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"));
+                        ui.add(
+                            Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"),
+                        );
                         if ui.button("Step").clicked() {
                             sim.update(manual_step_length);
                         }
                     } else {
                         ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
-                        let running_text = if running {
-                            "Stop"
-                        } else {
-                            "Start"
-                        };
-    
+                        let running_text = if running { "Stop" } else { "Start" };
+
                         if ui.button(running_text).clicked() {
                             if running {
                                 running = false;
@@ -363,7 +361,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
-                    ui.separator();  
+                    ui.separator();
                     let mut force = sim.parameters_mut().force();
                     ui.vertical_centered(|ui| {
                         ui.set_max_width(150.0);
