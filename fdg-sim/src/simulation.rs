@@ -53,7 +53,7 @@ impl<D: Clone> Default for SimulationParameters<D> {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: Arc::new(Mutex::new(FruchtermanReingold::new::<D>(45.0, 0.975))),
+            force: Arc::new(Mutex::new(FruchtermanReingold::default())),
         }
     }
 }
@@ -138,14 +138,6 @@ impl<D: Clone> Simulation<D> {
 
     pub fn set_graph(&mut self, graph: &ForceGraph<D>) {
         self.graph = graph.clone();
-    }
-
-    pub fn set_force(&mut self, force: impl Force<D> + 'static) {
-        self.parameters.force = Arc::new(Mutex::new(force));
-    }
-
-    pub fn get_force(&self) -> Arc<Mutex<dyn Force<D>>> {
-        Arc::clone(&self.parameters.force)
     }
 
     pub fn remove_node(&mut self, index: NodeIndex) -> Option<Node<D>> {

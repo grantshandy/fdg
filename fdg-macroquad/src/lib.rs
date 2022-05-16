@@ -2,7 +2,7 @@ use egui_macroquad::{
     egui::{self, Checkbox, Slider},
     macroquad::prelude::*,
 };
-use fdg_sim::{petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
+use fdg_sim::{force::Value, petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
@@ -363,14 +363,14 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut editable, "Editable");
                     ui.separator();
                     let mut force = sim.parameters_mut().force();
-                    ui.vertical_centered(|ui| {
-                        ui.set_max_width(150.0);
-                        ui.horizontal(|ui| {
-                            ui.label(force.name());
-                        });
-                    });
-                    for (name, value, range) in force.dict_mut() {
-                        ui.add(Slider::new(value, range.clone()).text(name));
+                    ui.label(force.name());
+                    for (name, value) in force.dict_mut() {
+                        match value {
+                            Value::Number(value, range) => {
+                                ui.add(Slider::new(value, range.clone()).text(name))
+                            }
+                            Value::Bool(value) => ui.add(Checkbox::new(value, name.to_string())),
+                        };
                     }
                     drop(force);
                     ui.separator();

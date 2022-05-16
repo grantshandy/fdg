@@ -1,39 +1,39 @@
-use std::ops::RangeInclusive;
-
 use glam::Vec3;
 
 use crate::ForceGraph;
 
-/// A trait that contains all the methods that you need to create a force on the simulation.
-pub trait Force<D: Clone> {
-    /// Move the graph in any way you need.
-    fn update(&self, graph: &mut ForceGraph<D>, dt: f32);
-    /// Retrieve a mutable version of your internal dictionary that cooresponds to reused variables.
-    fn dict_mut(&mut self) -> &mut [(&'static str, f32, RangeInclusive<f32>)];
-    /// Retrieve your internal dictionary that cooresponds to reused variables.
-    fn dict(&self) -> &[(&'static str, f32, RangeInclusive<f32>)];
-    /// Reset your internal dictionary to the original settings.
-    fn reset(&mut self);
-    /// Retrieve a name for your force
-    fn name(&self) -> &'static str;
-}
+use super::{Force, Value};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct FruchtermanReingold {
-    dict: Vec<(&'static str, f32, RangeInclusive<f32>)>,
-    dict_original: Vec<(&'static str, f32, RangeInclusive<f32>)>,
+    dict: Vec<(&'static str, Value)>,
+    dict_default: Vec<(&'static str, Value)>,
 }
 
 impl FruchtermanReingold {
     pub fn new<D: Clone>(scale: f32, cooloff_factor: f32) -> Self {
         let dict = vec![
-            ("Scale", scale, 1.0..=200.0),
-            ("Cooloff Factor", cooloff_factor, 0.0..=1.0),
+            ("Scale", Value::Number(scale, 1.0..=200.0)),
+            ("Cooloff Factor", Value::Number(cooloff_factor, 0.0..=1.0)),
         ];
 
         Self {
             dict: dict.clone(),
-            dict_original: dict,
+            dict_default: dict,
+        }
+    }
+}
+
+impl Default for FruchtermanReingold {
+    fn default() -> Self {
+        let dict = vec![
+            ("Scale", Value::Number(45.0, 1.0..=200.0)),
+            ("Cooloff Factor", Value::Number(0.975, 0.0..=1.0)),
+        ];
+
+        Self {
+            dict: dict.clone(),
+            dict_default: dict,
         }
     }
 }
@@ -41,6 +41,15 @@ impl FruchtermanReingold {
 impl<D: Clone> Force<D> for FruchtermanReingold {
     fn update(&self, graph: &mut ForceGraph<D>, dt: f32) {
         let graph_clone = graph.clone();
+
+        let scale: f32 = match self.dict[0].1 {
+            Value::Number(n, _) => n,
+            _ => panic!(""),
+        };
+        let cooloff_factor = match self.dict[1].1 {
+            Value::Number(n, _) => n,
+            _ => panic!(""),
+        };
 
         for node_index in graph_clone.node_indices() {
             if graph_clone[node_index].locked {
@@ -57,8 +66,7 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                 let node_one = &graph_clone[node_index];
                 let node_two = &graph_clone[other_node_index];
 
-                final_force += -((self.dict[0].1 * self.dict[0].1)
-                    / node_one.location.distance(node_two.location))
+                final_force += -((scale * scale) / node_one.location.distance(node_two.location))
                     * ((node_two.location - node_one.location)
                         / node_one.location.distance(node_two.location))
             }
@@ -67,8 +75,7 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
                 let node_one = &graph_clone[node_index];
                 let node_two = &graph_clone[neighbor_index];
 
-                final_force += (node_one.location.distance_squared(node_two.location)
-                    / self.dict[0].1)
+                final_force += (node_one.location.distance_squared(node_two.location) / scale)
                     * ((node_two.location - node_one.location)
                         / node_one.location.distance(node_two.location))
             }
@@ -77,28 +84,28 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
 
             let acceleration = final_force / node.mass;
             node.velocity += acceleration * dt;
-            node.velocity *= self.dict[1].1;
+            node.velocity *= cooloff_factor;
             node.location += node.velocity * dt;
         }
     }
 
-    fn dict_mut(&mut self) -> &mut [(&'static str, f32, RangeInclusive<f32>)] {
+    fn dict_mut(&mut self) -> &mut [(&'static str, Value)] {
         &mut self.dict
     }
 
-    fn dict(&self) -> &[(&'static str, f32, RangeInclusive<f32>)] {
+    fn dict(&self) -> &[(&'static str, Value)] {
         &self.dict
     }
 
     fn reset(&mut self) {
-        self.dict = self.dict_original.clone();
+        self.dict = self.dict_default.clone();
     }
 
     fn name(&self) -> &'static str {
         "Fruchterman-Reingold (1991)"
     }
-}
 
-pub struct ForceAtlas2 {
-    
+    fn continuous(&self) -> bool {
+        true
+    }
 }
