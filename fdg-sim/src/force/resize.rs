@@ -1,3 +1,5 @@
+use glam::Vec3;
+
 use super::{Force, Value};
 
 #[derive(Clone)]
@@ -29,8 +31,29 @@ impl Default for Resize {
 }
 
 impl<D: Clone> Force<D> for Resize {
-    fn update(&self, _graph: &mut crate::ForceGraph<D>, _dt: f32) {
-        println!("Update!")
+    fn update(&self, graph: &mut crate::ForceGraph<D>, _dt: f32) {
+        let mut avg_node = Vec3::ZERO;
+        let graph_clone = graph.clone();
+        let size = match self.dict[0].1 {
+            Value::Number(n, _) => n,
+            _ => panic!(),
+        };
+
+        for index in graph_clone.node_indices() {
+            avg_node += graph_clone[index].location;
+        }
+
+        avg_node /= graph_clone.node_count() as f32;
+
+        println!("{avg_node}");
+
+        // for index in graph_clone.node_indices() {
+        //     let node = &mut graph[index];
+
+        //     let f = node.location + (avg_node * size);
+
+        //     node.location = f;
+        // }
     }
 
     fn dict_mut(&mut self) -> &mut [(&'static str, Value)] {

@@ -46,6 +46,13 @@ impl<D: Clone> SimulationParameters<D> {
     pub fn force(&self) -> MutexGuard<dyn Force<D> + 'static> {
         self.force.lock().unwrap()
     }
+
+    pub fn from_force(force: impl Force<D> + 'static) -> Self {
+        Self {
+            force: Arc::new(Mutex::new(force)),
+            ..Default::default()
+        }
+    }
 }
 
 impl<D: Clone> Default for SimulationParameters<D> {
