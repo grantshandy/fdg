@@ -2,10 +2,8 @@ use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
-mod resize;
 
 pub use fruchterman_reingold::FruchtermanReingold;
-pub use resize::Resize;
 
 #[derive(Clone, Debug)]
 pub enum Value {
