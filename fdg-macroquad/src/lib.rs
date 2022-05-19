@@ -287,7 +287,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         if ui.button("Reset Settings").clicked() {
                             let mut p = sim.parameters_mut();
                             p.node_start_size = orig_params.node_start_size;
-                            p.force.lock().unwrap().reset();
+                            p.force.reset();
                             sim_speed = 1;
                             orbit_speed = 1.0;
                             zoom = 1.0;

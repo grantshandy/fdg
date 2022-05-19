@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex, MutexGuard};
-
 use crate::{
     force::{Force, FruchtermanReingold},
     ForceGraphHelper,
@@ -25,7 +23,7 @@ pub enum Dimensions {
 pub struct SimulationParameters<D> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: Arc<Mutex<dyn Force<D>>>,
+    pub force: Box<dyn Force<D>>,
 }
 
 impl<D: Clone> SimulationParameters<D> {
@@ -37,19 +35,19 @@ impl<D: Clone> SimulationParameters<D> {
         Self {
             node_start_size,
             dimensions,
-            force: Arc::new(Mutex::new(force)),
+            force: Box::new(force),
         }
     }
 }
 
 impl<D: Clone> SimulationParameters<D> {
-    pub fn force(&self) -> MutexGuard<dyn Force<D> + 'static> {
-        self.force.lock().unwrap()
+    pub fn force(&self) -> Box<dyn Force<D>> {
+        self.force.clone()
     }
 
     pub fn from_force(force: impl Force<D> + 'static) -> Self {
         Self {
-            force: Arc::new(Mutex::new(force)),
+            force: Box::new(force),
             ..Default::default()
         }
     }
@@ -60,7 +58,7 @@ impl<D: Clone> Default for SimulationParameters<D> {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: Arc::new(Mutex::new(FruchtermanReingold::default())),
+            force: Box::new(FruchtermanReingold::default()),
         }
     }
 }
