@@ -23,6 +23,4 @@ pub trait Force<D: Clone> {
     fn reset(&mut self);
     /// Retrieve a name for your force
     fn name(&self) -> &'static str;
-    /// Retrieve whether the force is continuous
-    fn continuous(&self) -> bool;
 }

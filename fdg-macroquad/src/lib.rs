@@ -38,8 +38,6 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let mut manual_step_length = default_manual_step_length;
 
     loop {
-        let continuous = sim.parameters().force().continuous();
-
         // Draw background
         clear_background(LIGHTGRAY);
 
@@ -314,32 +312,25 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         }
                     });
                     ui.separator();
-                    if continuous {
-                        ui.add(Checkbox::new(&mut manual, "Manual"));
+                    ui.add(Checkbox::new(&mut manual, "Manual"));
 
-                        if manual {
-                            ui.add(
-                                Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"),
-                            );
-                            if ui.button("Step").clicked() {
-                                sim.update(manual_step_length);
-                            }
-                        } else {
-                            ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
-                            let running_text = if running { "Stop" } else { "Start" };
-    
-                            if ui.button(running_text).clicked() {
-                                if running {
-                                    running = false;
-                                } else {
-                                    running = true;
-                                }
-                            }
+                    if manual {
+                        ui.add(
+                            Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"),
+                        );
+                        if ui.button("Step").clicked() {
+                            sim.update(manual_step_length);
                         }
                     } else {
-                        ui.add(Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"));
-                        if ui.button("Run").clicked() {
-                            sim.update(manual_step_length);
+                        ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
+                        let running_text = if running { "Stop" } else { "Start" };
+
+                        if ui.button(running_text).clicked() {
+                            if running {
+                                running = false;
+                            } else {
+                                running = true;
+                            }
                         }
                     }
                     ui.separator();
@@ -396,7 +387,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         });
 
         // update sim
-        if running && !manual && continuous {
+        if running && !manual {
             for _ in 0..sim_speed {
                 sim.update(0.035);
             }
