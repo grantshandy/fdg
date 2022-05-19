@@ -10,7 +10,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
 
-    let mut zoom: f32 = 2.0;
+    let mut zoom: f32 = 1.0;
     let mut sim_speed: u8 = 1;
 
     let default_node_size = 5.0;
@@ -34,8 +34,8 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let mut editable = false;
     let mut manual = false;
     let mut running = true;
-    let default_manual_step_length: f32 = 0.035;
-    let mut manual_step_length = default_manual_step_length;
+    let default_step_length: f32 = 0.035;
+    let mut step_length = default_step_length;
 
     loop {
         // Draw background
@@ -293,7 +293,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                             zoom = 1.0;
                             node_size = default_node_size;
                             edge_size = default_edge_size;
-                            manual_step_length = default_manual_step_length;
+                            step_length = default_step_length;
                         }
 
                         if ui
@@ -313,13 +313,13 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     });
                     ui.separator();
                     ui.add(Checkbox::new(&mut manual, "Manual"));
+                    ui.add(
+                        Slider::new(&mut step_length, 0.001..=0.5).text("Step Length"),
+                    );
 
                     if manual {
-                        ui.add(
-                            Slider::new(&mut manual_step_length, 0.001..=5.0).text("Step Length"),
-                        );
                         if ui.button("Step").clicked() {
-                            sim.update(manual_step_length);
+                            sim.update(step_length);
                         }
                     } else {
                         ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
@@ -389,7 +389,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         // update sim
         if running && !manual {
             for _ in 0..sim_speed {
-                sim.update(0.035);
+                sim.update(step_length);
             }
         }
 
