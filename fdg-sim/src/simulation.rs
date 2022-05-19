@@ -41,8 +41,8 @@ impl<D: Clone> SimulationParameters<D> {
 }
 
 impl<D: Clone> SimulationParameters<D> {
-    pub fn force(&self) -> Box<dyn Force<D>> {
-        self.force.clone()
+    pub fn force(&mut self) -> &mut dyn Force<D> {
+        self.force.as_mut()
     }
 
     pub fn from_force(force: impl Force<D> + 'static) -> Self {

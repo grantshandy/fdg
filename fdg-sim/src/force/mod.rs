@@ -1,6 +1,6 @@
 use crate::ForceGraph;
-use std::ops::RangeInclusive;
 use dyn_clone::DynClone;
+use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
 
@@ -27,4 +27,3 @@ pub trait Force<D>: DynClone {
 }
 
 dyn_clone::clone_trait_object!(<D> Force<D> where D: Clone);
-
