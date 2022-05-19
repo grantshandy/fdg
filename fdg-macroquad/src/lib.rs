@@ -363,7 +363,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
                     ui.separator();
-                    let force = sim.parameters_mut().force();
+                    let force = sim.parameters_mut().force_mut();
                     ui.label(force.name());
                     for (name, value) in force.dict_mut() {
                         match value {
