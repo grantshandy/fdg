@@ -11,7 +11,7 @@ pub struct FruchtermanReingold {
 }
 
 impl FruchtermanReingold {
-    pub fn new<D: Clone>(scale: f32, cooloff_factor: f32) -> Self {
+    pub fn new(scale: f32, cooloff_factor: f32) -> Self {
         let dict = vec![
             ("Scale", Value::Number(scale, 1.0..=200.0)),
             ("Cooloff Factor", Value::Number(cooloff_factor, 0.0..=1.0)),
@@ -26,15 +26,7 @@ impl FruchtermanReingold {
 
 impl Default for FruchtermanReingold {
     fn default() -> Self {
-        let dict = vec![
-            ("Scale", Value::Number(45.0, 1.0..=200.0)),
-            ("Cooloff Factor", Value::Number(0.975, 0.0..=1.0)),
-        ];
-
-        Self {
-            dict: dict.clone(),
-            dict_default: dict,
-        }
+        Self::new(45.0, 0.975)
     }
 }
 
