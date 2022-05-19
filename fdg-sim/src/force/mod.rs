@@ -1,5 +1,4 @@
 use crate::ForceGraph;
-use dyn_clone::DynClone;
 use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
@@ -13,7 +12,8 @@ pub enum Value {
 }
 
 /// A trait that contains all the methods that you need to create a force on the simulation.
-pub trait Force<D>: DynClone {
+#[dyn_clonable::clonable]
+pub trait Force<D>: Clone {
     /// Move the graph in any way you need.
     fn update(&self, graph: &mut ForceGraph<D>, dt: f32);
     /// Retrieve a mutable version of your internal dictionary that cooresponds to reused variables.
@@ -25,5 +25,3 @@ pub trait Force<D>: DynClone {
     /// Retrieve a name for your force
     fn name(&self) -> &'static str;
 }
-
-dyn_clone::clone_trait_object!(<D> Force<D> where D: Clone);

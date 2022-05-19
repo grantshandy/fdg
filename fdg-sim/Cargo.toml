@@ -16,7 +16,7 @@ categories = ["visualization"]
 glam = "0.20"
 petgraph = "0.6"
 quad-rand = "0.2"
-dyn-clone = "1.0"
+dyn-clonable = "0.9"
 regex = "1.5"
 serde_json = { version = "1", optional = true }
 wgpu = { version = "0.12", optional = true }
