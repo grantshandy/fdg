@@ -100,4 +100,8 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
     fn continuous(&self) -> bool {
         true
     }
+
+    fn info(&self) -> Option<&'static str> {
+        Some("A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).")
+    }
 }

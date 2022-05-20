@@ -41,8 +41,8 @@ impl<D: Clone> SimulationParameters<D> {
 }
 
 impl<D: Clone> SimulationParameters<D> {
-    pub fn force_mut(&mut self) -> &mut dyn Force<D> {
-        self.force.as_mut()
+    pub fn force_mut(&mut self) -> &mut Box<dyn Force<D>> {
+        &mut self.force
     }
 
     pub fn force(&self) -> &Box<dyn Force<D>> {

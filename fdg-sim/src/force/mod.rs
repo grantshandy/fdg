@@ -48,4 +48,6 @@ pub trait Force<D>: Clone {
     fn name(&self) -> &'static str;
     /// Retrieve if the force is continuous
     fn continuous(&self) -> bool;
+    /// Retrieve a bit of information (optional)
+    fn info(&self) -> Option<&'static str>;
 }

@@ -67,4 +67,8 @@ impl<D: Clone> Force<D> for Translate {
     fn continuous(&self) -> bool {
         false
     }
+
+    fn info(&self) -> Option<&'static str> {
+        Some("Moves the layout in any direction.")
+    }
 }

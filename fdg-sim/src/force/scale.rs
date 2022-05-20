@@ -47,4 +47,8 @@ impl<D: Clone> Force<D> for Scale {
     fn continuous(&self) -> bool {
         false
     }
+
+    fn info(&self) -> Option<&'static str> {
+        Some("Scales the layout around the center.")
+    }
 }

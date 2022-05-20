@@ -1,5 +1,5 @@
 use egui_macroquad::{
-    egui::{self, Checkbox, ComboBox, Slider},
+    egui::{self, Checkbox, ComboBox, Slider, CollapsingHeader},
     macroquad::prelude::*,
 };
 use fdg_sim::{
@@ -418,6 +418,11 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.separator();
                     let force = sim.parameters_mut().force_mut();
                     ui.label(force.name());
+                    if let Some(info) = force.info() {
+                        CollapsingHeader::new("Info").default_open(false).show(ui, |ui| {
+                            ui.label(info);
+                        });
+                    }
                     for (name, value) in force.dict_mut() {
                         match value {
                             Value::Number(value, range) => {
