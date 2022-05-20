@@ -3,17 +3,20 @@ use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
 mod translate;
+mod scale;
 
 pub use fruchterman_reingold::FruchtermanReingold;
 pub use translate::Translate;
+pub use scale::Scale;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Value {
     Number(f32, RangeInclusive<f32>),
     Bool(bool),
 }
 
 impl Value {
+    /// Retrieves the bool from a value. If you mess up and call it on a number it will return false.
     pub const fn bool(&self) -> bool {
         match self {
             Self::Bool(b) => *b,
@@ -21,6 +24,7 @@ impl Value {
         }
     }
 
+    /// Retrieves the number from a value. If you mess up and call it on a bool it will return 0.0.
     pub const fn number(&self) -> f32 {
         match self {
             Self::Number(n, _) => *n,

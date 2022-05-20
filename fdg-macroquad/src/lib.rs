@@ -3,7 +3,7 @@ use egui_macroquad::{
     macroquad::prelude::*,
 };
 use fdg_sim::{
-    force::{Force, FruchtermanReingold, Translate, Value},
+    force::{Force, FruchtermanReingold, Translate, Value, Scale},
     petgraph::graph::NodeIndex,
     Dimensions, Node, Simulation, Vec3,
 };
@@ -14,12 +14,14 @@ pub use {egui_macroquad::macroquad, fdg_sim};
 enum Forces {
     Translate,
     FruchtermanReingold,
+    Scale,
 }
 
 fn forces_to_force<D: Clone>(force: Forces) -> Box<dyn Force<D>> {
     match force {
         Forces::Translate => Box::new(Translate::default()),
         Forces::FruchtermanReingold => Box::new(FruchtermanReingold::default()),
+        Forces::Scale => Box::new(Scale::default()),
     }
 }
 
@@ -54,7 +56,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let default_step_length: f32 = 0.035;
     let mut step_length = default_step_length;
 
-    let possible_forces = vec![Forces::Translate, Forces::FruchtermanReingold];
+    let possible_forces = vec![Forces::FruchtermanReingold, Forces::Scale, Forces::Translate];
     let mut current_force = Forces::FruchtermanReingold;
 
     // reset force as current_force. Sorry lib users!
