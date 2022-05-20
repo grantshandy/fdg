@@ -111,7 +111,7 @@ impl<D: Clone> Simulation<D> {
     }
 
     pub fn update(&mut self, dt: f32) {
-        self.parameters.force().update(&mut self.graph, dt);
+        self.parameters.force_mut().update(&mut self.graph, dt);
     }
 
     pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>)) {

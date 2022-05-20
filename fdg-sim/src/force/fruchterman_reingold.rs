@@ -96,4 +96,8 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
     fn name(&self) -> &'static str {
         "Fruchterman-Reingold (1991)"
     }
+
+    fn continuous(&self) -> bool {
+        true
+    }
 }

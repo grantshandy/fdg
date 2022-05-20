@@ -2,13 +2,31 @@ use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
+mod translate;
 
 pub use fruchterman_reingold::FruchtermanReingold;
+pub use translate::Translate;
 
 #[derive(Clone, Debug)]
 pub enum Value {
     Number(f32, RangeInclusive<f32>),
     Bool(bool),
+}
+
+impl Value {
+    pub const fn bool(&self) -> bool {
+        match self {
+            Self::Bool(b) => *b,
+            _ => false,
+        }
+    }
+
+    pub const fn number(&self) -> f32 {
+        match self {
+            Self::Number(n, _) => *n,
+            _ => 0.0,
+        }
+    }
 }
 
 /// A trait that contains all the methods that you need to create a force on the simulation.
@@ -24,4 +42,6 @@ pub trait Force<D>: Clone {
     fn reset(&mut self);
     /// Retrieve a name for your force
     fn name(&self) -> &'static str;
+    /// Retrieve if the force is continuous
+    fn continuous(&self) -> bool;
 }
