@@ -398,7 +398,8 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                                 forces_to_force::<D>(current_force).name()
                             ))
                             .show_ui(ui, |ui| {
-                                for f in possible_forces.clone() {
+                                for f in &possible_forces {
+                                    let f = *f;
                                     ui.selectable_value(
                                         &mut current_force,
                                         f,
