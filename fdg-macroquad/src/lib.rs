@@ -1,10 +1,27 @@
 use egui_macroquad::{
-    egui::{self, Checkbox, Slider},
+    egui::{self, Checkbox, ComboBox, Slider},
     macroquad::prelude::*,
 };
-use fdg_sim::{force::Value, petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
+use fdg_sim::{
+    force::{Force, FruchtermanReingold, Translate, Value},
+    petgraph::graph::NodeIndex,
+    Dimensions, Node, Simulation, Vec3,
+};
 
 pub use {egui_macroquad::macroquad, fdg_sim};
+
+#[derive(Copy, Clone, Debug, PartialEq)]
+enum Forces {
+    Translate,
+    FruchtermanReingold,
+}
+
+fn forces_to_force<D: Clone>(force: Forces) -> Box<dyn Force<D>> {
+    match force {
+        Forces::Translate => Box::new(Translate::default()),
+        Forces::FruchtermanReingold => Box::new(FruchtermanReingold::default()),
+    }
+}
 
 pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters().clone();
@@ -36,6 +53,13 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let mut running = true;
     let default_step_length: f32 = 0.035;
     let mut step_length = default_step_length;
+
+    let possible_forces = vec![Forces::Translate, Forces::FruchtermanReingold];
+    let mut current_force = Forces::FruchtermanReingold;
+
+    // reset force as current_force. Sorry lib users!
+    sim.parameters_mut()
+        .set_force(forces_to_force(current_force));
 
     loop {
         // Draw background
@@ -314,10 +338,8 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.separator();
                     if sim.parameters().force().continuous() {
                         ui.add(Checkbox::new(&mut manual, "Manual"));
-                        ui.add(
-                            Slider::new(&mut step_length, 0.001..=0.5).text("Step Length"),
-                        );
-    
+                        ui.add(Slider::new(&mut step_length, 0.001..=0.5).text("Step Length"));
+
                         if manual {
                             if ui.button("Step").clicked() {
                                 sim.update(step_length);
@@ -325,7 +347,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         } else {
                             ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
                             let running_text = if running { "Stop" } else { "Start" };
-    
+
                             if ui.button(running_text).clicked() {
                                 if running {
                                     running = false;
@@ -368,6 +390,28 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
+                    ui.separator();
+                    ui.horizontal(|ui| {
+                        ComboBox::new("select_force", "")
+                            .selected_text(format!(
+                                "{}",
+                                forces_to_force::<D>(current_force).name()
+                            ))
+                            .show_ui(ui, |ui| {
+                                for f in possible_forces.clone() {
+                                    ui.selectable_value(
+                                        &mut current_force,
+                                        f,
+                                        forces_to_force::<D>(f).name(),
+                                    );
+                                }
+                            });
+
+                        if ui.button("Update").clicked() {
+                            sim.parameters_mut()
+                                .set_force(forces_to_force(current_force));
+                        }
+                    });
                     ui.separator();
                     let force = sim.parameters_mut().force_mut();
                     ui.label(force.name());

@@ -33,15 +33,15 @@ impl<D: Clone> Force<D> for Translate {
             if self.dict[1].1.bool() {
                 node.location.y -= distance;
             }
-    
+
             if self.dict[2].1.bool() {
                 node.location.y += distance;
             }
-    
+
             if self.dict[3].1.bool() {
                 node.location.x -= distance;
             }
-    
+
             if self.dict[4].1.bool() {
                 node.location.x += distance;
             }
