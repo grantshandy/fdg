@@ -1,9 +1,9 @@
 use egui_macroquad::{
-    egui::{self, Checkbox, ComboBox, Slider, CollapsingHeader},
+    egui::{self, Checkbox, CollapsingHeader, ComboBox, Slider},
     macroquad::prelude::*,
 };
 use fdg_sim::{
-    force::{Force, FruchtermanReingold, Translate, Value, Scale},
+    force::{Force, FruchtermanReingold, Scale, Translate, Value},
     petgraph::graph::NodeIndex,
     Dimensions, Node, Simulation, Vec3,
 };
@@ -56,7 +56,11 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let default_step_length: f32 = 0.035;
     let mut step_length = default_step_length;
 
-    let possible_forces = vec![Forces::FruchtermanReingold, Forces::Scale, Forces::Translate];
+    let possible_forces = vec![
+        Forces::FruchtermanReingold,
+        Forces::Scale,
+        Forces::Translate,
+    ];
     let mut current_force = Forces::FruchtermanReingold;
 
     // reset force as current_force. Sorry lib users!
@@ -419,9 +423,11 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     let force = sim.parameters_mut().force_mut();
                     ui.label(force.name());
                     if let Some(info) = force.info() {
-                        CollapsingHeader::new("Info").default_open(false).show(ui, |ui| {
-                            ui.label(info);
-                        });
+                        CollapsingHeader::new("Info")
+                            .default_open(false)
+                            .show(ui, |ui| {
+                                ui.label(info);
+                            });
                     }
                     for (name, value) in force.dict_mut() {
                         match value {

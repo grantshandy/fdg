@@ -2,12 +2,12 @@ use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
-mod translate;
 mod scale;
+mod translate;
 
 pub use fruchterman_reingold::FruchtermanReingold;
-pub use translate::Translate;
 pub use scale::Scale;
+pub use translate::Translate;
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Value {

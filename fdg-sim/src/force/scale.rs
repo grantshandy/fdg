@@ -1,19 +1,17 @@
 use crate::ForceGraph;
 
-use super::{Value, Force};
+use super::{Force, Value};
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Scale {
     dict: Vec<(&'static str, Value)>,
-    default_dict: Vec<(&'static str, Value)>
+    default_dict: Vec<(&'static str, Value)>,
 }
 
 impl Default for Scale {
     fn default() -> Self {
-        let dict = vec![
-            ("Scale Factor", Value::Number(1.5, 0.1..=10.0))
-        ];
-        
+        let dict = vec![("Scale Factor", Value::Number(1.5, 0.1..=10.0))];
+
         Self {
             dict: dict.clone(),
             default_dict: dict,
