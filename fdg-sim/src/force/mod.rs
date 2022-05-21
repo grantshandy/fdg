@@ -2,10 +2,12 @@ use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
+mod fruchterman_reingold_gpu;
 mod scale;
 mod translate;
 
 pub use fruchterman_reingold::FruchtermanReingold;
+pub use fruchterman_reingold_gpu::FruchtermanReingoldGpu;
 pub use scale::Scale;
 pub use translate::Translate;
 
