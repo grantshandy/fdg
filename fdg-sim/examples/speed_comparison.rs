@@ -1,5 +1,8 @@
 use chrono::prelude::*;
-use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, force::{FruchtermanReingoldGpu, FruchtermanReingold}};
+use fdg_sim::{
+    force::{FruchtermanReingold, FruchtermanReingoldGpu},
+    ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
+};
 use petgraph::graph::NodeIndex;
 use quad_rand::RandomRange;
 
@@ -35,7 +38,10 @@ fn gen_graph(graph: &mut ForceGraph<()>) {
 
 fn cpu(graph: &ForceGraph<()>) -> i64 {
     let b = Utc::now();
-    let mut sim = Simulation::from_graph(&graph, SimulationParameters::from_force(FruchtermanReingold::default()));
+    let mut sim = Simulation::from_graph(
+        &graph,
+        SimulationParameters::from_force(FruchtermanReingold::default()),
+    );
     for n in 0..NUM_CALCULATIONS {
         println!("Running CPU calculation {n}/{NUM_CALCULATIONS}");
         sim.update(TIME_DIFFERENCE);
@@ -45,9 +51,12 @@ fn cpu(graph: &ForceGraph<()>) -> i64 {
 
 fn gpu(graph: &ForceGraph<()>) -> i64 {
     let b = Utc::now();
-    let mut sim = Simulation::from_graph(&graph, SimulationParameters::from_force(FruchtermanReingoldGpu::default()));
+    let mut sim = Simulation::from_graph(
+        &graph,
+        SimulationParameters::from_force(FruchtermanReingoldGpu::default()),
+    );
     for n in 0..NUM_CALCULATIONS {
-        println!("Running CPU calculation {n}/{NUM_CALCULATIONS}");
+        println!("Running GPU calculation {n}/{NUM_CALCULATIONS}");
         sim.update(TIME_DIFFERENCE);
     }
     Utc::now().signed_duration_since(b).num_milliseconds()
