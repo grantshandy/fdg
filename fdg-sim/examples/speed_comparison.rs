@@ -42,8 +42,7 @@ fn cpu(graph: &ForceGraph<()>) -> i64 {
         &graph,
         SimulationParameters::from_force(FruchtermanReingold::default()),
     );
-    for n in 0..NUM_CALCULATIONS {
-        println!("Running CPU calculation {n}/{NUM_CALCULATIONS}");
+    for _ in 0..NUM_CALCULATIONS {
         sim.update(TIME_DIFFERENCE);
     }
     Utc::now().signed_duration_since(b).num_milliseconds()
@@ -55,8 +54,7 @@ fn gpu(graph: &ForceGraph<()>) -> i64 {
         &graph,
         SimulationParameters::from_force(FruchtermanReingoldGpu::default()),
     );
-    for n in 0..NUM_CALCULATIONS {
-        println!("Running GPU calculation {n}/{NUM_CALCULATIONS}");
+    for _ in 0..NUM_CALCULATIONS {
         sim.update(TIME_DIFFERENCE);
     }
     Utc::now().signed_duration_since(b).num_milliseconds()

@@ -1,9 +1,9 @@
 use glam::Vec3;
+use pollster::FutureExt;
 
 use crate::ForceGraph;
-use std::sync::Arc;
 
-use wgpu::{Adapter, Backends, Instance, RequestAdapterOptions};
+use wgpu::{Backends, Instance, RequestAdapterOptions};
 
 use super::{Force, Value};
 
@@ -109,33 +109,26 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct FruchtermanReingoldGpu {
     dict: Vec<(&'static str, Value)>,
     dict_default: Vec<(&'static str, Value)>,
-    instance: Arc<Instance>,
-    adapter: Arc<Adapter>,
-    // shader: Arc<ShaderModule>,
 }
 
 impl FruchtermanReingoldGpu {
     pub fn new() -> Option<Self> {
-        pollster::block_on(async {
-            let dict = Vec::new();
-            let instance = Instance::new(Backends::all());
-            let adapter = instance
-                .request_adapter(&RequestAdapterOptions::default())
-                .await?;
+        let dict = Vec::new();
+        let instance = Instance::new(Backends::all());
+        let adapter = instance
+            .request_adapter(&RequestAdapterOptions::default())
+            .block_on()?;
 
-            let info = adapter.get_info();
-            println!("{:#?}", info);
+        let info = adapter.get_info();
+        println!("{:#?}", info);
 
-            Some(Self {
-                dict: dict.clone(),
-                dict_default: dict,
-                instance: Arc::new(instance),
-                adapter: Arc::new(adapter),
-            })
+        Some(Self {
+            dict: dict.clone(),
+            dict_default: dict,
         })
     }
 }

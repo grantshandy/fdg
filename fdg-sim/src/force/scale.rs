@@ -21,8 +21,10 @@ impl Default for Scale {
 
 impl<D: Clone> Force<D> for Scale {
     fn update(&self, graph: &mut ForceGraph<D>, _dt: f32) {
+        let scale = self.dict[0].1.number();
+
         for node in graph.node_weights_mut() {
-            node.location *= self.dict[0].1.number();
+            node.location *= scale;
         }
     }
 
