@@ -1,5 +1,5 @@
 use crate::{
-    force::{Force, FruchtermanReingold},
+    force::{fruchterman_reingold, Force},
     ForceGraphHelper,
 };
 
@@ -20,43 +20,39 @@ pub enum Dimensions {
 
 /// Parameters for the simulation.
 #[derive(Clone)]
-pub struct SimulationParameters<D> {
+pub struct SimulationParameters<D: Clone> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: Box<dyn Force<D>>,
+    pub force: Force<D>,
 }
 
 impl<D: Clone> SimulationParameters<D> {
-    pub fn new(
-        node_start_size: f32,
-        dimensions: Dimensions,
-        force: impl Force<D> + 'static,
-    ) -> Self {
+    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<D>) -> Self {
         Self {
             node_start_size,
             dimensions,
-            force: Box::new(force),
+            force,
         }
     }
 }
 
 impl<D: Clone> SimulationParameters<D> {
-    pub fn force_mut(&mut self) -> &mut Box<dyn Force<D>> {
+    pub fn force_mut(&mut self) -> &Force<D> {
         &mut self.force
     }
 
-    pub fn force(&self) -> &Box<dyn Force<D>> {
+    pub fn force(&self) -> &Force<D> {
         &self.force
     }
 
-    pub fn from_force(force: impl Force<D> + 'static) -> Self {
+    pub fn from_force(force: Force<D>) -> Self {
         Self {
-            force: Box::new(force),
+            force,
             ..Default::default()
         }
     }
 
-    pub fn set_force(&mut self, force: Box<dyn Force<D>>) {
+    pub fn set_force(&mut self, force: Force<D>) {
         self.force = force.clone();
     }
 }
@@ -66,7 +62,7 @@ impl<D: Clone> Default for SimulationParameters<D> {
         Self {
             node_start_size: 200.0,
             dimensions: Dimensions::Two,
-            force: Box::new(FruchtermanReingold::default()),
+            force: fruchterman_reingold(45.0, 0.975),
         }
     }
 }
@@ -118,7 +114,7 @@ impl<D: Clone> Simulation<D> {
         self.parameters.force().update(&mut self.graph, dt);
     }
 
-    pub fn update_custom(&mut self, force: &Box<dyn Force<D> + 'static>, dt: f32) {
+    pub fn update_custom(&mut self, force: &Force<D>, dt: f32) {
         force.update(&mut self.graph, dt)
     }
 

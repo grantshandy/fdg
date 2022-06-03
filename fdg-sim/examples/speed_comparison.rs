@@ -1,7 +1,5 @@
 use chrono::prelude::*;
-use fdg_sim::{
-    force::FruchtermanReingold, ForceGraph, ForceGraphHelper, Simulation, SimulationParameters,
-};
+use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 use petgraph::graph::NodeIndex;
 use quad_rand::RandomRange;
 
@@ -37,10 +35,7 @@ fn gen_graph(graph: &mut ForceGraph<()>) {
 
 fn cpu(graph: &ForceGraph<()>) -> i64 {
     let b = Utc::now();
-    let mut sim = Simulation::from_graph(
-        &graph,
-        SimulationParameters::from_force(FruchtermanReingold::default()),
-    );
+    let mut sim = Simulation::from_graph(&graph, SimulationParameters::default());
     for _ in 0..NUM_CALCULATIONS {
         sim.update(TIME_DIFFERENCE);
     }
