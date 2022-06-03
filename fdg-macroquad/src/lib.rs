@@ -1,15 +1,21 @@
 use egui_macroquad::{
-    egui::{self, Checkbox, CollapsingHeader, Slider},
+    egui::{self, Checkbox, CollapsingHeader, ComboBox, Slider},
     macroquad::prelude::*,
 };
-use fdg_sim::{force::Value, petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
+use fdg_sim::{
+    force::{self, Value},
+    petgraph::graph::NodeIndex,
+    Dimensions, Node, Simulation, Vec3,
+};
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
 pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
-    let mut current_force = sim.parameters().force().clone();
+    let mut current_force = force::fruchterman_reingold::<D>(45.0, 0.975);
+
+    let forces = vec![current_force.clone(), force::scale(), force::translate()];
 
     let mut zoom: f32 = 1.0;
     let mut sim_speed: u8 = 1;
@@ -368,7 +374,17 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
                     ui.separator();
-                    ui.label(current_force.name());
+                    ComboBox::new("force_selector", "")
+                        .selected_text(current_force.name())
+                        .show_ui(ui, |ui| {
+                            for force in &forces {
+                                ui.selectable_value(
+                                    &mut current_force,
+                                    force.clone(),
+                                    force.name(),
+                                );
+                            }
+                        });
                     if let Some(info) = current_force.info() {
                         CollapsingHeader::new("Info")
                             .default_open(false)
@@ -397,7 +413,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         });
 
         // update sim
-        if running && !manual && sim.parameters().force().continuous() {
+        if running && !manual && current_force.continuous() {
             for _ in 0..sim_speed {
                 sim.update_custom(&current_force, step_length);
             }

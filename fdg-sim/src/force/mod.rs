@@ -37,6 +37,12 @@ pub struct Force<D: Clone> {
     update: fn(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<D>, dt: f32),
 }
 
+impl<D: Clone> PartialEq for Force<D> {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
 impl<D: Clone> Force<D> {
     pub fn update(&self, graph: &mut ForceGraph<D>, dt: f32) {
         (self.update)(self.dict.clone(), graph, dt);
@@ -138,16 +144,14 @@ pub fn scale<D: Clone>() -> Force<D> {
         }
     }
 
-    let dict = vec![("Scale Factor", Value::Number(1.5, 0.1..=10.0))];
+    let dict = vec![("Scale Factor", Value::Number(1.5, 0.1..=2.0))];
 
     Force {
         dict: dict.clone(),
         dict_default: dict,
         name: "Scale",
         continuous: false,
-        info: Some(
-            "Scales the layout around the center.",
-        ),
+        info: Some("Scales the layout around the center."),
         update,
     }
 }
@@ -188,9 +192,7 @@ pub fn translate<D: Clone>() -> Force<D> {
         dict_default: dict,
         name: "Translate",
         continuous: false,
-        info: Some(
-            "Moves the layout in any direction.",
-        ),
+        info: Some("Moves the layout in any direction."),
         update,
     }
 }
