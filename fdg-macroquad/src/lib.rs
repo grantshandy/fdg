@@ -15,7 +15,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let orig_graph = sim.get_graph().clone();
     let mut current_force = force::fruchterman_reingold::<D>(45.0, 0.975);
 
-    let forces = vec![current_force.clone(), force::scale(), force::translate()];
+    let forces = vec![current_force.clone(), force::scale(), force::translate(), force::force_atlas_2(45.0, 0.975)];
 
     let mut zoom: f32 = 1.0;
     let mut sim_speed: u8 = 1;

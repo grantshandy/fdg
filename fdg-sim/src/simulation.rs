@@ -213,8 +213,7 @@ pub struct Node<D> {
     pub velocity: Vec3,
     /// Color
     pub color: [u8; 4],
-    /// Mass
-    pub mass: f32,
+    /// If the location is locked
     pub locked: bool,
 }
 
@@ -227,7 +226,6 @@ impl<D> Node<D> {
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
             color: [0, 0, 0, 255],
-            mass: 1.0,
             locked: false,
         }
     }
@@ -240,7 +238,6 @@ impl<D> Node<D> {
             location: Vec3::ZERO,
             velocity: Vec3::ZERO,
             color,
-            mass: 1.0,
             locked: false,
         }
     }
@@ -252,7 +249,6 @@ impl<D> Node<D> {
             location,
             velocity: Vec3::ZERO,
             color: [0, 0, 0, 255],
-            mass: 1.0,
             locked: false,
         }
     }
