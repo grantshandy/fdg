@@ -19,7 +19,6 @@ quad-rand = "0.2"
 dyn-clonable = "0.9"
 regex = "1.5"
 serde_json = { version = "1", optional = true }
-wgpu = "0.12"
 pollster = "0.2.5"
 
 [dev-dependencies]

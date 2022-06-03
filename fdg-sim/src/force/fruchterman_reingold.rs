@@ -1,9 +1,6 @@
 use glam::Vec3;
-use pollster::FutureExt;
 
 use crate::ForceGraph;
-
-use wgpu::{Backends, Instance, RequestAdapterOptions};
 
 use super::{Force, Value};
 
@@ -106,66 +103,5 @@ impl<D: Clone> Force<D> for FruchtermanReingold {
 
     fn info(&self) -> Option<&'static str> {
         Some("A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).")
-    }
-}
-
-#[derive(Clone)]
-pub struct FruchtermanReingoldGpu {
-    dict: Vec<(&'static str, Value)>,
-    dict_default: Vec<(&'static str, Value)>,
-}
-
-impl FruchtermanReingoldGpu {
-    pub fn new() -> Option<Self> {
-        let dict = Vec::new();
-        let instance = Instance::new(Backends::all());
-        let adapter = instance
-            .request_adapter(&RequestAdapterOptions::default())
-            .block_on()?;
-
-        let info = adapter.get_info();
-        println!("{:#?}", info);
-
-        Some(Self {
-            dict: dict.clone(),
-            dict_default: dict,
-        })
-    }
-}
-
-impl Default for FruchtermanReingoldGpu {
-    fn default() -> Self {
-        Self::new().unwrap()
-    }
-}
-
-impl<D: Clone> Force<D> for FruchtermanReingoldGpu {
-    fn update(&self, _graph: &mut ForceGraph<D>, _dt: f32) {
-        // self.adapter
-        // self.instance
-    }
-
-    fn dict_mut(&mut self) -> &mut [(&'static str, Value)] {
-        &mut self.dict
-    }
-
-    fn dict(&self) -> &[(&'static str, Value)] {
-        &self.dict
-    }
-
-    fn reset(&mut self) {
-        self.dict = self.dict_default.clone();
-    }
-
-    fn name(&self) -> &'static str {
-        "Fruchterman-Reingold (1991) (GPU)"
-    }
-
-    fn continuous(&self) -> bool {
-        true
-    }
-
-    fn info(&self) -> Option<&'static str> {
-        Some("A GPU accelerated force directed graph drawing algorithm based on Fruchterman-Reingold (1991).")
     }
 }

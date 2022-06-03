@@ -1,33 +1,15 @@
 use egui_macroquad::{
-    egui::{self, Checkbox, CollapsingHeader, ComboBox, Slider},
+    egui::{self, Checkbox, CollapsingHeader, Slider},
     macroquad::prelude::*,
 };
-use fdg_sim::{
-    force::{Force, FruchtermanReingold, Scale, Translate, Value},
-    petgraph::graph::NodeIndex,
-    Dimensions, Node, Simulation, Vec3,
-};
+use fdg_sim::{force::Value, petgraph::graph::NodeIndex, Dimensions, Node, Simulation, Vec3};
 
 pub use {egui_macroquad::macroquad, fdg_sim};
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-enum Forces {
-    Translate,
-    FruchtermanReingold,
-    Scale,
-}
-
-fn forces_to_force<D: Clone>(force: Forces) -> Box<dyn Force<D>> {
-    match force {
-        Forces::Translate => Box::new(Translate::default()),
-        Forces::FruchtermanReingold => Box::new(FruchtermanReingold::default()),
-        Forces::Scale => Box::new(Scale::default()),
-    }
-}
 
 pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
+    let mut current_force = sim.parameters().force().clone();
 
     let mut zoom: f32 = 1.0;
     let mut sim_speed: u8 = 1;
@@ -55,17 +37,6 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
     let mut running = true;
     let default_step_length: f32 = 0.035;
     let mut step_length = default_step_length;
-
-    let possible_forces = vec![
-        Forces::FruchtermanReingold,
-        Forces::Scale,
-        Forces::Translate,
-    ];
-    let mut current_force = Forces::FruchtermanReingold;
-
-    // reset force as current_force. Sorry lib users!
-    sim.parameters_mut()
-        .set_force(forces_to_force(current_force));
 
     loop {
         // Draw background
@@ -317,7 +288,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         if ui.button("Reset Settings").clicked() {
                             let mut p = sim.parameters_mut();
                             p.node_start_size = orig_params.node_start_size;
-                            p.force.reset();
+                            current_force.reset();
                             sim_speed = 1;
                             orbit_speed = 1.0;
                             zoom = 1.0;
@@ -342,13 +313,13 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         }
                     });
                     ui.separator();
-                    if sim.parameters().force().continuous() {
+                    if current_force.continuous() {
                         ui.add(Checkbox::new(&mut manual, "Manual"));
                         ui.add(Slider::new(&mut step_length, 0.001..=0.5).text("Step Length"));
 
                         if manual {
                             if ui.button("Step").clicked() {
-                                sim.update(step_length);
+                                sim.update_custom(&current_force, step_length);
                             }
                         } else {
                             ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
@@ -364,7 +335,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         }
                     } else {
                         if ui.button("Run").clicked() {
-                            sim.update(0.0);
+                            sim.update_custom(&current_force, 0.0);
                         }
                     }
                     ui.separator();
@@ -397,39 +368,15 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
                     ui.separator();
-                    ui.horizontal(|ui| {
-                        ComboBox::new("select_force", "")
-                            .selected_text(format!(
-                                "{}",
-                                forces_to_force::<D>(current_force).name()
-                            ))
-                            .show_ui(ui, |ui| {
-                                for f in &possible_forces {
-                                    let f = *f;
-                                    ui.selectable_value(
-                                        &mut current_force,
-                                        f,
-                                        forces_to_force::<D>(f).name(),
-                                    );
-                                }
-                            });
-
-                        if ui.button("Update").clicked() {
-                            sim.parameters_mut()
-                                .set_force(forces_to_force(current_force));
-                        }
-                    });
-                    ui.separator();
-                    let force = sim.parameters_mut().force_mut();
-                    ui.label(force.name());
-                    if let Some(info) = force.info() {
+                    ui.label(current_force.name());
+                    if let Some(info) = current_force.info() {
                         CollapsingHeader::new("Info")
                             .default_open(false)
                             .show(ui, |ui| {
                                 ui.label(info);
                             });
                     }
-                    for (name, value) in force.dict_mut() {
+                    for (name, value) in current_force.dict_mut() {
                         match value {
                             Value::Number(value, range) => {
                                 ui.add(Slider::new(value, range.clone()).text(name))
@@ -437,7 +384,6 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                             Value::Bool(value) => ui.add(Checkbox::new(value, name.to_string())),
                         };
                     }
-                    drop(force);
                     ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
@@ -453,7 +399,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         // update sim
         if running && !manual && sim.parameters().force().continuous() {
             for _ in 0..sim_speed {
-                sim.update(step_length);
+                sim.update_custom(&current_force, step_length);
             }
         }
 

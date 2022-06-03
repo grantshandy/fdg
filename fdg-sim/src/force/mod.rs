@@ -5,7 +5,7 @@ mod fruchterman_reingold;
 mod scale;
 mod translate;
 
-pub use fruchterman_reingold::{FruchtermanReingold, FruchtermanReingoldGpu};
+pub use fruchterman_reingold::FruchtermanReingold;
 pub use scale::Scale;
 pub use translate::Translate;
 
