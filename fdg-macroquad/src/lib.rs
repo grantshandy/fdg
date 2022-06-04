@@ -20,7 +20,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
         force::scale(),
         force::translate(),
         force::force_atlas_2(45.0, 0.975),
-        force::handy(45.0, 0.975, true),
+        force::handy(45.0, 0.975, true, true),
     ];
 
     let mut zoom: f32 = 1.0;

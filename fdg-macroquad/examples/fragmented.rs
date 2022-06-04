@@ -8,7 +8,7 @@ async fn main() {
 
     let mut graph: ForceGraph<()> = ForceGraph::default();
 
-    for _ in 0..2 {
+    for _ in 0..3 {
         let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
         let layers: u8 = 1;
     
