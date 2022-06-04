@@ -85,7 +85,7 @@ pub fn handy<D: Clone>(scale: f32, cooloff_factor: f32, gravity: bool, centering
         ("Attractive", Value::Bool(true)),
         ("Scale", Value::Number(scale, 1.0..=200.0)),
         ("Cooloff Factor", Value::Number(cooloff_factor, 0.0..=1.0)),
-        ("Gravity Factor", Value::Number(4.0, 3.0..=10.0)),
+        ("Gravity Factor", Value::Number(3.0, 1.0..=10.0)),
         ("Centering", Value::Bool(centering)),
         ("Gravity", Value::Bool(gravity))
     ];
