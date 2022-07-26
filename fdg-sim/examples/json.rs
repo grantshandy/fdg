@@ -1,5 +1,5 @@
 use fdg_sim::{ForceGraph, ForceGraphHelper};
-use petgraph::visit::{IntoEdgeReferences, EdgeRef};
+use petgraph::visit::{EdgeRef, IntoEdgeReferences};
 
 fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
@@ -20,7 +20,6 @@ fn main() {
     let graph = fdg_sim::graph_from_json(json).unwrap();
 
     println!("deserialized:");
-    println!("=========");
 
     for node in graph.node_weights() {
         println!("{:?}", node.name);
@@ -31,7 +30,12 @@ fn main() {
     for edge in graph.edge_references() {
         let source = &graph[edge.source()];
         let target = &graph[edge.target()];
-        
-        println!("source: {}\ntarget: {}\ndata: {}\n", source.name, target.name, edge.weight());
+
+        println!(
+            "source: {}\ntarget: {}\ndata: {}\n",
+            source.name,
+            target.name,
+            edge.weight()
+        );
     }
 }

@@ -20,7 +20,7 @@ async fn main() {
     fdg_macroquad::run_window(&mut Simulation::from_graph(
         &graph,
         SimulationParameters::default(),
-    ))
+    ), true)
     .await;
 }
 

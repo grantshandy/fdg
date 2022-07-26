@@ -10,7 +10,7 @@ use fdg_sim::{
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
-pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + Default>(sim: &mut Simulation<N, E>) {
+pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + Default>(sim: &mut Simulation<N, E>, json: bool) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
     let mut current_force = force::fruchterman_reingold::<N, E>(45.0, 0.975);
@@ -405,6 +405,11 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
                             }
                             Value::Bool(value) => ui.add(Checkbox::new(value, name.to_string())),
                         };
+                    }
+                    if json {
+                        ui.separator();
+
+                        ui.label("json stuff");
                     }
                     ui.separator();
                     ui.horizontal(|ui| {

@@ -1,15 +1,14 @@
-use std::{collections::HashMap, error::Error};
+use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
 use petgraph::{
-    data::Build,
     graph::NodeIndex,
     visit::{EdgeRef, IntoEdgeReferences},
 };
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
-use crate::{ForceGraph, ForceGraphHelper, Node};
+use crate::{ForceGraph, Node};
 
 #[derive(Serialize, Deserialize)]
 struct JsonGraph {

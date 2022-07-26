@@ -22,5 +22,5 @@ async fn main() {
 
     let mut sim = Simulation::from_graph(&graph, SimulationParameters::default());
 
-    fdg_macroquad::run_window(&mut sim).await;
+    fdg_macroquad::run_window(&mut sim, true).await;
 }

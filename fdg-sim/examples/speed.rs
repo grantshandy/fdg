@@ -13,9 +13,7 @@ fn main() {
     gen_graph(&mut graph);
 
     let cpu = cpu(&graph);
-    // let gpu = gpu(&graph);
     println!("cpu took {cpu} milliseconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.");
-    // println!("gpu took {gpu} milliseconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.")
 }
 
 fn gen_graph(graph: &mut ForceGraph<(), ()>) {
@@ -41,15 +39,3 @@ fn cpu(graph: &ForceGraph<(), ()>) -> i64 {
     }
     Utc::now().signed_duration_since(b).num_milliseconds()
 }
-
-// fn gpu(graph: &ForceGraph<(),  ()>) -> i64 {
-//     let b = Utc::now();
-//     let mut sim = Simulation::from_graph(
-//         &graph,
-//         SimulationParameters::from_force(FruchtermanReingoldGpu::default()),
-//     );
-//     for _ in 0..NUM_CALCULATIONS {
-//         sim.update(TIME_DIFFERENCE);
-//     }
-//     Utc::now().signed_duration_since(b).num_milliseconds()
-// }
