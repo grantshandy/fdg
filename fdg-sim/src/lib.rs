@@ -4,6 +4,9 @@ pub mod force;
 mod graph;
 mod simulation;
 
+#[cfg(feature = "json")]
+mod json;
+
 pub use {
     glam::Vec3,
     graph::{ForceGraph, ForceGraphHelper},
@@ -12,4 +15,4 @@ pub use {
 };
 
 #[cfg(feature = "json")]
-pub use graph::graph_from_json;
+pub use json::{graph_from_json, json_from_graph};

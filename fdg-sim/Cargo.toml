@@ -18,11 +18,13 @@ petgraph = "0.6"
 quad-rand = "0.2"
 dyn-clonable = "0.9"
 regex = "1.5"
+serde = { version = "1.0", optional = true }
 serde_json = { version = "1", optional = true }
 pollster = "0.2.5"
+anyhow = { version = "1", optional = true }
 
 [dev-dependencies]
 chrono = "0.4"
 
 [features]
-json = ["serde_json"]
+json = ["serde/derive", "glam/serde", "petgraph/serde-1", "serde_json", "anyhow"]

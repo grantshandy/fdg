@@ -8,6 +8,9 @@ use petgraph::{
 };
 use quad_rand::RandomRange;
 
+#[cfg(feature = "json")]
+use serde::Serialize;
+
 /// Number of dimensions to run the simulation in.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Dimensions {
@@ -191,6 +194,7 @@ impl<N: Clone, E: Clone> Default for Simulation<N, E> {
 
 /// A node on a [`ForceGraph`].
 #[derive(Clone, PartialEq)]
+#[cfg_attr(feature = "json", derive(Serialize))]
 pub struct Node<N> {
     /// The name of the node
     pub name: String,
@@ -206,9 +210,9 @@ pub struct Node<N> {
     pub locked: bool,
 }
 
-impl<D> Node<D> {
+impl<N> Node<N> {
     /// Create a new node with it's name and associated data
-    pub fn new(name: impl AsRef<str>, data: D) -> Self {
+    pub fn new(name: impl AsRef<str>, data: N) -> Self {
         Self {
             name: name.as_ref().to_string(),
             data,
@@ -220,7 +224,7 @@ impl<D> Node<D> {
     }
 
     /// Create a new node with a custom color
-    pub fn new_with_color(name: impl AsRef<str>, data: D, color: [u8; 4]) -> Self {
+    pub fn new_with_color(name: impl AsRef<str>, data: N, color: [u8; 4]) -> Self {
         Self {
             name: name.as_ref().to_string(),
             data,
@@ -231,7 +235,7 @@ impl<D> Node<D> {
         }
     }
 
-    pub fn new_with_coords(name: impl AsRef<str>, data: D, location: Vec3) -> Self {
+    pub fn new_with_coords(name: impl AsRef<str>, data: N, location: Vec3) -> Self {
         Self {
             name: name.as_ref().to_string(),
             data,

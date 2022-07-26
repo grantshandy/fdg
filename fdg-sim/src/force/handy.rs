@@ -4,8 +4,17 @@ use crate::{force::Value, ForceGraph};
 
 use super::Force;
 
-pub fn handy<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32, gravity: bool, centering: bool) -> Force<N, E> {
-    fn update<N: Clone, E: Clone>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, dt: f32) {
+pub fn handy<N: Clone, E: Clone>(
+    scale: f32,
+    cooloff_factor: f32,
+    gravity: bool,
+    centering: bool,
+) -> Force<N, E> {
+    fn update<N: Clone, E: Clone>(
+        dict: Vec<(&'static str, Value)>,
+        graph: &mut ForceGraph<N, E>,
+        dt: f32,
+    ) {
         let graph_clone = graph.clone();
 
         let repulsive = dict[0].1.bool();
@@ -35,13 +44,14 @@ pub fn handy<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32, gravity: bool,
                     if other_node_index == node_index {
                         continue;
                     }
-    
+
                     let node_two = &graph_clone[other_node_index];
-    
+
                     let unit_vector = (node_two.location - node_one.location)
                         / node_one.location.distance(node_two.location);
-    
-                    final_force += -((scale * scale) / node_one.location.distance(node_two.location))
+
+                    final_force += -((scale * scale)
+                        / node_one.location.distance(node_two.location))
                         * unit_vector;
                 }
             }
@@ -49,12 +59,12 @@ pub fn handy<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32, gravity: bool,
             if attractive {
                 for neighbor_index in graph_clone.neighbors(node_index) {
                     let node_two = &graph_clone[neighbor_index];
-    
+
                     let unit_vector = (node_two.location - node_one.location)
                         / node_one.location.distance(node_two.location);
-    
-                    final_force +=
-                        (node_one.location.distance_squared(node_two.location) / scale) * unit_vector;
+
+                    final_force += (node_one.location.distance_squared(node_two.location) / scale)
+                        * unit_vector;
                 }
             }
 
@@ -87,7 +97,7 @@ pub fn handy<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32, gravity: bool,
         ("Cooloff Factor", Value::Number(cooloff_factor, 0.0..=1.0)),
         ("Gravity Factor", Value::Number(3.0, 1.0..=10.0)),
         ("Centering", Value::Bool(centering)),
-        ("Gravity", Value::Bool(gravity))
+        ("Gravity", Value::Bool(gravity)),
     ];
 
     Force {
