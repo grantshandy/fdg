@@ -4,5 +4,5 @@ use fdg_sim::Simulation;
 async fn main() {
     pretty_env_logger::init();
 
-    fdg_macroquad::run_window(&mut Simulation::<()>::default()).await;
+    fdg_macroquad::run_window(&mut Simulation::<(), ()>::default()).await;
 }

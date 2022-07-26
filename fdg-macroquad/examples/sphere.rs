@@ -6,7 +6,7 @@ use fdg_sim::{
 async fn main() {
     pretty_env_logger::init();
 
-    let mut graph: ForceGraph<()> = ForceGraph::default();
+    let mut graph: ForceGraph<(),  ()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
     let height = 10;

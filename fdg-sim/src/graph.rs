@@ -7,15 +7,15 @@ use super::Node;
 use petgraph::{graph::NodeIndex, stable_graph::StableGraph, Undirected};
 
 /// A helper type that creates a [`StableGraph`] with our custom [`Node`].
-pub type ForceGraph<D> = StableGraph<Node<D>, (), Undirected>;
+pub type ForceGraph<N, E> = StableGraph<Node<N>, E, Undirected>;
 
 /// Syntactic sugar to make adding [`Node`]s to a [`ForceGraph`] easier.
-pub trait ForceGraphHelper<D> {
-    fn add_force_node(&mut self, name: impl AsRef<str>, data: D) -> NodeIndex;
+pub trait ForceGraphHelper<N, E> {
+    fn add_force_node(&mut self, name: impl AsRef<str>, data: N) -> NodeIndex;
 }
 
-impl<D> ForceGraphHelper<D> for ForceGraph<D> {
-    fn add_force_node(&mut self, name: impl AsRef<str>, data: D) -> NodeIndex {
+impl<N, E> ForceGraphHelper<N, E> for ForceGraph<N, E> {
+    fn add_force_node(&mut self, name: impl AsRef<str>, data: N) -> NodeIndex {
         self.add_node(Node::new(name, data))
     }
 }
@@ -47,8 +47,8 @@ impl<D> ForceGraphHelper<D> for ForceGraph<D> {
 ///     }
 /// }
 #[cfg(feature = "json")]
-pub fn graph_from_json(json: impl AsRef<str>) -> Option<ForceGraph<String>> {
-    let mut final_graph: ForceGraph<String> = ForceGraph::default();
+pub fn graph_from_json(json: impl AsRef<str>) -> Option<ForceGraph<String, String>> {
+    let mut final_graph: ForceGraph<String, String> = ForceGraph::default();
     let mut indices: HashMap<String, NodeIndex> = HashMap::new();
 
     let json: Value = match serde_json::from_str(json.as_ref()) {
@@ -80,7 +80,7 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Option<ForceGraph<String>> {
                     .get(&edge.get("target")?.to_string().replace("\"", ""))
                     .unwrap();
 
-                final_graph.add_edge(source, target, ());
+                final_graph.add_edge(source, target, edge.to_string());
             }
         }
     };

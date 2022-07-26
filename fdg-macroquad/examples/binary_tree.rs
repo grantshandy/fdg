@@ -6,7 +6,7 @@ use fdg_sim::{
 async fn main() {
     pretty_env_logger::init();
 
-    let mut graph: ForceGraph<()> = ForceGraph::default();
+    let mut graph: ForceGraph<(),  ()> = ForceGraph::default();
     let parent = graph.add_force_node("", ());
 
     tree(&mut graph, parent, 9);
@@ -18,7 +18,7 @@ async fn main() {
     .await;
 }
 
-fn tree(graph: &mut ForceGraph<()>, parent: NodeIndex, depth: u8) {
+fn tree(graph: &mut ForceGraph<(),  ()>, parent: NodeIndex, depth: u8) {
     let mut depth = depth;
     let mut graph = graph;
 

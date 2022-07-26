@@ -10,10 +10,10 @@ use fdg_sim::{
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
-pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>) {
+pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + Default>(sim: &mut Simulation<N, E>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
-    let mut current_force = force::fruchterman_reingold::<D>(45.0, 0.975);
+    let mut current_force = force::fruchterman_reingold::<N, E>(45.0, 0.975);
 
     let forces = vec![
         current_force.clone(),
@@ -108,7 +108,7 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                                 && is_mouse_button_down(MouseButton::Left)
                             {
                                 let g = sim.get_graph_mut();
-                                g.add_edge(hovered, selected_node_index, ());
+                                g.add_edge(hovered, selected_node_index, E::default());
                             }
                         }
                     }
@@ -145,12 +145,12 @@ pub async fn run_window<D: Clone + PartialEq + Default>(sim: &mut Simulation<D>)
                         if is_mouse_button_down(MouseButton::Left) {
                             let new_node = sim.get_graph_mut().add_node(Node::new_with_coords(
                                 "",
-                                D::default(),
+                                N::default(),
                                 Vec3::new(mouse.0, mouse.1, 0.0),
                             ));
 
                             if let Some(selected_node) = selected_node {
-                                sim.get_graph_mut().add_edge(selected_node, new_node, ());
+                                sim.get_graph_mut().add_edge(selected_node, new_node, E::default());
                             }
                         }
                     }

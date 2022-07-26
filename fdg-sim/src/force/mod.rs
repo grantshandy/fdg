@@ -34,23 +34,23 @@ impl Value {
 }
 
 #[derive(Clone)]
-pub struct Force<D: Clone> {
+pub struct Force<N: Clone, E: Clone> {
     dict: Vec<(&'static str, Value)>,
     dict_default: Vec<(&'static str, Value)>,
     name: &'static str,
     continuous: bool,
     info: Option<&'static str>,
-    update: fn(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<D>, dt: f32),
+    update: fn(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, dt: f32),
 }
 
-impl<D: Clone> PartialEq for Force<D> {
+impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
     fn eq(&self, other: &Self) -> bool {
         self.name == other.name
     }
 }
 
-impl<D: Clone> Force<D> {
-    pub fn update(&self, graph: &mut ForceGraph<D>, dt: f32) {
+impl<N: Clone, E: Clone> Force<N, E> {
+    pub fn update(&self, graph: &mut ForceGraph<N, E>, dt: f32) {
         (self.update)(self.dict.clone(), graph, dt);
     }
 
@@ -79,8 +79,8 @@ impl<D: Clone> Force<D> {
     }
 }
 
-pub fn scale<D: Clone>() -> Force<D> {
-    fn update<D>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<D>, _dt: f32) {
+pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
+    fn update<N, E>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, _dt: f32) {
         let scale = dict[0].1.number();
 
         for node in graph.node_weights_mut() {
@@ -100,8 +100,8 @@ pub fn scale<D: Clone>() -> Force<D> {
     }
 }
 
-pub fn translate<D: Clone>() -> Force<D> {
-    fn update<D>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<D>, _dt: f32) {
+pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
+    fn update<N, E>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, _dt: f32) {
         let distance = dict[0].1.number();
 
         for node in graph.node_weights_mut() {

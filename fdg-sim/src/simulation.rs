@@ -1,7 +1,4 @@
-use crate::{
-    force::{fruchterman_reingold, Force},
-    ForceGraphHelper,
-};
+use crate::force::{fruchterman_reingold, Force};
 
 use super::ForceGraph;
 use glam::Vec3;
@@ -20,14 +17,14 @@ pub enum Dimensions {
 
 /// Parameters for the simulation.
 #[derive(Clone)]
-pub struct SimulationParameters<D: Clone> {
+pub struct SimulationParameters<N: Clone, E: Clone> {
     pub node_start_size: f32,
     pub dimensions: Dimensions,
-    pub force: Force<D>,
+    pub force: Force<N, E>,
 }
 
-impl<D: Clone> SimulationParameters<D> {
-    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<D>) -> Self {
+impl<N: Clone, E: Clone> SimulationParameters<N, E> {
+    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<N, E>) -> Self {
         Self {
             node_start_size,
             dimensions,
@@ -36,28 +33,28 @@ impl<D: Clone> SimulationParameters<D> {
     }
 }
 
-impl<D: Clone> SimulationParameters<D> {
-    pub fn force_mut(&mut self) -> &Force<D> {
+impl<N: Clone, E: Clone> SimulationParameters<N, E> {
+    pub fn force_mut(&mut self) -> &Force<N, E> {
         &mut self.force
     }
 
-    pub fn force(&self) -> &Force<D> {
+    pub fn force(&self) -> &Force<N, E> {
         &self.force
     }
 
-    pub fn from_force(force: Force<D>) -> Self {
+    pub fn from_force(force: Force<N, E>) -> Self {
         Self {
             force,
             ..Default::default()
         }
     }
 
-    pub fn set_force(&mut self, force: Force<D>) {
+    pub fn set_force(&mut self, force: Force<N, E>) {
         self.force = force.clone();
     }
 }
 
-impl<D: Clone> Default for SimulationParameters<D> {
+impl<N: Clone, E: Clone> Default for SimulationParameters<N, E> {
     fn default() -> Self {
         Self {
             node_start_size: 200.0,
@@ -69,13 +66,13 @@ impl<D: Clone> Default for SimulationParameters<D> {
 
 /// A simulation that runs all physics on the CPU.
 #[derive(Clone)]
-pub struct Simulation<D: Clone> {
-    graph: ForceGraph<D>,
-    parameters: SimulationParameters<D>,
+pub struct Simulation<N: Clone, E: Clone> {
+    graph: ForceGraph<N, E>,
+    parameters: SimulationParameters<N, E>,
 }
 
-impl<D: Clone> Simulation<D> {
-    pub fn from_graph(graph: &ForceGraph<D>, parameters: SimulationParameters<D>) -> Self {
+impl<N: Clone, E: Clone> Simulation<N, E> {
+    pub fn from_graph(graph: &ForceGraph<N, E>, parameters: SimulationParameters<N, E>) -> Self {
         let mut myself = Self {
             graph: graph.clone(),
             parameters,
@@ -114,17 +111,17 @@ impl<D: Clone> Simulation<D> {
         self.parameters.force().update(&mut self.graph, dt);
     }
 
-    pub fn update_custom(&mut self, force: &Force<D>, dt: f32) {
+    pub fn update_custom(&mut self, force: &Force<N, E>, dt: f32) {
         force.update(&mut self.graph, dt)
     }
 
-    pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<D>)) {
+    pub fn visit_nodes(&self, cb: &mut impl Fn(&Node<N>)) {
         for n_idx in self.graph.node_indices() {
             cb(&self.graph[n_idx]);
         }
     }
 
-    pub fn visit_edges(&self, cb: &mut impl Fn(&Node<D>, &Node<D>)) {
+    pub fn visit_edges(&self, cb: &mut impl Fn(&Node<N>, &Node<N>)) {
         for edge_ref in self.graph.edge_references() {
             cb(
                 &self.graph[edge_ref.source()],
@@ -133,27 +130,19 @@ impl<D: Clone> Simulation<D> {
         }
     }
 
-    pub fn add_node(&mut self, name: impl AsRef<str>, data: D) -> NodeIndex {
-        self.graph.add_force_node(name, data)
-    }
-
-    pub fn add_edge(&mut self, a: NodeIndex, b: NodeIndex) -> EdgeIndex {
-        self.graph.add_edge(a, b, ())
-    }
-
-    pub fn get_graph(&self) -> &ForceGraph<D> {
+    pub fn get_graph(&self) -> &ForceGraph<N, E> {
         &self.graph
     }
 
-    pub fn get_graph_mut(&mut self) -> &mut ForceGraph<D> {
+    pub fn get_graph_mut(&mut self) -> &mut ForceGraph<N, E> {
         &mut self.graph
     }
 
-    pub fn set_graph(&mut self, graph: &ForceGraph<D>) {
+    pub fn set_graph(&mut self, graph: &ForceGraph<N, E>) {
         self.graph = graph.clone();
     }
 
-    pub fn remove_node(&mut self, index: NodeIndex) -> Option<Node<D>> {
+    pub fn remove_node(&mut self, index: NodeIndex) -> Option<Node<N>> {
         self.graph.remove_node(index)
     }
 
@@ -165,11 +154,11 @@ impl<D: Clone> Simulation<D> {
         self.graph.clear();
     }
 
-    pub fn parameters(&self) -> &SimulationParameters<D> {
+    pub fn parameters(&self) -> &SimulationParameters<N, E> {
         &self.parameters
     }
 
-    pub fn parameters_mut(&mut self) -> &mut SimulationParameters<D> {
+    pub fn parameters_mut(&mut self) -> &mut SimulationParameters<N, E> {
         &mut self.parameters
     }
 
@@ -194,7 +183,7 @@ impl<D: Clone> Simulation<D> {
     }
 }
 
-impl<D: Clone> Default for Simulation<D> {
+impl<N: Clone, E: Clone> Default for Simulation<N, E> {
     fn default() -> Self {
         return Self::from_graph(&ForceGraph::default(), SimulationParameters::default());
     }
@@ -202,11 +191,11 @@ impl<D: Clone> Default for Simulation<D> {
 
 /// A node on a [`ForceGraph`].
 #[derive(Clone, PartialEq)]
-pub struct Node<D> {
+pub struct Node<N> {
     /// The name of the node
     pub name: String,
     /// data can be some other arbitrary information you want to store.
-    pub data: D,
+    pub data: N,
     /// 3D coordinates
     pub location: Vec3,
     /// 3D velocity

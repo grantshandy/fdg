@@ -6,7 +6,7 @@ use fdg_sim::{
 async fn main() {
     pretty_env_logger::init();
 
-    let mut graph: ForceGraph<()> = ForceGraph::default();
+    let mut graph: ForceGraph<(),  ()> = ForceGraph::default();
 
     for _ in 0..3 {
         let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
@@ -24,7 +24,7 @@ async fn main() {
     .await;
 }
 
-fn add_layer(graph: &mut ForceGraph<()>, inner: [NodeIndex; 8]) -> [NodeIndex; 8] {
+fn add_layer(graph: &mut ForceGraph<(),  ()>, inner: [NodeIndex; 8]) -> [NodeIndex; 8] {
     let mut graph = graph;
     let new_cube = gen_cube(&mut graph);
 
@@ -40,7 +40,7 @@ fn add_layer(graph: &mut ForceGraph<()>, inner: [NodeIndex; 8]) -> [NodeIndex; 8
     new_cube
 }
 
-fn gen_cube(graph: &mut ForceGraph<()>) -> [NodeIndex; 8] {
+fn gen_cube(graph: &mut ForceGraph<(),  ()>) -> [NodeIndex; 8] {
     let one = graph.add_force_node("one", ());
     let two = graph.add_force_node("two", ());
     let three = graph.add_force_node("three", ());

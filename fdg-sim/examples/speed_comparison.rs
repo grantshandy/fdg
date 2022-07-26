@@ -9,7 +9,7 @@ const TIME_DIFFERENCE: f32 = 0.0032;
 const NUM_CALCULATIONS: u32 = 100;
 
 fn main() {
-    let mut graph: ForceGraph<()> = ForceGraph::default();
+    let mut graph: ForceGraph<(), ()> = ForceGraph::default();
     gen_graph(&mut graph);
 
     let cpu = cpu(&graph);
@@ -18,7 +18,7 @@ fn main() {
     // println!("gpu took {gpu} milliseconds to simulate a graph with {NUM_NODES} nodes and {NUM_EDGES} edges {NUM_CALCULATIONS} times with an interval of {TIME_DIFFERENCE} seconds.")
 }
 
-fn gen_graph(graph: &mut ForceGraph<()>) {
+fn gen_graph(graph: &mut ForceGraph<(), ()>) {
     let mut indices: Vec<NodeIndex> = Vec::new();
 
     for _ in 0..NUM_NODES {
@@ -33,7 +33,7 @@ fn gen_graph(graph: &mut ForceGraph<()>) {
     }
 }
 
-fn cpu(graph: &ForceGraph<()>) -> i64 {
+fn cpu(graph: &ForceGraph<(), ()>) -> i64 {
     let b = Utc::now();
     let mut sim = Simulation::from_graph(&graph, SimulationParameters::default());
     for _ in 0..NUM_CALCULATIONS {
@@ -42,7 +42,7 @@ fn cpu(graph: &ForceGraph<()>) -> i64 {
     Utc::now().signed_duration_since(b).num_milliseconds()
 }
 
-// fn gpu(graph: &ForceGraph<()>) -> i64 {
+// fn gpu(graph: &ForceGraph<(),  ()>) -> i64 {
 //     let b = Utc::now();
 //     let mut sim = Simulation::from_graph(
 //         &graph,

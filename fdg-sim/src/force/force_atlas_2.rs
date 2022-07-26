@@ -4,8 +4,8 @@ use crate::{force::Value, ForceGraph};
 
 use super::Force;
 
-pub fn force_atlas_2<D: Clone>(scale: f32, cooloff_factor: f32) -> Force<D> {
-    fn update<D: Clone>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<D>, dt: f32) {
+pub fn force_atlas_2<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
+    fn update<N: Clone, E: Clone>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, dt: f32) {
         let graph_clone = graph.clone();
 
         let scale = dict[0].1.number();

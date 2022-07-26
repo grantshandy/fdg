@@ -4,7 +4,7 @@ use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 async fn main() {
     pretty_env_logger::init();
 
-    let mut graph: ForceGraph<()> = ForceGraph::default();
+    let mut graph: ForceGraph<(),  ()> = ForceGraph::default();
 
     let nodes = 100;
 

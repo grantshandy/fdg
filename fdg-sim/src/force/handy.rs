@@ -4,8 +4,8 @@ use crate::{force::Value, ForceGraph};
 
 use super::Force;
 
-pub fn handy<D: Clone>(scale: f32, cooloff_factor: f32, gravity: bool, centering: bool) -> Force<D> {
-    fn update<D: Clone>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<D>, dt: f32) {
+pub fn handy<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32, gravity: bool, centering: bool) -> Force<N, E> {
+    fn update<N: Clone, E: Clone>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, dt: f32) {
         let graph_clone = graph.clone();
 
         let repulsive = dict[0].1.bool();
