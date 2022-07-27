@@ -5,8 +5,8 @@ A Force Directed Graph Framework for Rust.
 [![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/skylinecc/fdg/blob/main/LICENSE)
 
-![2D example](./screenshots/screenshot-2D.png)
-![3D example](./screenshots/screenshot-3D.png)
+![2D example](https://github.com/grantshandy/fdg/raw/main/screenshots/screenshot-2D.png)
+![3D example](https://github.com/grantshandy/fdg/raw/main/screenshots/screenshot-3D.png)
 
 The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop.
 
