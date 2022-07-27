@@ -9,7 +9,7 @@ repository = "https://github.com/skylinecc/fdg/"
 documentation = "https://docs.rs/fdg_sim/"
 keywords = ["graph", "fruchterman", "reingold", "force", "directed"]
 categories = ["visualization"]
-readme = "../README.md"
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
