@@ -5,15 +5,17 @@ use egui_macroquad::{
 use fdg_sim::{
     force::{self, Value},
     petgraph::graph::NodeIndex,
-    Dimensions, Node, Simulation, Vec3,
+    Dimensions, Node, Simulation, Vec3, ForceGraph,
 };
+pub use serde_json::Value as JsonValue;
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
-pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + Default>(sim: &mut Simulation<N, E>, json: bool) {
+pub async fn run_window(
+    mut sim: &mut Simulation<JsonValue, JsonValue>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
-    let mut current_force = force::fruchterman_reingold::<N, E>(45.0, 0.975);
+    let mut current_force = force::fruchterman_reingold(45.0, 0.975);
 
     let forces = vec![
         current_force.clone(),
@@ -23,8 +25,9 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
         force::handy(45.0, 0.975, true, true),
     ];
 
-    let mut zoom: f32 = 1.0;
     let mut sim_speed: u8 = 1;
+    let mut zoom: f32 = 1.0;
+    let mut json = false;
 
     let default_node_size = 5.0;
     let default_edge_size = 1.5;
@@ -36,7 +39,7 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
 
     let mut orbit_speed: f32 = 1.0;
     let mut orbit = true;
-    let mut show_grid = true;
+    let mut show_grid = true;   
 
     let mut show_edges = true;
     let mut show_nodes = true;
@@ -50,25 +53,19 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
     let default_step_length: f32 = 0.035;
     let mut step_length = default_step_length;
 
+    let mut json_buffer = String::new();
+    let mut json_error: Option<String> = None;
+
+    if json {
+        (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
+    }
+
     loop {
         // Draw background
         clear_background(LIGHTGRAY);
 
         if is_key_down(KeyCode::R) {
             sim.reset_node_placement();
-        }
-
-        let mouse_wheel_y = mouse_wheel().1;
-
-        if mouse_wheel_y < 0. {
-            zoom -= 0.025;
-            if zoom < 0.05 {
-                zoom = 0.05;
-            }
-        }
-
-        if mouse_wheel_y > 0. {
-            zoom += 0.025;
         }
 
         // Draw edges and nodes
@@ -108,7 +105,9 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
                                 && is_mouse_button_down(MouseButton::Left)
                             {
                                 let g = sim.get_graph_mut();
-                                g.add_edge(hovered, selected_node_index, E::default());
+                                g.add_edge(hovered, selected_node_index, JsonValue::default());
+
+                                (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
                             }
                         }
                     }
@@ -145,13 +144,16 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
                         if is_mouse_button_down(MouseButton::Left) {
                             let new_node = sim.get_graph_mut().add_node(Node::new_with_coords(
                                 "",
-                                N::default(),
+                                JsonValue::default(),
                                 Vec3::new(mouse.0, mouse.1, 0.0),
                             ));
 
                             if let Some(selected_node) = selected_node {
-                                sim.get_graph_mut().add_edge(selected_node, new_node, E::default());
+                                sim.get_graph_mut()
+                                    .add_edge(selected_node, new_node, JsonValue::default());
                             }
+
+                            (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
                         }
                     }
                 }
@@ -229,7 +231,7 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
                         DARKBLUE,
                     );
                 } else if let Some(index) = hovered_node {
-                    let node = &sim.get_graph()[index];
+                    let node: &Node<JsonValue> = &sim.get_graph()[index];
                     let screen_mouse = mouse_position();
                     draw_text(
                         &node.name,
@@ -288,13 +290,34 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
 
         // Draw gui
         egui_macroquad::ui(|egui_ctx| {
+            if json {
+                egui::Window::new("Json")
+                .anchor(egui::Align2::RIGHT_TOP, [-20.0, 20.0])
+                .fixed_size([200.0, 500.0])
+                .show(egui_ctx, |ui| {
+                    egui::ScrollArea::new([true, true]).show(ui, |ui| {
+                        ui.text_edit_multiline(&mut json_buffer);
+                    });
+                    if let Some(error) = &json_error {
+                        ui.label(format!("error: {error}"));
+                    }
+                    if ui.button("Update").clicked() {
+                        json_error = update_graph(&json_buffer, &mut sim);
+                        sim.reset_node_placement();
+                    }
+                });
+            }
+
             egui::Window::new("Settings")
+                .anchor(egui::Align2::LEFT_TOP, [20.0, 20.0])
                 .fixed_size([50.0, 50.0])
                 .show(egui_ctx, |ui| {
                     ui.horizontal(|ui| {
                         if ui.button("Restart Simulation").clicked() {
                             sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
+
+                            (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
                         }
 
                         if ui.button("Reset Settings").clicked() {
@@ -379,6 +402,9 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
+                    if ui.checkbox(&mut json, "Json (beta)").changed() {
+                        (json_buffer, json_error) = update_json_buffer(&json_buffer, &mut sim.get_graph());
+                    };
                     ui.separator();
                     ComboBox::new("force_selector", "")
                         .selected_text(current_force.name())
@@ -406,11 +432,6 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
                             Value::Bool(value) => ui.add(Checkbox::new(value, name.to_string())),
                         };
                     }
-                    if json {
-                        ui.separator();
-
-                        ui.label("json stuff");
-                    }
                     ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
@@ -435,5 +456,30 @@ pub async fn run_window<N: Clone + PartialEq + Default, E: Clone + PartialEq + D
 
         // go to next frame
         next_frame().await;
+    }
+}
+
+fn update_graph(buffer: &str, sim: &mut Simulation<JsonValue, JsonValue>) -> Option<String> {
+    match fdg_sim::graph_from_json(buffer) {
+        Ok(new_graph) => {
+            sim.set_graph(&new_graph);
+
+            None
+        },
+        Err(err) => {
+            Some(err.to_string())
+        },
+    }
+}
+
+fn update_json_buffer(buffer: &str, graph: &ForceGraph<JsonValue, JsonValue>) -> (String, Option<String>) {
+    let old_buffer = buffer.clone();
+    
+    match fdg_sim::json_from_graph(graph) {
+        Ok(b) => match jsonxf::pretty_print(&b) {
+            Ok(b) => (b, None),
+            Err(err) => (old_buffer.to_string(), Some(err.to_string())),
+        },
+        Err(err) => (old_buffer.to_string(), Some(err.to_string()))
     }
 }

@@ -1,64 +1,78 @@
 {
-    "graph": {
-        "nodes": {
-            "1": {},
-            "2": {},
-            "3": {},
-            "4": {},
-            "5": {},
-            "6": {},
-            "7": {},
-            "8": {}
+    "nodes": [
+        {
+            "name": "1"
         },
-        "edges": [
-            {
-                "source": "1",
-                "target": "2"
-            },
-            {
-                "source": "2",
-                "target": "3"
-            },
-            {
-                "source": "3",
-                "target": "4"
-            },
-            {
-                "source": "4",
-                "target": "1"
-            },
-            {
-                "source": "5",
-                "target": "6"
-            },
-            {
-                "source": "6",
-                "target": "7"
-            },
-            {
-                "source": "7",
-                "target": "8"
-            },
-            {
-                "source": "8",
-                "target": "5"
-            },
-            {
-                "source": "1",
-                "target": "5"
-            },
-            {
-                "source": "2",
-                "target": "6"
-            },
-            {
-                "source": "3",
-                "target": "7"
-            },
-            {
-                "source": "4",
-                "target": "8"
-            }
-        ]
-    }
+        {
+            "name": "2"
+        },
+        {
+            "name": "3"
+        },
+        {
+            "name": "4"
+        },
+        {
+            "name": "5"
+        },
+        {
+            "name": "6"
+        },
+        {
+            "name": "7"
+        },
+        {
+            "name": "8"
+        }
+    ],
+    "edges": [
+        {
+            "source": "1",
+            "target": "2"
+        },
+        {
+            "source": "2",
+            "target": "3"
+        },
+        {
+            "source": "3",
+            "target": "4"
+        },
+        {
+            "source": "4",
+            "target": "1"
+        },
+        {
+            "source": "5",
+            "target": "6"
+        },
+        {
+            "source": "6",
+            "target": "7"
+        },
+        {
+            "source": "7",
+            "target": "8"
+        },
+        {
+            "source": "8",
+            "target": "5"
+        },
+        {
+            "source": "1",
+            "target": "5"
+        },
+        {
+            "source": "2",
+            "target": "6"
+        },
+        {
+            "source": "3",
+            "target": "7"
+        },
+        {
+            "source": "4",
+            "target": "8"
+        }
+    ]
 }
