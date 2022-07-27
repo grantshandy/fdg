@@ -2,6 +2,14 @@
 name = "fdg-macroquad"
 version = "0.2.0"
 edition = "2021"
+authors = ["Grant Handy <grantshandy@gmail.com>"]
+license = "GPL-3.0"
+description = "The macroquad based visualizer for fdg"
+repository = "https://github.com/skylinecc/fdg/"
+documentation = "https://docs.rs/fdg_macroquad/"
+keywords = ["graph", "force", "macroquad"]
+categories = ["visualization"]
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
