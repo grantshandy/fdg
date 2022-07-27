@@ -29,3 +29,7 @@ chrono = "0.4"
 
 [features]
 json = ["serde/derive", "glam/serde", "petgraph/serde-1", "serde_json", "anyhow"]
+
+[[example]]
+name = "json-parity"
+required-features = ["json"]
