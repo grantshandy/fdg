@@ -1,14 +1,15 @@
 [package]
 name = "fdg-sim"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
-authors = ["Grant Handy <grantshandy@gmail.com>", "Aditya Suresh <ethanaditya@gmail.com>"]
+authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "GPL-3.0"
 description = "A flexible force directed graph simulation"
 repository = "https://github.com/skylinecc/fdg/"
 documentation = "https://docs.rs/fdg_sim/"
 keywords = ["graph", "fruchterman", "reingold", "force", "directed"]
 categories = ["visualization"]
+readme = "../README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
