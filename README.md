@@ -17,15 +17,11 @@ The goal of this project is to provide a force-directed graph framework and algo
 - `/fdg-macroquad` A visualizer for `fdg-sim` that uses `macroquad` for rendering.
 
 ## Structure
-```
------------------------
-|  Your Application   |
------------------------
-|    fdg-macroquad    |
------------------------
-|       fdg-sim       |
------------------------
-```
+
+| Your Application |
+|--------------|
+| fdg-macroquad |
+| fdg-sim      |
 
 ## Resources
 - [Force-Directed Graphs on Wikipedia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing)

@@ -18,14 +18,17 @@ async fn main() {
         }
     }
 
-    fdg_macroquad::run_window(
-        &mut Simulation::from_graph(&graph, SimulationParameters::default()),
-        
-    )
+    fdg_macroquad::run_window(&mut Simulation::from_graph(
+        &graph,
+        SimulationParameters::default(),
+    ))
     .await;
 }
 
-fn add_layer(graph: &mut ForceGraph<JsonValue, JsonValue>, inner: [NodeIndex; 8]) -> [NodeIndex; 8] {
+fn add_layer(
+    graph: &mut ForceGraph<JsonValue, JsonValue>,
+    inner: [NodeIndex; 8],
+) -> [NodeIndex; 8] {
     let mut graph = graph;
     let new_cube = gen_cube(&mut graph);
 

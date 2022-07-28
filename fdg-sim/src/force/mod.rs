@@ -1,21 +1,35 @@
 use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
-mod force_atlas_2;
+// mod force_atlas_2;
 mod fruchterman_reingold;
 mod handy;
 
-pub use force_atlas_2::force_atlas_2;
-pub use fruchterman_reingold::fruchterman_reingold;
-pub use handy::handy;
+// pub use force_atlas_2::force_atlas_2;
+pub use {fruchterman_reingold::fruchterman_reingold, handy::handy};
 
+/// An entry in a [`Force`]'s dictionary.
 #[derive(Clone, Debug, PartialEq)]
-pub enum Value {
+pub struct DictionaryEntry {
+    pub name: &'static str,
+    pub value: ForceValue,
+}
+
+impl DictionaryEntry {
+    /// Create a new [`DictionaryEntry`].
+    pub fn new(name: &'static str, value: ForceValue) -> Self {
+        Self { name, value }
+    }
+}
+
+/// A value that you can change in a [`Force`]'s dictionary.
+#[derive(Clone, Debug, PartialEq)]
+pub enum ForceValue {
     Number(f32, RangeInclusive<f32>),
     Bool(bool),
 }
 
-impl Value {
+impl ForceValue {
     /// Retrieves the bool from a value. If you mess up and call it on a number it will return false.
     pub const fn bool(&self) -> bool {
         match self {
@@ -35,18 +49,12 @@ impl Value {
 
 #[derive(Clone)]
 pub struct Force<N: Clone, E: Clone> {
-    dict: Vec<(&'static str, Value)>,
-    dict_default: Vec<(&'static str, Value)>,
+    dict: Vec<DictionaryEntry>,
+    dict_default: Vec<DictionaryEntry>,
     name: &'static str,
     continuous: bool,
     info: Option<&'static str>,
-    update: fn(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, dt: f32),
-}
-
-impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
-    fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
-    }
+    update: fn(dict: Vec<DictionaryEntry>, graph: &mut ForceGraph<N, E>, dt: f32),
 }
 
 impl<N: Clone, E: Clone> Force<N, E> {
@@ -54,11 +62,11 @@ impl<N: Clone, E: Clone> Force<N, E> {
         (self.update)(self.dict.clone(), graph, dt);
     }
 
-    pub fn dict_mut(&mut self) -> &mut [(&'static str, Value)] {
+    pub fn dict_mut(&mut self) -> &mut [DictionaryEntry] {
         &mut self.dict
     }
 
-    pub fn dict(&self) -> &[(&'static str, Value)] {
+    pub fn dict(&self) -> &[DictionaryEntry] {
         &self.dict
     }
 
@@ -79,56 +87,67 @@ impl<N: Clone, E: Clone> Force<N, E> {
     }
 }
 
+impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+
+/// A force for scaling the layout around the center of the graph.
 pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
-    fn update<N, E>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, _dt: f32) {
-        let scale = dict[0].1.number();
+    fn update<N, E>(dict: Vec<DictionaryEntry>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+        let scale = dict[0].value.number();
 
         for node in graph.node_weights_mut() {
             node.location *= scale;
         }
     }
 
-    let dict = vec![("Scale Factor", Value::Number(1.5, 0.1..=2.0))];
+    let dict = vec![DictionaryEntry::new(
+        "Scale Factor",
+        ForceValue::Number(1.5, 0.1..=2.0),
+    )];
 
     Force {
         dict: dict.clone(),
         dict_default: dict,
         name: "Scale",
         continuous: false,
-        info: Some("Scales the layout around the center."),
+        info: Some("Scales the layout around the center of the graph."),
         update,
     }
 }
 
+/// A force for translating the graph in any direction.
 pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
-    fn update<N, E>(dict: Vec<(&'static str, Value)>, graph: &mut ForceGraph<N, E>, _dt: f32) {
-        let distance = dict[0].1.number();
+    fn update<N, E>(dict: Vec<DictionaryEntry>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+        let distance = dict[0].value.number();
 
         for node in graph.node_weights_mut() {
-            if dict[1].1.bool() {
+            if dict[1].value.bool() {
                 node.location.y -= distance;
             }
 
-            if dict[2].1.bool() {
+            if dict[2].value.bool() {
                 node.location.y += distance;
             }
 
-            if dict[3].1.bool() {
+            if dict[3].value.bool() {
                 node.location.x -= distance;
             }
 
-            if dict[4].1.bool() {
+            if dict[4].value.bool() {
                 node.location.x += distance;
             }
         }
     }
 
     let dict = vec![
-        ("Distance", Value::Number(7.0, 0.0..=100.0)),
-        ("Up", Value::Bool(false)),
-        ("Down", Value::Bool(false)),
-        ("Left", Value::Bool(false)),
-        ("Right", Value::Bool(false)),
+        DictionaryEntry::new("Distance", ForceValue::Number(7.0, 0.0..=100.0)),
+        DictionaryEntry::new("Up", ForceValue::Bool(false)),
+        DictionaryEntry::new("Down", ForceValue::Bool(false)),
+        DictionaryEntry::new("Left", ForceValue::Bool(false)),
+        DictionaryEntry::new("Right", ForceValue::Bool(false)),
     ];
 
     Force {

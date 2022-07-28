@@ -5,14 +5,13 @@ use egui_macroquad::{
 use fdg_sim::{
     force::{self, Value},
     petgraph::graph::NodeIndex,
-    Dimensions, Node, Simulation, Vec3, ForceGraph,
+    Dimensions, ForceGraph, Node, Simulation, Vec3,
 };
 pub use serde_json::Value as JsonValue;
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
-pub async fn run_window(
-    mut sim: &mut Simulation<JsonValue, JsonValue>) {
+pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
     let mut current_force = force::fruchterman_reingold(45.0, 0.975);
@@ -39,7 +38,7 @@ pub async fn run_window(
 
     let mut orbit_speed: f32 = 1.0;
     let mut orbit = true;
-    let mut show_grid = true;   
+    let mut show_grid = true;
 
     let mut show_edges = true;
     let mut show_nodes = true;
@@ -107,7 +106,8 @@ pub async fn run_window(
                                 let g = sim.get_graph_mut();
                                 g.add_edge(hovered, selected_node_index, JsonValue::default());
 
-                                (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
+                                (json_buffer, json_error) =
+                                    update_json_buffer(&json_buffer, &sim.get_graph());
                             }
                         }
                     }
@@ -149,11 +149,15 @@ pub async fn run_window(
                             ));
 
                             if let Some(selected_node) = selected_node {
-                                sim.get_graph_mut()
-                                    .add_edge(selected_node, new_node, JsonValue::default());
+                                sim.get_graph_mut().add_edge(
+                                    selected_node,
+                                    new_node,
+                                    JsonValue::default(),
+                                );
                             }
 
-                            (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
+                            (json_buffer, json_error) =
+                                update_json_buffer(&json_buffer, &sim.get_graph());
                         }
                     }
                 }
@@ -292,20 +296,20 @@ pub async fn run_window(
         egui_macroquad::ui(|egui_ctx| {
             if json {
                 egui::Window::new("Json")
-                .anchor(egui::Align2::RIGHT_TOP, [-20.0, 20.0])
-                .fixed_size([200.0, 500.0])
-                .show(egui_ctx, |ui| {
-                    egui::ScrollArea::new([true, true]).show(ui, |ui| {
-                        ui.text_edit_multiline(&mut json_buffer);
+                    .anchor(egui::Align2::RIGHT_TOP, [-20.0, 20.0])
+                    .fixed_size([200.0, 500.0])
+                    .show(egui_ctx, |ui| {
+                        egui::ScrollArea::new([true, true]).show(ui, |ui| {
+                            ui.text_edit_multiline(&mut json_buffer);
+                        });
+                        if let Some(error) = &json_error {
+                            ui.label(format!("error: {error}"));
+                        }
+                        if ui.button("Update").clicked() {
+                            json_error = update_graph(&json_buffer, &mut sim);
+                            sim.reset_node_placement();
+                        }
                     });
-                    if let Some(error) = &json_error {
-                        ui.label(format!("error: {error}"));
-                    }
-                    if ui.button("Update").clicked() {
-                        json_error = update_graph(&json_buffer, &mut sim);
-                        sim.reset_node_placement();
-                    }
-                });
             }
 
             egui::Window::new("Settings")
@@ -317,7 +321,8 @@ pub async fn run_window(
                             sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
 
-                            (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
+                            (json_buffer, json_error) =
+                                update_json_buffer(&json_buffer, &sim.get_graph());
                         }
 
                         if ui.button("Reset Settings").clicked() {
@@ -403,7 +408,8 @@ pub async fn run_window(
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     ui.checkbox(&mut editable, "Editable");
                     if ui.checkbox(&mut json, "Json (beta)").changed() {
-                        (json_buffer, json_error) = update_json_buffer(&json_buffer, &mut sim.get_graph());
+                        (json_buffer, json_error) =
+                            update_json_buffer(&json_buffer, &mut sim.get_graph());
                     };
                     ui.separator();
                     ComboBox::new("force_selector", "")
@@ -465,21 +471,22 @@ fn update_graph(buffer: &str, sim: &mut Simulation<JsonValue, JsonValue>) -> Opt
             sim.set_graph(&new_graph);
 
             None
-        },
-        Err(err) => {
-            Some(err.to_string())
-        },
+        }
+        Err(err) => Some(err.to_string()),
     }
 }
 
-fn update_json_buffer(buffer: &str, graph: &ForceGraph<JsonValue, JsonValue>) -> (String, Option<String>) {
+fn update_json_buffer(
+    buffer: &str,
+    graph: &ForceGraph<JsonValue, JsonValue>,
+) -> (String, Option<String>) {
     let old_buffer = buffer.clone();
-    
+
     match fdg_sim::json_from_graph(graph) {
         Ok(b) => match jsonxf::pretty_print(&b) {
             Ok(b) => (b, None),
             Err(err) => (old_buffer.to_string(), Some(err.to_string())),
         },
-        Err(err) => (old_buffer.to_string(), Some(err.to_string()))
+        Err(err) => (old_buffer.to_string(), Some(err.to_string())),
     }
 }

@@ -1,9 +1,13 @@
 use glam::Vec3;
 
-use crate::{force::Value, ForceGraph};
+use crate::{
+    force::{DictionaryEntry, ForceValue},
+    ForceGraph,
+};
 
 use super::Force;
 
+/// My own force-directed graph drawing algorithm
 pub fn handy<N: Clone, E: Clone>(
     scale: f32,
     cooloff_factor: f32,
@@ -11,19 +15,19 @@ pub fn handy<N: Clone, E: Clone>(
     centering: bool,
 ) -> Force<N, E> {
     fn update<N: Clone, E: Clone>(
-        dict: Vec<(&'static str, Value)>,
+        dict: Vec<DictionaryEntry>,
         graph: &mut ForceGraph<N, E>,
         dt: f32,
     ) {
         let graph_clone = graph.clone();
 
-        let repulsive = dict[0].1.bool();
-        let attractive = dict[1].1.bool();
-        let scale = dict[2].1.number();
-        let cooloff_factor = dict[3].1.number();
-        let gravity_factor = dict[4].1.number();
-        let centering = dict[5].1.bool();
-        let gravity = dict[6].1.bool();
+        let repulsive = dict[0].value.bool();
+        let attractive = dict[1].value.bool();
+        let scale = dict[2].value.number();
+        let cooloff_factor = dict[3].value.number();
+        let gravity_factor = dict[4].value.number();
+        let centering = dict[5].value.bool();
+        let gravity = dict[6].value.bool();
 
         let mut vec_sum = Vec3::ZERO;
 
@@ -91,13 +95,16 @@ pub fn handy<N: Clone, E: Clone>(
     }
 
     let dict = vec![
-        ("Repulsive", Value::Bool(true)),
-        ("Attractive", Value::Bool(true)),
-        ("Scale", Value::Number(scale, 1.0..=200.0)),
-        ("Cooloff Factor", Value::Number(cooloff_factor, 0.0..=1.0)),
-        ("Gravity Factor", Value::Number(3.0, 1.0..=10.0)),
-        ("Centering", Value::Bool(centering)),
-        ("Gravity", Value::Bool(gravity)),
+        DictionaryEntry::new("Repulsive", ForceValue::Bool(true)),
+        DictionaryEntry::new("Attractive", ForceValue::Bool(true)),
+        DictionaryEntry::new("Scale", ForceValue::Number(scale, 1.0..=200.0)),
+        DictionaryEntry::new(
+            "Cooloff Factor",
+            ForceValue::Number(cooloff_factor, 0.0..=1.0),
+        ),
+        DictionaryEntry::new("Gravity Factor", ForceValue::Number(3.0, 1.0..=10.0)),
+        DictionaryEntry::new("Centering", ForceValue::Bool(centering)),
+        DictionaryEntry::new("Gravity", ForceValue::Bool(gravity)),
     ];
 
     Force {
@@ -105,7 +112,7 @@ pub fn handy<N: Clone, E: Clone>(
         dict_default: dict,
         name: "Handy",
         continuous: true,
-        info: Some("Custom Force Directed Algorithm by Grant Handy (2022)"),
+        info: Some("Force Directed Algorithm by Grant Handy (2022)"),
         update,
     }
 }

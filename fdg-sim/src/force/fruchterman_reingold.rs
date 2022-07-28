@@ -1,19 +1,23 @@
 use glam::Vec3;
 
-use crate::{force::Value, ForceGraph};
+use crate::{
+    force::{DictionaryEntry, ForceValue},
+    ForceGraph,
+};
 
 use super::Force;
 
+/// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).
 pub fn fruchterman_reingold<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
     fn update<N: Clone, E: Clone>(
-        dict: Vec<(&'static str, Value)>,
+        dict: Vec<DictionaryEntry>,
         graph: &mut ForceGraph<N, E>,
         dt: f32,
     ) {
         let graph_clone = graph.clone();
 
-        let scale = dict[0].1.number();
-        let cooloff_factor = dict[1].1.number();
+        let scale = dict[0].value.number();
+        let cooloff_factor = dict[1].value.number();
 
         for node_index in graph_clone.node_indices() {
             if graph_clone[node_index].locked {
@@ -53,8 +57,11 @@ pub fn fruchterman_reingold<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32)
     }
 
     let dict = vec![
-        ("Scale", Value::Number(scale, 1.0..=200.0)),
-        ("Cooloff Factor", Value::Number(cooloff_factor, 0.0..=1.0)),
+        DictionaryEntry::new("Scale", ForceValue::Number(scale, 1.0..=200.0)),
+        DictionaryEntry::new(
+            "Cooloff Factor",
+            ForceValue::Number(cooloff_factor, 0.0..=1.0),
+        ),
     ];
 
     Force {

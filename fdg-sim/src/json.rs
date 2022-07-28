@@ -1,3 +1,25 @@
+//!
+//! Generate graphs from json formatted similar to the [json graph specification](https://github.com/jsongraph/json-graph-specification).
+//! Not all features are implemented, but basic graphs like should work:
+//! ```json
+//! {
+//!   "nodes": [
+//!     {
+//!       "name": "A"
+//!     },
+//!     {
+//!       "name": "B"
+//!     }
+//!   ],
+//!   "edges": [
+//!     {
+//!       "source": "A",
+//!       "target": "B"
+//!     }
+//!   ]
+//! }
+//! ```
+
 use std::collections::HashMap;
 
 use anyhow::{anyhow, Result};
@@ -30,6 +52,7 @@ struct JsonEdge {
     data: Option<Value>,
 }
 
+/// Get JSON from a [`ForceGraph`].
 pub fn json_from_graph<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Result<String> {
     let mut nodes = Vec::new();
     let mut edges = Vec::new();
@@ -59,26 +82,7 @@ pub fn json_from_graph<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> 
     Ok(json)
 }
 
-/// Generate a graph from json formatted similar to the [json graph specification](https://github.com/jsongraph/json-graph-specification).
-/// Not all features are implemented, but basic graphs like should work:
-/// ```json
-/// {
-///   "nodes": [
-///     {
-///       "name": "A"
-///     },
-///     {
-///       "name": "B"
-///     }
-///   ],
-///   "edges": [
-///     {
-///       "source": "A",
-///       "target": "B"
-///     }
-///   ]
-/// }
-/// ```
+/// Get a [`ForceGraph`] from JSON.
 pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>> {
     let json: JsonGraph = serde_json::from_str(json.as_ref())?;
 

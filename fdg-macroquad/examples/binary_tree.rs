@@ -12,10 +12,10 @@ async fn main() {
 
     tree(&mut graph, parent, 9);
 
-    fdg_macroquad::run_window(
-        &mut Simulation::from_graph(&graph, SimulationParameters::default()),
-        
-    )
+    fdg_macroquad::run_window(&mut Simulation::from_graph(
+        &graph,
+        SimulationParameters::default(),
+    ))
     .await;
 }
 

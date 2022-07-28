@@ -1,3 +1,7 @@
+/// NOT WORKING!
+/// I was unable to replicate the paper from the whitepaper
+/// so far...
+
 use glam::Vec3;
 
 use crate::{force::Value, ForceGraph};

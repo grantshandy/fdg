@@ -10,7 +10,7 @@ async fn main() {
     let mut graph: ForceGraph<JsonValue, JsonValue> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
-    let size = 25;
+    let size = 50;
 
     for x in 0..size {
         for y in 0..size {
@@ -21,18 +21,26 @@ async fn main() {
     for y in 0..size {
         for x in 0..size {
             if x != 0 {
-                graph.add_edge(indices[(size * y) + x], indices[((size * y) + x) - 1], JsonValue::default());
+                graph.add_edge(
+                    indices[(size * y) + x],
+                    indices[((size * y) + x) - 1],
+                    JsonValue::default(),
+                );
             }
 
             if y != 0 {
-                graph.add_edge(indices[(size * y) + x], indices[(size * (y - 1)) + x], JsonValue::default());
+                graph.add_edge(
+                    indices[(size * y) + x],
+                    indices[(size * (y - 1)) + x],
+                    JsonValue::default(),
+                );
             }
         }
     }
 
-    fdg_macroquad::run_window(
-        &mut Simulation::from_graph(&graph, SimulationParameters::default()),
-        
-    )
+    fdg_macroquad::run_window(&mut Simulation::from_graph(
+        &graph,
+        SimulationParameters::default(),
+    ))
     .await;
 }
