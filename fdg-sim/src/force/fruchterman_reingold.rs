@@ -10,7 +10,7 @@ use super::Force;
 /// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).
 pub fn fruchterman_reingold<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
     fn update<N: Clone, E: Clone>(
-        dict: Vec<DictionaryEntry>,
+        dict: &[DictionaryEntry],
         graph: &mut ForceGraph<N, E>,
         dt: f32,
     ) {

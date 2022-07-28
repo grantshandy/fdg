@@ -1,11 +1,9 @@
 use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
-// mod force_atlas_2;
 mod fruchterman_reingold;
 mod handy;
 
-// pub use force_atlas_2::force_atlas_2;
 pub use {fruchterman_reingold::fruchterman_reingold, handy::handy};
 
 /// An entry in a [`Force`]'s dictionary.
@@ -54,36 +52,44 @@ pub struct Force<N: Clone, E: Clone> {
     name: &'static str,
     continuous: bool,
     info: Option<&'static str>,
-    update: fn(dict: Vec<DictionaryEntry>, graph: &mut ForceGraph<N, E>, dt: f32),
+    update: fn(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, dt: f32),
 }
 
 impl<N: Clone, E: Clone> Force<N, E> {
-    pub fn update(&self, graph: &mut ForceGraph<N, E>, dt: f32) {
-        (self.update)(self.dict.clone(), graph, dt);
-    }
-
-    pub fn dict_mut(&mut self) -> &mut [DictionaryEntry] {
-        &mut self.dict
-    }
-
-    pub fn dict(&self) -> &[DictionaryEntry] {
-        &self.dict
-    }
-
-    pub fn reset(&mut self) {
-        self.dict = self.dict_default.clone();
-    }
-
+    /// Retrieve the name of the force.
     pub fn name(&self) -> &'static str {
         self.name
     }
 
-    pub fn continuous(&self) -> bool {
-        self.continuous
-    }
-
+    /// Retrieve the force's information.
     pub fn info(&self) -> Option<&'static str> {
         self.info
+    }
+
+    /// Update the graph's node's positions for a given interval.
+    pub fn update(&self, graph: &mut ForceGraph<N, E>, dt: f32) {
+        (self.update)(&self.dict, graph, dt);
+    }
+
+    /// Retrieve a mutable reference to the force's internal dictionary.
+    pub fn dict_mut(&mut self) -> &mut [DictionaryEntry] {
+        &mut self.dict
+    }
+
+    /// Retrieve a reference to the force's internal dictionary.
+    pub fn dict(&self) -> &[DictionaryEntry] {
+        &self.dict
+    }
+
+    /// Reset the force's internal dictionary.
+    pub fn reset(&mut self) {
+        self.dict = self.dict_default.clone();
+    }
+
+    /// Retrieve if the force is continuous.
+    /// Continuous forces run their update on every frame, non-continuous forces run their update every time the user clicks a "Run" button.
+    pub fn continuous(&self) -> bool {
+        self.continuous
     }
 }
 
@@ -95,7 +101,7 @@ impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
 
 /// A force for scaling the layout around the center of the graph.
 pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
-    fn update<N, E>(dict: Vec<DictionaryEntry>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+    fn update<N, E>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, _dt: f32) {
         let scale = dict[0].value.number();
 
         for node in graph.node_weights_mut() {
@@ -120,7 +126,7 @@ pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
 
 /// A force for translating the graph in any direction.
 pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
-    fn update<N, E>(dict: Vec<DictionaryEntry>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+    fn update<N, E>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, _dt: f32) {
         let distance = dict[0].value.number();
 
         for node in graph.node_weights_mut() {

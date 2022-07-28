@@ -15,7 +15,7 @@ pub fn handy<N: Clone, E: Clone>(
     centering: bool,
 ) -> Force<N, E> {
     fn update<N: Clone, E: Clone>(
-        dict: Vec<DictionaryEntry>,
+        dict: &[DictionaryEntry],
         graph: &mut ForceGraph<N, E>,
         dt: f32,
     ) {
