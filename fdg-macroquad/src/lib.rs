@@ -28,7 +28,6 @@ pub async fn run_window<
         current_force.clone(),
         force::scale(),
         force::translate(),
-        force::force_atlas_2(45.0, 0.975),
         force::handy(45.0, 0.975, true, true),
     ];
 
@@ -52,8 +51,6 @@ pub async fn run_window<
     let mut show_nodes = true;
 
     let mut dragging_node: Option<NodeIndex> = None;
-    let mut selected_node: Option<NodeIndex> = None;
-    let selected_color = Color::from_rgba(169, 169, 169, 255);
     let mut manual = false;
     let mut running = true;
     let default_step_length: f32 = 0.035;
@@ -89,23 +86,18 @@ pub async fn run_window<
             mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
             mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
 
-            let hovered_node =
-                if let Some(hovered) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
+            let hovered_node = match sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
+                Some(hovered) => {
                     if dragging_node.is_none() {
                         if is_mouse_button_down(MouseButton::Left) {
                             dragging_node = Some(hovered);
-                            selected_node = Some(hovered);
                         }
                     }
 
                     Some(hovered)
-                } else {
-                    if is_mouse_button_down(MouseButton::Left) && dragging_node.is_none() {
-                        selected_node = None;
-                    }
-
-                    None
-                };
+                },
+                None => None,
+            };
 
             if let Some(index) = dragging_node {
                 let node = &mut sim.get_graph_mut()[index];
@@ -137,23 +129,12 @@ pub async fn run_window<
 
             if show_nodes {
                 sim.visit_nodes(&mut |node| {
-                    let default_color = Color::from_rgba(
+                    let color = Color::from_rgba(
                         node.color[0],
                         node.color[1],
                         node.color[2],
                         node.color[3],
                     );
-
-                    let color = match selected_node {
-                        Some(selected_node) => {
-                            if &sim.get_graph()[selected_node] == node {
-                                selected_color
-                            } else {
-                                default_color
-                            }
-                        }
-                        None => default_color,
-                    };
 
                     draw_circle(node.location.x, node.location.y, node_size, color);
                 });
@@ -292,7 +273,7 @@ pub async fn run_window<
                                 sim.update_custom(&current_force, step_length);
                             }
                         } else {
-                            ui.add(Slider::new(&mut sim_speed, 1..=6).text("Simulation Speed"));
+                            ui.add(Slider::new(&mut sim_speed, 1..=10).text("Simulation Speed"));
                             let running_text = if running { "Stop" } else { "Start" };
 
                             if ui.button(running_text).clicked() {
