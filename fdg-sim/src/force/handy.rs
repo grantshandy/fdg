@@ -14,11 +14,7 @@ pub fn handy<N: Clone, E: Clone>(
     gravity: bool,
     centering: bool,
 ) -> Force<N, E> {
-    fn update<N: Clone, E: Clone>(
-        dict: &[DictionaryEntry],
-        graph: &mut ForceGraph<N, E>,
-        dt: f32,
-    ) {
+    fn update<N: Clone, E: Clone>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, dt: f32) {
         let graph_clone = graph.clone();
 
         let repulsive = dict[0].value.bool();

@@ -5,13 +5,21 @@ use egui_macroquad::{
 use fdg_sim::{
     force::{self, Value},
     petgraph::graph::NodeIndex,
-    Dimensions, ForceGraph, Node, Simulation, Vec3,
+    Dimensions, ForceGraph, Node, Simulation, SimulationParameters, Vec3,
 };
+use serde::Serialize;
 pub use serde_json::Value as JsonValue;
 
 pub use {egui_macroquad::macroquad, fdg_sim};
 
-pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
+pub async fn run_window<
+    N: Serialize + Clone + Default + PartialEq,
+    E: Serialize + Clone + Default + PartialEq,
+>(
+    graph: &ForceGraph<N, E>,
+) {
+    let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
+
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
     let mut current_force = force::fruchterman_reingold(45.0, 0.975);
@@ -46,17 +54,15 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
     let mut dragging_node: Option<NodeIndex> = None;
     let mut selected_node: Option<NodeIndex> = None;
     let selected_color = Color::from_rgba(169, 169, 169, 255);
-    let mut editable = false;
     let mut manual = false;
     let mut running = true;
     let default_step_length: f32 = 0.035;
     let mut step_length = default_step_length;
 
     let mut json_buffer = String::new();
-    let mut json_error: Option<String> = None;
 
     if json {
-        (json_buffer, json_error) = update_json_buffer(&json_buffer, &sim.get_graph());
+        json_buffer = update_json_buffer(&sim.get_graph());
     }
 
     loop {
@@ -83,91 +89,23 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
             mouse.0 = (mouse.0 - (screen_width() / 2.0)) * (1.0 / zoom);
             mouse.1 = (mouse.1 - (screen_height() / 2.0)) * (1.0 / zoom);
 
-            let hovered_node = if let Some(hovered) =
-                sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size)
-            {
-                if dragging_node.is_none() {
-                    if editable && is_key_down(KeyCode::LeftShift) {
-                        if let Some(selected_node_index) = selected_node {
-                            let selected_node = &sim.get_graph()[selected_node_index];
-                            let hovered_node = &sim.get_graph()[hovered];
-                            draw_line(
-                                selected_node.location.x,
-                                selected_node.location.y,
-                                hovered_node.location.x,
-                                hovered_node.location.y,
-                                edge_size,
-                                Color::new(1.0, 0.0, 0.0, 0.5),
-                            );
-
-                            if selected_node != hovered_node
-                                && is_mouse_button_down(MouseButton::Left)
-                            {
-                                let g = sim.get_graph_mut();
-                                g.add_edge(hovered, selected_node_index, JsonValue::default());
-
-                                (json_buffer, json_error) =
-                                    update_json_buffer(&json_buffer, &sim.get_graph());
-                            }
-                        }
-                    }
-
-                    if is_mouse_button_down(MouseButton::Left) {
-                        dragging_node = Some(hovered);
-                        selected_node = Some(hovered);
-                    }
-                }
-
-                Some(hovered)
-            } else {
-                if editable && dragging_node.is_none() {
-                    if is_key_down(KeyCode::LeftShift) {
-                        if let Some(selected_node) = selected_node {
-                            let selected_node = &sim.get_graph()[selected_node];
-                            draw_line(
-                                selected_node.location.x,
-                                selected_node.location.y,
-                                mouse.0,
-                                mouse.1,
-                                edge_size,
-                                Color::new(1.0, 0.0, 0.0, 0.5),
-                            );
-                        }
-
-                        draw_circle(
-                            mouse.0,
-                            mouse.1,
-                            node_size,
-                            Color::new(selected_color.r, selected_color.g, selected_color.b, 0.5),
-                        );
-
+            let hovered_node =
+                if let Some(hovered) = sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
+                    if dragging_node.is_none() {
                         if is_mouse_button_down(MouseButton::Left) {
-                            let new_node = sim.get_graph_mut().add_node(Node::new_with_coords(
-                                "",
-                                JsonValue::default(),
-                                Vec3::new(mouse.0, mouse.1, 0.0),
-                            ));
-
-                            if let Some(selected_node) = selected_node {
-                                sim.get_graph_mut().add_edge(
-                                    selected_node,
-                                    new_node,
-                                    JsonValue::default(),
-                                );
-                            }
-
-                            (json_buffer, json_error) =
-                                update_json_buffer(&json_buffer, &sim.get_graph());
+                            dragging_node = Some(hovered);
+                            selected_node = Some(hovered);
                         }
                     }
-                }
 
-                if is_mouse_button_down(MouseButton::Left) && dragging_node.is_none() {
-                    selected_node = None;
-                }
+                    Some(hovered)
+                } else {
+                    if is_mouse_button_down(MouseButton::Left) && dragging_node.is_none() {
+                        selected_node = None;
+                    }
 
-                None
-            };
+                    None
+                };
 
             if let Some(index) = dragging_node {
                 let node = &mut sim.get_graph_mut()[index];
@@ -235,7 +173,7 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
                         DARKBLUE,
                     );
                 } else if let Some(index) = hovered_node {
-                    let node: &Node<JsonValue> = &sim.get_graph()[index];
+                    let node: &Node<N> = &sim.get_graph()[index];
                     let screen_mouse = mouse_position();
                     draw_text(
                         &node.name,
@@ -302,13 +240,6 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
                         egui::ScrollArea::new([true, true]).show(ui, |ui| {
                             ui.text_edit_multiline(&mut json_buffer);
                         });
-                        if let Some(error) = &json_error {
-                            ui.label(format!("error: {error}"));
-                        }
-                        if ui.button("Update").clicked() {
-                            json_error = update_graph(&json_buffer, &mut sim);
-                            sim.reset_node_placement();
-                        }
                     });
             }
 
@@ -321,8 +252,7 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
                             sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
 
-                            (json_buffer, json_error) =
-                                update_json_buffer(&json_buffer, &sim.get_graph());
+                            json_buffer = update_json_buffer(&sim.get_graph());
                         }
 
                         if ui.button("Reset Settings").clicked() {
@@ -379,7 +309,7 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
                         }
                     }
                     ui.separator();
-                    ui.add(Slider::new(&mut zoom, 0.05..=5.0).text("Zoom"));
+                    ui.add(Slider::new(&mut zoom, 0.05..=2.0).text("Zoom"));
                     match sim.parameters().dimensions {
                         Dimensions::Three => {
                             ui.add_enabled(
@@ -406,10 +336,8 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
                     );
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
-                    ui.checkbox(&mut editable, "Editable");
                     if ui.checkbox(&mut json, "Json (beta)").changed() {
-                        (json_buffer, json_error) =
-                            update_json_buffer(&json_buffer, &mut sim.get_graph());
+                        json_buffer = update_json_buffer(&sim.get_graph());
                     };
                     ui.separator();
                     ComboBox::new("force_selector", "")
@@ -465,28 +393,12 @@ pub async fn run_window(mut sim: &mut Simulation<JsonValue, JsonValue>) {
     }
 }
 
-fn update_graph(buffer: &str, sim: &mut Simulation<JsonValue, JsonValue>) -> Option<String> {
-    match fdg_sim::graph_from_json(buffer) {
-        Ok(new_graph) => {
-            sim.set_graph(&new_graph);
-
-            None
-        }
-        Err(err) => Some(err.to_string()),
-    }
-}
-
-fn update_json_buffer(
-    buffer: &str,
-    graph: &ForceGraph<JsonValue, JsonValue>,
-) -> (String, Option<String>) {
-    let old_buffer = buffer.clone();
-
+fn update_json_buffer<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> String {
     match fdg_sim::json_from_graph(graph) {
-        Ok(b) => match jsonxf::pretty_print(&b) {
-            Ok(b) => (b, None),
-            Err(err) => (old_buffer.to_string(), Some(err.to_string())),
+        Ok(s) => match jsonxf::pretty_print(&s) {
+            Ok(s) => s,
+            Err(err) => format!("json formatting error: {err}"),
         },
-        Err(err) => (old_buffer.to_string(), Some(err.to_string())),
+        Err(err) => format!("json serializing error: {err}"),
     }
 }

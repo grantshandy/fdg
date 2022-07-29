@@ -1,18 +1,17 @@
 use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
-#[macroquad::main("Force Graph Fragmented Demo")]
+#[macroquad::main("Force Graph 4D Cube Demo")]
 async fn main() {
     pretty_env_logger::init();
 
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
-    for _ in 0..3 {
-        let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
-        let layers: u8 = 1;
+    // create center cube
+    let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
+    let layers: u8 = 1;
 
-        for _ in 0..layers {
-            cube = add_layer(&mut graph, cube);
-        }
+    for _ in 0..layers {
+        cube = add_layer(&mut graph, cube);
     }
 
     fdg_macroquad::run_window(&graph).await;
