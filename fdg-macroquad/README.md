@@ -11,4 +11,4 @@ The macroquad based visualizer for [fdg](https://github.com/grantshandy/fdg)
 [View Examples Online](https://grantshandy.github.io/fdg)
 
 ## Related Crates
-- `/fdg-img` An SVG visualizer for the simulation.
+- [`fdg-img`](https://crates.io/crates/fdg-img) An SVG visualizer for the simulation.

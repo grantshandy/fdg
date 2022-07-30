@@ -1,6 +1,6 @@
 # fdg-img
 
-A visualizer for [`fdg-sim`](https://github.com/grantshandy/fdg/) that generates simple SVG images.
+A simple SVG renderer for [fdg-sim](https://crates.io/crates/fdg-sim)
 
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/json.svg)
 
@@ -26,4 +26,4 @@ fn main() {
 ```
 
 ## Related Crates
-- `/fdg-macroquad` A visualizer that uses `macroquad` for real-time rendering ([View Demo Online](https://grantshandy.github.io/fdg)).
+- [`fdg-macroquad`](https://crates.io/crates/fdg-macroquad) A visualizer that uses `macroquad` for real-time rendering ([view demo online](https://grantshandy.github.io/fdg)).
