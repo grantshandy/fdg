@@ -1,21 +1,21 @@
 [package]
 name = "fdg-img"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "GPL-3.0"
 description = "A simple SVG renderer for fdg"
 repository = "https://github.com/skylinecc/fdg/"
 documentation = "https://docs.rs/fdg-img/"
-keywords = ["graph", "force", "macroquad"]
-categories = ["visualization", "svg"]
+keywords = ["graph", "force", "svg", "renderer"]
+categories = ["visualization"]
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 plotters = "0.3.2"
-fdg-sim = "0.3.1"
+fdg-sim = "0.4.0"
 
 [dev-dependencies]
 fdg-sim = { version = "0.4.0", features = ["json"] }
