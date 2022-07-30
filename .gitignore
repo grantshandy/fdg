@@ -4,3 +4,4 @@
 /perf.data.old
 /target
 *.wasm
+*.svg

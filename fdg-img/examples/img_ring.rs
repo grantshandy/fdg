@@ -1,34 +1,24 @@
 use std::fs;
 
-use fdg_img::Settings;
-use fdg_sim::{force, ForceGraph, ForceGraphHelper};
+use fdg_sim::{ForceGraph, ForceGraphHelper, force};
 
 fn main() {
+    // initialize a graph
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
+    // create a circle
     let nodes = 10;
 
-    graph.add_force_node("", ());
+    graph.add_force_node("0", ());
     for x in 1..nodes {
-        graph.add_force_node("", ());
+        graph.add_force_node(x.to_string(), ());
         graph.add_edge(x.into(), (x - 1).into(), ());
     }
     graph.add_edge(0.into(), (nodes - 1).into(), ());
 
-    let center = graph.add_force_node("", ());
-    for x in 0..nodes {
-        graph.add_edge(x.into(), center, ());
-    }
+    // generate svg text for your graph
+    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
 
-    let svg = fdg_img::gen_image(
-        &graph,
-        &force::fruchterman_reingold(45.0, 0.975),
-        Some(Settings {
-            iterations: 50000,
-            ..Default::default()
-        }),
-    )
-    .unwrap();
-
+    // save the svg on disk
     fs::write("ring.svg", svg.as_bytes()).unwrap();
 }

@@ -1,9 +1,11 @@
 # fdg (Force Directed Graph)
-A Force Directed Graph Framework for Rust. This manages your forces and event loop for a visualization of a graph. I've also created compatible visualizers for the simulation. `fdg-sim` sits on top of [`petgraph`](https://crates.io/crates/petgraph).
+A Force Directed Graph Framework for Rust. This manages your forces and event loop for a visualization of a graph. I've also created compatible visualizers for the simulation. This simulation sits on top of [`petgraph`](https://crates.io/crates/petgraph).
 
-[![Latest version](https://img.shields.io/crates/v/fdg_sim.svg)](https://crates.io/crates/fdg_sim)
-[![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim)
-[![GPL-3.0](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/skylinecc/fdg/blob/main/LICENSE)
+| Name | Version | Docs | License
+|------|---------|------|------|
+| `fdg-sim` | [![Latest version](https://img.shields.io/crates/v/fdg-sim.svg)](https://crates.io/crates/fdg-sim) | [![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim) | [![GPL-3.0](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-sim/LICENSE) |
+| `fdg-macroquad` | [![Latest version](https://img.shields.io/crates/v/fdg-macroquad.svg)](https://crates.io/crates/fdg-macroquad) | [![Documentation](https://docs.rs/fdg-macroquad/badge.svg)](https://docs.rs/fdg-macroquad) | [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-macroquad/LICENSE) |
+| `fdg-img` | [![Latest version](https://img.shields.io/crates/v/fdg-img.svg)](https://crates.io/crates/fdg-img) | [![Documentation](https://docs.rs/fdg-img/badge.svg)](https://docs.rs/fdg-img) | [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-img/LICENSE) |
 
 ![example screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-3D.png)
 

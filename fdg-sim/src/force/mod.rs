@@ -18,6 +18,11 @@ impl DictionaryEntry {
     pub fn new(name: &'static str, value: ForceValue) -> Self {
         Self { name, value }
     }
+
+    /// Retrieve a mutable reference to the value
+    pub fn value_mut(&mut self) -> &mut ForceValue {
+        &mut self.value
+    }
 }
 
 /// A value that you can change in a [`Force`]'s dictionary.
@@ -28,19 +33,35 @@ pub enum ForceValue {
 }
 
 impl ForceValue {
-    /// Retrieves the bool from a value. If you mess up and call it on a number it will return false.
-    pub const fn bool(&self) -> bool {
+    /// Retrieves the bool from a value.
+    pub const fn bool(&self) -> Option<bool> {
         match self {
-            Self::Bool(b) => *b,
-            _ => false,
+            Self::Bool(b) => Some(*b),
+            _ => None,
+        }
+    }
+
+    /// Same as bool but returns a mutable version.
+    pub fn bool_mut(&mut self) -> Option<&mut bool> {
+        match self {
+            Self::Bool(b) => Some(b),
+            _ => None,
         }
     }
 
     /// Retrieves the number from a value. If you mess up and call it on a bool it will return 0.0.
-    pub const fn number(&self) -> f32 {
+    pub const fn number(&self) -> Option<f32> {
         match self {
-            Self::Number(n, _) => *n,
-            _ => 0.0,
+            Self::Number(n, _) => Some(*n),
+            _ => None,
+        }
+    }
+
+    /// Same as number but returns a mutable version.
+    pub fn number_mut(&mut self) -> Option<&mut f32> {
+        match self {
+            Self::Number(n, _) => Some(n),
+            _ => None,
         }
     }
 }
@@ -102,7 +123,7 @@ impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
 /// A force for scaling the layout around the center of the graph.
 pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
     fn update<N, E>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, _dt: f32) {
-        let scale = dict[0].value.number();
+        let scale = dict[0].value.number().unwrap();
 
         for node in graph.node_weights_mut() {
             node.location *= scale;
@@ -127,22 +148,22 @@ pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
 /// A force for translating the graph in any direction.
 pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
     fn update<N, E>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, _dt: f32) {
-        let distance = dict[0].value.number();
+        let distance = dict[0].value.number().unwrap();
 
         for node in graph.node_weights_mut() {
-            if dict[1].value.bool() {
+            if dict[1].value.bool().unwrap() {
                 node.location.y -= distance;
             }
 
-            if dict[2].value.bool() {
+            if dict[2].value.bool().unwrap() {
                 node.location.y += distance;
             }
 
-            if dict[3].value.bool() {
+            if dict[3].value.bool().unwrap() {
                 node.location.x -= distance;
             }
 
-            if dict[4].value.bool() {
+            if dict[4].value.bool().unwrap() {
                 node.location.x += distance;
             }
         }

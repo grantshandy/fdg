@@ -1,11 +1,15 @@
+#![doc = include_str!("../README.md")]
+
 use egui_macroquad::{
     egui::{self, Checkbox, CollapsingHeader, ComboBox, Slider},
     macroquad::prelude::*,
 };
 use fdg_sim::{
-    force::{self, Value},
+    force::{self, ForceValue},
+    glam::Vec3,
+    json,
     petgraph::graph::NodeIndex,
-    Dimensions, ForceGraph, Node, Simulation, SimulationParameters, Vec3,
+    Dimensions, ForceGraph, Node, Simulation, SimulationParameters,
 };
 use serde::Serialize;
 pub use serde_json::Value as JsonValue;
@@ -339,12 +343,16 @@ pub async fn run_window<
                                 ui.label(info);
                             });
                     }
-                    for (name, value) in current_force.dict_mut() {
-                        match value {
-                            Value::Number(value, range) => {
+                    for dict in current_force.dict_mut() {
+                        let name = dict.name;
+
+                        match dict.value_mut() {
+                            ForceValue::Number(value, range) => {
                                 ui.add(Slider::new(value, range.clone()).text(name))
                             }
-                            Value::Bool(value) => ui.add(Checkbox::new(value, name.to_string())),
+                            ForceValue::Bool(value) => {
+                                ui.add(Checkbox::new(value, name.to_string()))
+                            }
                         };
                     }
                     ui.separator();
@@ -385,7 +393,7 @@ pub async fn run_window<
 }
 
 fn update_json_buffer<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> String {
-    match fdg_sim::json_from_graph(graph) {
+    match json::json_from_graph(graph) {
         Ok(s) => match jsonxf::pretty_print(&s) {
             Ok(s) => s,
             Err(err) => format!("json formatting error: {err}"),

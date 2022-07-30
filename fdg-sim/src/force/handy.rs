@@ -17,13 +17,13 @@ pub fn handy<N: Clone, E: Clone>(
     fn update<N: Clone, E: Clone>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, dt: f32) {
         let graph_clone = graph.clone();
 
-        let repulsive = dict[0].value.bool();
-        let attractive = dict[1].value.bool();
-        let scale = dict[2].value.number();
-        let cooloff_factor = dict[3].value.number();
-        let gravity_factor = dict[4].value.number();
-        let centering = dict[5].value.bool();
-        let gravity = dict[6].value.bool();
+        let repulsive = dict[0].value.bool().unwrap();
+        let attractive = dict[1].value.bool().unwrap();
+        let scale = dict[2].value.number().unwrap();
+        let cooloff_factor = dict[3].value.number().unwrap();
+        let gravity_factor = dict[4].value.number().unwrap();
+        let centering = dict[5].value.bool().unwrap();
+        let gravity = dict[6].value.bool().unwrap();
 
         let mut vec_sum = Vec3::ZERO;
 

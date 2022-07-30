@@ -4,8 +4,9 @@ use std::error::Error;
 
 use fdg_sim::{
     force::Force,
+    glam::Vec3,
     petgraph::visit::{EdgeRef, IntoEdgeReferences},
-    ForceGraph, Simulation, SimulationParameters, glam::Vec3,
+    ForceGraph, Simulation, SimulationParameters,
 };
 use plotters::prelude::*;
 
@@ -103,7 +104,6 @@ pub fn gen_image<N: Clone, E: Clone>(
     for node in sim.get_graph_mut().node_weights_mut() {
         node.location = node.location - avg_vec;
     }
-
 
     // translate all the points over into image coordinate space
     for node in sim.get_graph_mut().node_weights_mut() {

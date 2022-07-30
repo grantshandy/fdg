@@ -12,8 +12,8 @@ pub fn fruchterman_reingold<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32)
     fn update<N: Clone, E: Clone>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, dt: f32) {
         let graph_clone = graph.clone();
 
-        let scale = dict[0].value.number();
-        let cooloff_factor = dict[1].value.number();
+        let scale = dict[0].value.number().unwrap();
+        let cooloff_factor = dict[1].value.number().unwrap();
 
         for node_index in graph_clone.node_indices() {
             if graph_clone[node_index].locked {
