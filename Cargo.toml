@@ -1,5 +1,5 @@
 [workspace]
-members = ["fdg-sim", "fdg-macroquad"]
+members = ["fdg-sim", "fdg-macroquad", "fdg-img"]
 
 # resolver 2 is required for wgpu
 resolver = "2"

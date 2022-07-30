@@ -2,8 +2,6 @@ use fdg_sim::{ForceGraph, ForceGraphHelper};
 
 #[macroquad::main("Force Graph Ring Demo")]
 async fn main() {
-    pretty_env_logger::init();
-
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
     let nodes = 100;

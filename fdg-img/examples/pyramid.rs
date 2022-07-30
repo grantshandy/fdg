@@ -1,7 +1,8 @@
-use fdg_sim::{ForceGraph, ForceGraphHelper};
+use std::fs;
 
-#[macroquad::main("Force Graph Pyramid Demo")]
-async fn main() {
+use fdg_sim::{force, ForceGraph, ForceGraphHelper};
+
+fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
     let one = graph.add_force_node("one", ());
@@ -19,5 +20,7 @@ async fn main() {
     graph.add_edge(center, three, ());
     graph.add_edge(center, four, ());
 
-    fdg_macroquad::run_window(&graph).await;
+    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+
+    fs::write("pyramid.svg", svg.as_bytes()).unwrap();
 }

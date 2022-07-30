@@ -9,3 +9,6 @@ The macroquad based visualizer for [fdg](https://github.com/grantshandy/fdg)
 ![3D example](https://github.com/grantshandy/fdg/raw/main/screenshots/screenshot-3D.png)
 
 [View Examples Online](https://grantshandy.github.io/fdg)
+
+## Related Crates
+- `/fdg-img` An SVG visualizer for the simulation.

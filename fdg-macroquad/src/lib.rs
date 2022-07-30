@@ -95,7 +95,7 @@ pub async fn run_window<
                     }
 
                     Some(hovered)
-                },
+                }
                 None => None,
             };
 
@@ -348,6 +348,16 @@ pub async fn run_window<
                         };
                     }
                     ui.separator();
+                    let mut av: Vec<f32> = Vec::new();
+
+                    for node in sim.get_graph().node_weights() {
+                        let nv = node.velocity;
+
+                        av.push(avg(vec![nv.x.abs(), nv.y.abs(), nv.z.abs()]));
+                    }
+
+                    ui.label(format!("Avg Velocity: {:.3}", avg(av)));
+                    ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
                         ui.label(format!("Node Count: {}", g.node_count()));
@@ -382,4 +392,14 @@ fn update_json_buffer<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> S
         },
         Err(err) => format!("json serializing error: {err}"),
     }
+}
+
+fn avg(vs: Vec<f32>) -> f32 {
+    let mut sum: f32 = 0.0;
+
+    for v in &vs {
+        sum += v;
+    }
+
+    sum / (vs.len() as f32)
 }

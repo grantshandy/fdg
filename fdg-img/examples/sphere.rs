@@ -1,7 +1,8 @@
-use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+use std::fs;
 
-#[macroquad::main("Force Graph Sphere Demo")]
-async fn main() {
+use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+
+fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
@@ -37,5 +38,7 @@ async fn main() {
         graph.add_edge(indices[x], bottom, ());
     }
 
-    fdg_macroquad::run_window(&graph).await;
+    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+
+    fs::write("sphere.svg", svg.as_bytes()).unwrap();
 }

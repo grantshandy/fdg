@@ -24,7 +24,7 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Build
-      run: cd web-examples && make
+      run: cd fdg-macroquad/examples/web-examples/ && make
  
     - name: Deploy to gh-pages
       uses: peaceiris/actions-gh-pages@v3

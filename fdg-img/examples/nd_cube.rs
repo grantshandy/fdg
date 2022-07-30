@@ -1,7 +1,8 @@
-use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+use std::fs;
 
-#[macroquad::main("Force Graph 4D Cube Demo")]
-async fn main() {
+use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+
+fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
     // create center cube
@@ -12,7 +13,9 @@ async fn main() {
         cube = add_layer(&mut graph, cube);
     }
 
-    fdg_macroquad::run_window(&graph).await;
+    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+
+    fs::write("nd_cube.svg", svg.as_bytes()).unwrap();
 }
 
 fn add_layer(graph: &mut ForceGraph<(), ()>, inner: [NodeIndex; 8]) -> [NodeIndex; 8] {

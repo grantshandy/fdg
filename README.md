@@ -1,27 +1,17 @@
 # fdg (Force Directed Graph)
 A Force Directed Graph Framework for Rust.
 
-[![Latest version](https://img.shields.io/crates/v/fdg_sim.svg)](https://crates.io/crates/fdg_sim)
-[![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim)
-[![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/skylinecc/fdg/blob/main/LICENSE)
+![2D example](./fdg-macroquad/screenshots/screenshot-2D.png)
+![3D example](./fdg-macroquad/screenshots/screenshot-3D.png)
 
-![2D example](https://github.com/grantshandy/fdg/raw/main/screenshots/screenshot-2D.png)
-![3D example](https://github.com/grantshandy/fdg/raw/main/screenshots/screenshot-3D.png)
-
-The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop.
+The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop. It sits on top of `petgraph` and manages the positions of your nodes.
 
 [View Examples Online](https://grantshandy.github.io/fdg)
 
 ## Contents
-- `/fdg-sim` The underlying force simulation framework. Handles your dataset's positions based on a physics engine of your choice (or creation).
-- `/fdg-macroquad` A visualizer for `fdg-sim` that uses `macroquad` for rendering.
-
-## Structure
-
-| Your Application |
-|--------------|
-| fdg-macroquad |
-| fdg-sim      |
+- [`/fdg-sim`](./fdg-sim/) The underlying force simulation framework. Handles your dataset's positions based on a physics engine of your choice (or creation).
+- [`/fdg-macroquad`](./fdg-macroquad/) A visualizer that uses `macroquad` for rendering.
+- [`/fdg-img`](./fdg-img/) A SVG visualizer for your graphs.
 
 ## Resources
 - [Force-Directed Graphs on Wikipedia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing)

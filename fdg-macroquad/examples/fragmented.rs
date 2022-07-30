@@ -2,8 +2,6 @@ use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 #[macroquad::main("Force Graph Fragmented Demo")]
 async fn main() {
-    pretty_env_logger::init();
-
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
     for _ in 0..3 {

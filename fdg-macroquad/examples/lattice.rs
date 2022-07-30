@@ -2,8 +2,6 @@ use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 #[macroquad::main("Force Graph Lattice Demo")]
 async fn main() {
-    pretty_env_logger::init();
-
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
     let mut indices: Vec<NodeIndex> = Vec::new();
 
