@@ -5,7 +5,7 @@ A Force Directed Graph Framework for Rust. This manages your forces and event lo
 [![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/skylinecc/fdg/blob/main/LICENSE)
 
-![2D example](https://github.com/grantshandy/fdg/raw/main/screenshots/screenshot-2D.png)
+![example screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-3D.png)
 
 [View Demo Online](https://grantshandy.github.io/fdg)
 

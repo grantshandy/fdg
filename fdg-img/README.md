@@ -2,7 +2,7 @@
 
 A visualizer for [`fdg-sim`](https://github.com/grantshandy/fdg/) that generates simple SVG images.
 
-![screenshot](./screenshots/json.svg)
+![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/json.svg)
 
 ## Basic Example
 ```rust

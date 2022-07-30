@@ -1,8 +1,8 @@
 # fdg (Force Directed Graph)
 A Force Directed Graph Framework for Rust.
 
-![2D example](./fdg-macroquad/screenshots/screenshot-2D.png)
-![3D example](./fdg-macroquad/screenshots/screenshot-3D.png)
+![2D example](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-2D.png)
+![3D example](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-3D.png)
 
 The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop. It sits on top of `petgraph` and manages the positions of your nodes.
 

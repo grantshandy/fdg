@@ -24,10 +24,10 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
     - name: Build
-      run: cd fdg-macroquad/examples/web-examples/ && make
+      run: sh build-web-examples.sh
  
     - name: Deploy to gh-pages
       uses: peaceiris/actions-gh-pages@v3
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./web-examples
+        publish_dir: ./fdg-macroquad/examples/web-examples/
