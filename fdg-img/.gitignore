@@ -1,9 +1,2 @@
-/binary_tree.svg
-/cylinder.svg
-/fragmented.svg
-/json.svg
-/nd_cube.svg
-/lattice.svg
-/pyramid.svg
-/ring.svg
-/sphere.svg
+*.svg
+!screenshots/*.svg
