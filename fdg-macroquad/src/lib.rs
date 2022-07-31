@@ -164,7 +164,7 @@ pub async fn run_window<
                         screen_mouse.0 + 10.0,
                         screen_mouse.1 - 10.0,
                         30.0,
-                        DARKBLUE,
+                        if dark { LIGHTGRAY } else { DARKBLUE },
                     );
                 } else if let Some(index) = hovered_node {
                     let node: &Node<N> = &sim.get_graph()[index];
@@ -174,7 +174,7 @@ pub async fn run_window<
                         screen_mouse.0 + 10.0,
                         screen_mouse.1 - 10.0,
                         30.0,
-                        DARKBLUE,
+                        if dark { LIGHTGRAY } else { DARKBLUE },
                     );
                 }
             }
