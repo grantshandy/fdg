@@ -1,0 +1,120 @@
+{
+    "nodes": [
+        {
+            "name": "Grant"
+        },
+        {
+            "name": "Ella"
+        },
+        {
+            "name": "Nathan"
+        },
+        {
+            "name": "Eliot"
+        },
+        {
+            "name": "Zack"
+        },
+        {
+            "name": "Lina"
+        },
+        {
+            "name": "Ethan"
+        },
+        {
+            "name": "Brady"
+        },
+        {
+            "name": "Nick"
+        },
+        {
+            "name": "Alex"
+        },
+        {
+            "name": "Max"
+        },
+        {
+            "name": "Mae"
+        },
+        {
+            "name": "Jesus"
+        },
+        {
+            "name": "Marian"
+        }
+    ],
+    "edges": [
+        {
+            "source": "Grant",
+            "target": "Ella"
+        },
+        {
+            "source": "Grant",
+            "target": "Nathan"
+        },
+        {
+            "source": "Grant",
+            "target": "Eliot"
+        },
+        {
+            "source": "Grant",
+            "target": "Zack"
+        },
+        {
+            "source": "Grant",
+            "target": "Lina"
+        },
+        {
+            "source": "Grant",
+            "target": "Ethan"
+        },
+        {
+            "source": "Nathan",
+            "target": "Eliot"
+        },
+        {
+            "source": "Zack",
+            "target": "Brady"
+        },
+        {
+            "source": "Ethan",
+            "target": "Nick"
+        },
+        {
+            "source": "Ethan",
+            "target": "Alex"
+        },
+        {
+            "source": "Alex",
+            "target": "Nick"
+        },
+        {
+            "source": "Max",
+            "target": "Mae"
+        },
+        {
+            "source": "Grant",
+            "target": "Mae"
+        },
+        {
+            "source": "Mae",
+            "target": "Brady"
+        },
+        {
+            "source": "Max",
+            "target": "Brady"
+        },
+        {
+            "source": "Jesus",
+            "target": "Marian"
+        },
+        {
+            "source": "Grant",
+            "target": "Jesus"
+        },
+        {
+            "source": "Grant",
+            "target": "Marian"
+        }
+    ]
+}

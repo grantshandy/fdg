@@ -10,3 +10,4 @@ cp target/wasm32-unknown-unknown/release/examples/view_json.wasm ./fdg-macroquad
 cp target/wasm32-unknown-unknown/release/examples/view_lattice.wasm ./fdg-macroquad/examples/web-examples/
 cp target/wasm32-unknown-unknown/release/examples/view_ring.wasm ./fdg-macroquad/examples/web-examples/
 cp target/wasm32-unknown-unknown/release/examples/view_sphere.wasm ./fdg-macroquad/examples/web-examples/
+cp target/wasm32-unknown-unknown/release/examples/view_social_network.wasm ./fdg-macroquad/examples/web-examples/
