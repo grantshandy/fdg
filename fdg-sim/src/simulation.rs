@@ -56,7 +56,7 @@ impl<N: Clone, E: Clone> SimulationParameters<N, E> {
 
     /// Set the internal [`Force`].
     pub fn set_force(&mut self, force: Force<N, E>) {
-        self.force = force.clone();
+        self.force = force;
     }
 }
 
@@ -191,7 +191,7 @@ impl<N: Clone, E: Clone> Simulation<N, E> {
 
 impl<N: Clone, E: Clone> Default for Simulation<N, E> {
     fn default() -> Self {
-        return Self::from_graph(&ForceGraph::default(), SimulationParameters::default());
+        Self::from_graph(&ForceGraph::default(), SimulationParameters::default())
     }
 }
 

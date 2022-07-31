@@ -85,7 +85,7 @@ pub fn handy<N: Clone, E: Clone>(
             for node_index in graph_clone.node_indices() {
                 let node = &mut graph[node_index];
 
-                node.location = node.location - avg_vec;
+                node.location -= avg_vec;
             }
         }
     }

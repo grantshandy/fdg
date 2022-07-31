@@ -102,7 +102,7 @@ pub fn gen_image<N: Clone, E: Clone>(
 
     let avg_vec = location_sum / sim.get_graph().node_count() as f32;
     for node in sim.get_graph_mut().node_weights_mut() {
-        node.location = node.location - avg_vec;
+        node.location -= avg_vec;
     }
 
     // translate all the points over into image coordinate space

@@ -65,7 +65,7 @@ pub async fn run_window<
     let mut json_buffer = String::new();
 
     if json {
-        json_buffer = update_json_buffer(&sim.get_graph());
+        json_buffer = update_json_buffer(sim.get_graph());
     }
 
     loop {
@@ -98,10 +98,8 @@ pub async fn run_window<
 
             let hovered_node = match sim.find(Vec3::new(mouse.0, mouse.1, 0.0), node_size) {
                 Some(hovered) => {
-                    if dragging_node.is_none() {
-                        if is_mouse_button_down(MouseButton::Left) {
-                            dragging_node = Some(hovered);
-                        }
+                    if dragging_node.is_none() && is_mouse_button_down(MouseButton::Left) {
+                        dragging_node = Some(hovered);
                     }
 
                     Some(hovered)
@@ -246,7 +244,7 @@ pub async fn run_window<
                             sim.set_graph(&orig_graph);
                             sim.reset_node_placement();
 
-                            json_buffer = update_json_buffer(&sim.get_graph());
+                            json_buffer = update_json_buffer(sim.get_graph());
                         }
 
                         if ui.button("Reset Settings").clicked() {
@@ -312,10 +310,8 @@ pub async fn run_window<
                                 }
                             }
                         }
-                    } else {
-                        if ui.button("Run").clicked() {
-                            sim.update_custom(&current_force, 0.0);
-                        }
+                    } else if ui.button("Run").clicked() {
+                        sim.update_custom(&current_force, 0.0);
                     }
                     ui.separator();
                     ui.add(Slider::new(&mut zoom, 0.05..=2.0).text("Zoom"));
@@ -346,7 +342,7 @@ pub async fn run_window<
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
                     if ui.checkbox(&mut json, "Json (beta)").changed() {
-                        json_buffer = update_json_buffer(&sim.get_graph());
+                        json_buffer = update_json_buffer(sim.get_graph());
                     };
                     ui.separator();
                     ComboBox::new("force_selector", "")
