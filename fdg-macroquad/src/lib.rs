@@ -35,6 +35,8 @@ pub async fn run_window<
         force::handy(45.0, 0.975, true, true),
     ];
 
+    let mut dark = true;
+
     let mut sim_speed: u8 = 1;
     let mut zoom: f32 = 1.0;
     let mut json = false;
@@ -68,7 +70,11 @@ pub async fn run_window<
 
     loop {
         // Draw background
-        clear_background(LIGHTGRAY);
+        clear_background(if dark {
+            Color::from_rgba(15, 23, 42, 255)
+        } else {
+            LIGHTGRAY
+        });
 
         if is_key_down(KeyCode::R) {
             sim.reset_node_placement();
@@ -133,14 +139,17 @@ pub async fn run_window<
 
             if show_nodes {
                 sim.visit_nodes(&mut |node| {
-                    let color = Color::from_rgba(
-                        node.color[0],
-                        node.color[1],
-                        node.color[2],
-                        node.color[3],
+                    draw_circle(
+                        node.location.x,
+                        node.location.y,
+                        node_size,
+                        Color::from_rgba(
+                            mode_color_convert(dark, node.color[0]),
+                            mode_color_convert(dark, node.color[1]),
+                            mode_color_convert(dark, node.color[2]),
+                            mode_color_convert(dark, node.color[3]),
+                        ),
                     );
-
-                    draw_circle(node.location.x, node.location.y, node_size, color);
                 });
             }
 
@@ -205,10 +214,10 @@ pub async fn run_window<
                         node_size,
                         None,
                         Color::from_rgba(
-                            node.color[0],
-                            node.color[1],
-                            node.color[2],
-                            node.color[3],
+                            mode_color_convert(dark, node.color[0]),
+                            mode_color_convert(dark, node.color[1]),
+                            mode_color_convert(dark, node.color[2]),
+                            mode_color_convert(dark, node.color[3]),
                         ),
                     );
                 });
@@ -267,6 +276,21 @@ pub async fn run_window<
                             sim.reset_node_placement();
                         }
                     });
+                    ui.separator();
+                    if ui
+                        .button(if dark {
+                            "Switch to Light Mode"
+                        } else {
+                            "Switch to Dark Mode"
+                        })
+                        .clicked()
+                    {
+                        if dark {
+                            dark = false;
+                        } else {
+                            dark = true;
+                        }
+                    }
                     ui.separator();
                     if current_force.continuous() {
                         ui.add(Checkbox::new(&mut manual, "Manual"));
@@ -389,6 +413,14 @@ pub async fn run_window<
 
         // go to next frame
         next_frame().await;
+    }
+}
+
+fn mode_color_convert(dark: bool, i: u8) -> u8 {
+    if dark {
+        200
+    } else {
+        i
     }
 }
 
