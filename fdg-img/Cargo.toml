@@ -1,6 +1,6 @@
 [package]
 name = "fdg-img"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "GPL-3.0"
@@ -15,7 +15,7 @@ readme = "README.md"
 
 [dependencies]
 plotters = "0.3.2"
-fdg-sim = "0.4.0"
+fdg-sim = "0.4"
 
 [dev-dependencies]
-fdg-sim = { version = "0.4.0", features = ["json"] }
+fdg-sim = { version = "0.4", features = ["json"] }

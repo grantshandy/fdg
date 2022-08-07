@@ -1,31 +1,38 @@
 [package]
 name = "fdg-sim"
-version = "0.4.1"
+version = "0.4.2"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "MIT"
-description = "A flexible force directed graph simulation"
-repository = "https://github.com/skylinecc/fdg/"
+description = "A flexible force directed graph framework"
+repository = "https://github.com/grantshandy/fdg/"
 documentation = "https://docs.rs/fdg_sim/"
-keywords = ["graph", "fruchterman", "reingold", "force", "directed"]
+keywords = ["graph", "force", "directed", "viz"]
 categories = ["visualization"]
 readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-glam = "0.20"
+glam = "0.21"
 petgraph = "0.6"
 quad-rand = "0.2"
-dyn-clonable = "0.9"
-regex = "1.5"
-serde = { version = "1.0", optional = true }
+serde = { version = "1", optional = true }
 serde_json = { version = "1", optional = true }
-pollster = "0.2.5"
+regex = { version = "1.5", optional = true }
 anyhow = { version = "1", optional = true }
 
 [dev-dependencies]
 chrono = "0.4"
 
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
 [features]
 json = ["serde/derive", "glam/serde", "petgraph/serde-1", "serde_json", "anyhow"]
+gml = ["regex"]
+
+[[example]]
+name = "gml"
+required-features = ["gml"]

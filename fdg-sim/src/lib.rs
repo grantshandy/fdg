@@ -8,8 +8,12 @@ mod graph;
 mod simulation;
 
 #[cfg(feature = "json")]
-/// [`Serialize`](serde::Serialize) and [`Deserialize`](serde::Deserialize) [`ForceGraph`] for json.
+/// Import and export graphs with json.
 pub mod json;
+
+#[cfg(feature = "gml")]
+/// Import and export graphs with gml.
+pub mod gml;
 
 pub use glam;
 pub use petgraph;

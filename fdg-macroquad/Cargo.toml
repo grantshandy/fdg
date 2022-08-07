@@ -1,6 +1,6 @@
 [package]
 name = "fdg-macroquad"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "GPL-3.0"
@@ -14,8 +14,8 @@ readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-egui-macroquad = "0.9"
-fdg-sim = { version = "0.4.1", features = ["json"] }
+egui-macroquad = "0.11.0"
+fdg-sim = { version = "0.4", features = ["json"] }
 macroquad = "0.3"
 serde = { version = "1.0.140", features = ["derive"] }
 jsonxf = "1.1.1"
