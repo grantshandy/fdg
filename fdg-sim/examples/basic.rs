@@ -22,6 +22,5 @@ fn main() {
         for node in simulation.get_graph().node_weights() {
             println!("\"{}\" - {:?}", node.name, node.location);
         }
-        println!("----------------------")
     }
 }

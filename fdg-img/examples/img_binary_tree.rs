@@ -1,14 +1,23 @@
 use std::fs;
 
+use fdg_img::Settings;
 use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
     let parent = graph.add_force_node("", ());
 
-    tree(&mut graph, parent, 9);
+    tree(&mut graph, parent, 6);
 
-    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+    let svg = fdg_img::gen_image(
+        &graph,
+        &force::fruchterman_reingold(45.0, 0.975),
+        Some(Settings {
+            iterations: 10000,
+            ..Default::default()
+        }),
+    )
+    .unwrap();
 
     fs::write("binary_tree.svg", svg.as_bytes()).unwrap();
 }

@@ -1,23 +1,23 @@
 # fdg (Force Directed Graph)
 A Force Directed Graph Framework for Rust.
 
-| Name | Version | Docs | License
-|------|---------|------|------|
-| `fdg-sim` | [![Latest version](https://img.shields.io/crates/v/fdg-sim.svg)](https://crates.io/crates/fdg-sim) | [![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim) | [![GPL-3.0](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-sim/LICENSE) |
+| Name            | Version                                                                                                        | Docs                                                                                       | License                                                                                                                             |
+|-----------------|----------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------|
+| `fdg-sim`       | [![Latest version](https://img.shields.io/crates/v/fdg-sim.svg)](https://crates.io/crates/fdg-sim)             | [![Documentation](https://docs.rs/fdg-sim/badge.svg)](https://docs.rs/fdg-sim)             | [![GPL-3.0](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-sim/LICENSE)       |
 | `fdg-macroquad` | [![Latest version](https://img.shields.io/crates/v/fdg-macroquad.svg)](https://crates.io/crates/fdg-macroquad) | [![Documentation](https://docs.rs/fdg-macroquad/badge.svg)](https://docs.rs/fdg-macroquad) | [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-macroquad/LICENSE) |
-| `fdg-img` | [![Latest version](https://img.shields.io/crates/v/fdg-img.svg)](https://crates.io/crates/fdg-img) | [![Documentation](https://docs.rs/fdg-img/badge.svg)](https://docs.rs/fdg-img) | [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-img/LICENSE) |
+| `fdg-img`       | [![Latest version](https://img.shields.io/crates/v/fdg-img.svg)](https://crates.io/crates/fdg-img)             | [![Documentation](https://docs.rs/fdg-img/badge.svg)](https://docs.rs/fdg-img)             | [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-img/LICENSE)       |
 
 ![3D example](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-3D.png)
 ![2D example](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-2D.png)
 
-The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop. It sits on top of [`petgraph`](https://crates.io/crates/petgraph) and manages the positions of your nodes.
+The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop. It easily interacts with the popular [`petgraph`](https://crates.io/crates/petgraph) library and manages the positions of your nodes.
 
-[View Examples Online](https://grantshandy.github.io/fdg)
+[View Examples Online](https://grantshandy.github.io/fdg/)
 
 ## Contents
-- [`/fdg-sim`](./fdg-sim/) The underlying force simulation framework. Handles your dataset's positions based on a physics engine of your choice (or creation).
-- [`/fdg-macroquad`](./fdg-macroquad/) A visualizer that uses [`macroquad`](https://crates.io/crates/macroquad) for rendering.
-- [`/fdg-img`](./fdg-img/) A SVG visualizer for your graphs.
+- [`/fdg-sim`](./fdg-sim/README.md) The underlying force simulation. It handles your dataset's positions based on a physics engine of your choice (or creation).
+- [`/fdg-macroquad`](./fdg-macroquad/README.md) A visualizer that uses [`macroquad`](https://crates.io/crates/macroquad) for its rendering.
+- [`/fdg-img`](./fdg-img/README.md) A simple SVG visualizer for your graphs.
 
 ## Resources
 - [Force-Directed Graphs on Wikipedia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing)

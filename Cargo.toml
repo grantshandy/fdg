@@ -1,9 +1,6 @@
 [workspace]
 members = ["fdg-sim", "fdg-macroquad", "fdg-img"]
 
-# resolver 2 is required for wgpu
-resolver = "2"
-
 # for cargo-flamegraph
 # [profile.release]
 # debug = true
