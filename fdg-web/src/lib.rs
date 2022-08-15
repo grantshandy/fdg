@@ -1,9 +1,11 @@
 use fdg_sim::{
+    force,
+    glam::Vec3,
     petgraph::{
         graph::NodeIndex,
         visit::{EdgeRef, IntoEdgeReferences},
     },
-    ForceGraph, ForceGraphHelper, Simulation, SimulationParameters, Dimensions,
+    Dimensions, ForceGraph, ForceGraphHelper, Simulation,
 };
 use js_sys::Array;
 use wasm_bindgen::prelude::*;
@@ -26,35 +28,109 @@ pub struct ForceGraphSimulator {
 impl ForceGraphSimulator {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
-        let sim: Simulation<JsValue, JsValue> = Simulation::default();
+        let mut sim: Simulation<JsValue, JsValue> = Simulation::default();
+
+        sim.parameters_mut()
+            .set_force(force::handy(45.0, 0.975, true, true));
 
         Self { sim }
     }
 
-    #[wasm_bindgen]
-    pub fn add_node(&mut self, name: Option<String>, weight: JsValue) {
-        self.sim
-            .get_graph_mut()
-            .add_force_node(name.unwrap_or_default(), weight);
+    #[wasm_bindgen(method, setter, js_name = "graph")]
+    pub fn set_graph(&mut self, json: JsValue) -> Result<(), JsError> {
+        Ok(())
+    }
+
+    #[wasm_bindgen(method, getter, js_name = "graph")]
+    pub fn get_graph(&mut self) -> Result<(), JsError> {
+        Ok(())
     }
 
     #[wasm_bindgen]
-    pub fn add_edge(&mut self, a: Option<String>, b: Option<String>, weight: JsValue) {
-        if let Some(a) = a {
-            if let Some(b) = b {
-                let a_idx = match node_index_from_name(&self.sim.get_graph(), a) {
-                    Some(idx) => idx,
-                    None => return,
-                };
-
-                let b_idx = match node_index_from_name(&self.sim.get_graph(), b) {
-                    Some(idx) => idx,
-                    None => return,
-                };
-
-                self.sim.get_graph_mut().add_edge(a_idx, b_idx, weight);
-            }
+    pub fn add_node(&mut self, name: String, weight: JsValue) -> Result<usize, JsError> {
+        match node_index_from_name(self.sim.get_graph(), &name) {
+            Some(_) => Err(JsError::new(&format!(
+                "node with name \"{name}\" already in graph"
+            ))),
+            None => Ok(self
+                .sim
+                .get_graph_mut()
+                .add_force_node(name, weight)
+                .index()),
         }
+    }
+
+    #[wasm_bindgen(method, getter, js_name = "nodes")]
+    pub fn get_nodes(&self) -> Array {
+        let array = Array::new();
+
+        for node in self.sim.get_graph().node_weights() {
+            let node = ForceGraphNode::new(node);
+
+            array.push(&node.into());
+        }
+
+        array
+    }
+
+    #[wasm_bindgen]
+    pub fn add_edge(
+        &mut self,
+        source: JsValue,
+        target: JsValue,
+        weight: JsValue,
+    ) -> Result<(), JsError> {
+        let source: NodeIndex = if let Some(source) = source.as_string() {
+            match node_index_from_name(&self.sim.get_graph(), &source) {
+                Some(idx) => idx,
+                None => {
+                    return Err(JsError::new(&format!(
+                        "source \"{source}\" does not exist in graph"
+                    )))
+                }
+            }
+        } else if let Some(source) = source.as_f64() {
+            NodeIndex::from(source as u32)
+        } else {
+            return Err(JsError::new("source must be a number or string"));
+        };
+
+        let target: NodeIndex = if let Some(target) = target.as_string() {
+            match node_index_from_name(&self.sim.get_graph(), &target) {
+                Some(idx) => idx,
+                None => {
+                    return Err(JsError::new(&format!(
+                        "target \"{target}\" does not exist in graph"
+                    )))
+                }
+            }
+        } else if let Some(target) = target.as_f64() {
+            NodeIndex::from(target as u32)
+        } else {
+            return Err(JsError::new("target must be a number or string"));
+        };
+
+        self.sim.get_graph_mut().add_edge(source, target, weight);
+
+        Ok(())
+    }
+
+    #[wasm_bindgen(method, getter, js_name = "edges")]
+    pub fn get_edges(&self) -> Array {
+        let array = Array::new();
+        let graph = self.sim.get_graph();
+
+        for edge in self.sim.get_graph().edge_references() {
+            let source = graph[edge.source()].name.to_owned();
+            let target = graph[edge.target()].name.to_owned();
+            let weight = edge.weight().to_owned();
+
+            let edge = ForceGraphEdge::new(source, target, weight);
+
+            array.push(&edge.into());
+        }
+
+        array
     }
 
     #[wasm_bindgen]
@@ -73,35 +149,17 @@ impl ForceGraphSimulator {
         self.sim.parameters_mut().dimensions = dimensions;
     }
 
-    #[wasm_bindgen(method, getter)]
-    pub fn nodes(&self) -> Array {
-        let array = Array::new();
+    #[wasm_bindgen]
+    pub fn find(&self, query: Vec<f32>, radius: f32) -> JsValue {
+        let query = Vec3::new(query[0], query[1], query[2]);
 
-        for node in self.sim.get_graph().node_weights() {
-            let node = ForceGraphNode::new(node);
-
-            array.push(&node.into());
+        match self.sim.find(query, radius) {
+            Some(idx) => match self.sim.get_graph().node_weight(idx) {
+                Some(node) => ForceGraphNode::new(node).into(),
+                None => JsValue::NULL,
+            },
+            None => JsValue::NULL,
         }
-
-        array
-    }
-
-    #[wasm_bindgen(method, getter)]
-    pub fn edges(&self) -> Array {
-        let array = Array::new();
-        let graph = self.sim.get_graph();
-
-        for edge in self.sim.get_graph().edge_references() {
-            let source = graph[edge.source()].name.to_owned();
-            let target = graph[edge.target()].name.to_owned();
-            let weight = edge.weight().to_owned();
-
-            let edge = ForceGraphEdge::new(source, target, weight);
-
-            array.push(&edge.into());
-        }
-
-        array
     }
 
     #[wasm_bindgen]
@@ -110,7 +168,12 @@ impl ForceGraphSimulator {
     }
 }
 
-fn node_index_from_name<N, E>(graph: &ForceGraph<N, E>, name: String) -> Option<NodeIndex> {
+fn node_index_from_name<N, E>(
+    graph: &ForceGraph<N, E>,
+    name: impl AsRef<str>,
+) -> Option<NodeIndex> {
+    let name = name.as_ref().to_string();
+
     for index in graph.node_indices() {
         if &graph[index].name == &name {
             return Some(index);

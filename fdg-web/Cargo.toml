@@ -9,7 +9,7 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-console_error_panic_hook = "0.1.7"
-fdg-sim = { path = "../fdg-sim/" }
+console_error_panic_hook = "0.1"
+fdg-sim = { path = "../fdg-sim/", features = ["json"] }
 js-sys = "0.3"
 wasm-bindgen = { version = "0.2" }

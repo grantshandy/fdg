@@ -66,7 +66,7 @@ impl ForceValue {
     }
 }
 
-// A struct that defines how your force behaves
+/// A struct that defines how your force behaves.
 #[derive(Clone)]
 pub struct Force<N: Clone, E: Clone> {
     dict: Vec<DictionaryEntry>,

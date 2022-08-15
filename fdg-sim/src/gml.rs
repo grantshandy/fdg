@@ -5,7 +5,7 @@ use crate::{ForceGraph, ForceGraphHelper};
 use petgraph::graph::NodeIndex;
 use regex::Regex;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub enum GmlParseError {
     GraphStructure,
     NoNodes,
@@ -162,7 +162,11 @@ pub fn gml_from_graph<N, E>(graph: &ForceGraph<N, E>) -> String {
     for id in graph.node_indices() {
         let label = &graph[id].name;
 
-        final_str.push_str(&format!("  node [\n    id {}\n    label \"{}\"\n  ]\n", id.index(), label));
+        final_str.push_str(&format!(
+            "  node [\n    id {}\n    label \"{}\"\n  ]\n",
+            id.index(),
+            label
+        ));
     }
 
     for edge in graph.edge_indices() {
@@ -171,7 +175,11 @@ pub fn gml_from_graph<N, E>(graph: &ForceGraph<N, E>) -> String {
             None => continue,
         };
 
-        final_str.push_str(&format!("  edge [\n    source {}\n    target {}\n  ]\n", source.index(), target.index()));
+        final_str.push_str(&format!(
+            "  edge [\n    source {}\n    target {}\n  ]\n",
+            source.index(),
+            target.index()
+        ));
     }
 
     final_str.push_str("]");

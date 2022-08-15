@@ -7,7 +7,7 @@ use crate::{
 
 use super::Force;
 
-/// My own force-directed graph drawing algorithm
+/// My own force-directed graph drawing algorithm.
 pub fn handy<N: Clone, E: Clone>(
     scale: f32,
     cooloff_factor: f32,
