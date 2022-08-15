@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 pub struct ForceGraphEdge {
     source: String,
     target: String,
-    weight: JsValue,
+    metadata: JsValue,
 }
 
 #[wasm_bindgen]
@@ -20,17 +20,17 @@ impl ForceGraphEdge {
     }
 
     #[wasm_bindgen(method, getter)]
-    pub fn weight(&self) -> JsValue {
-        self.weight.to_owned()
+    pub fn metadata(&self) -> JsValue {
+        self.metadata.to_owned()
     }
 }
 
 impl ForceGraphEdge {
-    pub fn new(source: String, target: String, weight: JsValue) -> Self {
+    pub fn new(source: String, target: String, metadata: JsValue) -> Self {
         Self {
             source,
             target,
-            weight,
+            metadata,
         }
     }
 }

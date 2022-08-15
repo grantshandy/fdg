@@ -1,6 +1,7 @@
 use fdg_sim::{
     force,
     glam::Vec3,
+    json,
     petgraph::{
         graph::NodeIndex,
         visit::{EdgeRef, IntoEdgeReferences},
@@ -8,6 +9,9 @@ use fdg_sim::{
     Dimensions, ForceGraph, ForceGraphHelper, Simulation,
 };
 use js_sys::Array;
+use serde::Serialize;
+use serde_json::Value;
+use serde_wasm_bindgen::Serializer;
 use wasm_bindgen::prelude::*;
 
 mod subtypes;
@@ -38,15 +42,59 @@ impl ForceGraphSimulator {
 
     #[wasm_bindgen(method, setter, js_name = "graph")]
     pub fn set_graph(&mut self, json: JsValue) -> Result<(), JsError> {
+        let json: Value = match serde_wasm_bindgen::from_value(json) {
+            Ok(json) => json,
+            Err(err) => return Err(JsError::new(err.to_string().as_str())),
+        };
+
+        if !json.is_object() {
+            return Err(JsError::new("graph must be an object"));
+        }
+
+        let old_graph = match json::graph_from_json(json.to_string()) {
+            Ok(graph) => graph,
+            Err(err) => return Err(JsError::new(err.to_string().as_str())),
+        };
+
+        let new_graph = serde_to_wasm_graph(&old_graph)?;
+
+        self.sim.set_graph(&new_graph);
+
         Ok(())
     }
 
     #[wasm_bindgen(method, getter, js_name = "graph")]
-    pub fn get_graph(&mut self) -> Result<(), JsError> {
-        Ok(())
+    pub fn get_graph(&mut self) -> Result<JsValue, JsError> {
+        let new_graph = wasm_to_serde_graph(self.sim.get_graph())?;
+
+        let json_str = match json::graph_to_json(&new_graph) {
+            Ok(json) => json,
+            Err(err) => return Err(JsError::new(err.to_string().as_str())),
+        };
+
+        // log(&json_str);
+
+        let serde_value: Value = match serde_json::from_str(&json_str) {
+            Ok(json) => json,
+            Err(err) => {
+                return Err(JsError::new(&format!(
+                    "fdg-sim did not return valid json: {err}"
+                )))
+            }
+        };
+
+        // log(&serde_value.to_string());
+
+        let json_value: JsValue = serde_value.serialize(
+            &Serializer::new()
+                .serialize_maps_as_objects(true)
+                .serialize_missing_as_null(true),
+        )?;
+
+        Ok(json_value)
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "addNode")]
     pub fn add_node(&mut self, name: String, weight: JsValue) -> Result<usize, JsError> {
         match node_index_from_name(self.sim.get_graph(), &name) {
             Some(_) => Err(JsError::new(&format!(
@@ -73,7 +121,7 @@ impl ForceGraphSimulator {
         array
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "addEdge")]
     pub fn add_edge(
         &mut self,
         source: JsValue,
@@ -133,12 +181,12 @@ impl ForceGraphSimulator {
         array
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "resetNodePlacement")]
     pub fn reset_node_placement(&mut self) {
         self.sim.reset_node_placement();
     }
 
-    #[wasm_bindgen]
+    #[wasm_bindgen(js_name = "setDimensions")]
     pub fn set_dimensions(&mut self, dimensions: u8) {
         let dimensions = match dimensions {
             2 => Dimensions::Two,
@@ -163,8 +211,34 @@ impl ForceGraphSimulator {
     }
 
     #[wasm_bindgen]
+    pub fn location_from_name(&self, name: String) -> Option<Vec<f32>> {
+        let idx = match node_index_from_name(self.sim.get_graph(), name) {
+            Some(idx) => idx,
+            None => return None,
+        };
+
+        return Some(self.sim.get_graph()[idx].location.to_array().to_vec());
+    }
+
+    #[wasm_bindgen]
     pub fn update(&mut self, dt: f32) {
         self.sim.update(dt);
+    }
+
+    #[wasm_bindgen(js_name = "setNodeLocationFromName")]
+    pub fn set_node_location_from_name(&mut self, name: String, location: Vec<f32>) {
+        let idx = match node_index_from_name(self.sim.get_graph(), &name) {
+            Some(idx) => idx,
+            None => return,
+        };
+
+        if let Some(node) = self.sim.get_graph_mut().node_weight_mut(idx) {
+            node.location = Vec3::new(
+                location.get(0).unwrap_or(&0.0).clone(),
+                location.get(1).unwrap_or(&0.0).clone(),
+                location.get(2).unwrap_or(&0.0).clone(),
+            );
+        }
     }
 }
 
@@ -181,4 +255,49 @@ fn node_index_from_name<N, E>(
     }
 
     return None;
+}
+
+fn serde_to_wasm_graph(
+    graph: &ForceGraph<Value, Value>,
+) -> Result<ForceGraph<JsValue, JsValue>, JsError> {
+    let mut new_graph = ForceGraph::default();
+
+    for node in graph.node_weights() {
+        new_graph.add_force_node(node.name.clone(), serde_wasm_bindgen::to_value(&node.data)?);
+    }
+
+    for edge in graph.edge_references() {
+        new_graph.add_edge(
+            edge.source(),
+            edge.target(),
+            serde_wasm_bindgen::to_value(&edge.weight())?,
+        );
+    }
+
+    Ok(new_graph)
+}
+
+fn wasm_to_serde_graph(
+    graph: &ForceGraph<JsValue, JsValue>,
+) -> Result<ForceGraph<Value, Value>, JsError> {
+    let mut new_graph = ForceGraph::default();
+
+    for node in graph.node_weights() {
+        let weight: Value = node.data.into_serde()?;
+        new_graph.add_force_node(node.name.clone(), weight);
+    }
+
+    for edge in graph.edge_references() {
+        let weight: Value = edge.weight().into_serde()?;
+
+        new_graph.add_edge(edge.source(), edge.target(), weight);
+    }
+
+    Ok(new_graph)
+}
+
+#[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }

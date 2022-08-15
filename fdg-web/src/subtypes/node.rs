@@ -6,19 +6,19 @@ use wasm_bindgen::prelude::*;
 pub struct ForceGraphNode {
     name: String,
     location: Vec<f32>,
-    data: JsValue,
+    metadata: JsValue,
 }
 
 impl ForceGraphNode {
     pub fn new(node: &Node<JsValue>) -> Self {
         let name = node.name.to_owned();
         let location = vec![node.location.x, node.location.y, node.location.z];
-        let data = node.data.to_owned();
+        let metadata = node.data.to_owned();
 
         Self {
             name,
             location,
-            data,
+            metadata,
         }
     }
 }
@@ -36,7 +36,7 @@ impl ForceGraphNode {
     }
 
     #[wasm_bindgen(method, getter)]
-    pub fn data(&self) -> JsValue {
-        self.data.to_owned()
+    pub fn metadata(&self) -> JsValue {
+        self.metadata.to_owned()
     }
 }
