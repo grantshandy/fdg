@@ -1,0 +1,12 @@
+{
+  "name": "fdg-web",
+  "version": "0.1.0",
+  "files": [
+    "fdg-web_bg.wasm",
+    "fdg-web.js",
+    "fdg-web.d.ts"
+  ],
+  "module": "fdg-web.js",
+  "types": "fdg-web.d.ts",
+  "sideEffects": false
+}
