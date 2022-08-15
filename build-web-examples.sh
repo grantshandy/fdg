@@ -18,3 +18,4 @@ mkdir -p ./fdg-macroquad/examples/web-examples/wasmapi/
 cp fdg-web/examples/* ./fdg-macroquad/examples/web-examples/wasmapi/
 cp -rvf fdg-web/pkg/ ./fdg-macroquad/examples/web-examples/
 rm -rvf ./fdg-macroquad/examples/web-examples/.gitignore
+rm -rvf ./fdg-macroquad/examples/web-examples/pkg/.gitignore
