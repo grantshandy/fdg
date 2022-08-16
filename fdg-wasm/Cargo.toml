@@ -2,6 +2,14 @@
 name = "fdg-wasm"
 version = "0.1.0"
 edition = "2021"
+authors = ["Grant Handy <grantshandy@gmail.com>"]
+license = "MIT"
+description = "A flexible force directed graph framework"
+repository = "https://github.com/grantshandy/fdg/"
+documentation = "https://docs.rs/fdg_sim/"
+keywords = ["graph", "force", "directed", "viz"]
+categories = ["visualization"]
+readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
