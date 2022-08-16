@@ -42,7 +42,7 @@ impl ForceGraphSimulator {
 
     #[wasm_bindgen(method, setter, js_name = "graph")]
     pub fn set_graph(&mut self, json: JsValue) -> Result<(), JsError> {
-        let json: Value = match serde_wasm_bindgen::from_value(json) {
+        let inner_graph: Value = match serde_wasm_bindgen::from_value(json) {
             Ok(json) => json,
             Err(err) => return Err(JsError::new(err.to_string().as_str())),
         };
@@ -51,7 +51,9 @@ impl ForceGraphSimulator {
             return Err(JsError::new("graph must be an object"));
         }
 
-        let old_graph = match json::graph_from_json(json.to_string()) {
+        let outer_graph = Map::new();
+
+        let serde_graph = match json::graph_from_json(json.to_string()) {
             Ok(graph) => graph,
             Err(err) => return Err(JsError::new(err.to_string().as_str())),
         };

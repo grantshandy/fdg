@@ -3,6 +3,7 @@ use js_sys::Number;
 use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen]
+#[derive(Clone)]
 pub struct ForceGraphNode {
     name: String,
     location: Vec<f32>,
