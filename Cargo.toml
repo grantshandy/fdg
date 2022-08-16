@@ -1,5 +1,5 @@
 [workspace]
-members = ["fdg-sim", "fdg-macroquad", "fdg-img", "fdg-web"]
+members = ["fdg-sim", "fdg-macroquad", "fdg-img", "fdg-wasm"]
 
 # for cargo-flamegraph
 # [profile.release]

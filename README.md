@@ -18,7 +18,7 @@ The goal of this project is to provide a force-directed graph framework and algo
 - [`/fdg-sim`](./fdg-sim/README.md) The underlying force simulation. It handles your dataset's positions based on a physics engine of your choice (or creation).
 - [`/fdg-macroquad`](./fdg-macroquad/README.md) A visualizer that uses [`macroquad`](https://crates.io/crates/macroquad) for its rendering.
 - [`/fdg-img`](./fdg-img/README.md) A simple SVG visualizer for your graphs.
-- [`/fdg-web`](./fdg-web/README.md) A WIP WASM API for the framework.
+- [`/fdg-wasm`](./fdg-wasm/README.md) A WIP WASM API for the framework.
 
 ## Resources
 - [Force-Directed Graphs on Wikipedia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing)

@@ -89,8 +89,7 @@ struct InnerJsonGraph {
 
 #[derive(Serialize, Deserialize, Debug)]
 struct JsonNode {
-    #[serde(rename = "label")]
-    pub _label: Option<String>,
+    pub label: Option<String>,
     pub metadata: Option<Value>,
 }
 
@@ -98,55 +97,26 @@ struct JsonNode {
 struct JsonEdge {
     pub source: String,
     pub target: String,
-    pub metadata: Option<Value>,
+    #[serde(default)]
+    pub metadata: Value,
 }
 
 /// Create json from a [`ForceGraph`].
 pub fn graph_to_json<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Result<String, serde_json::Error> {
-    let mut nodes: HashMap<String, JsonNode> = HashMap::new();
+    let mut nodes: HashMap<String, Value> = HashMap::new();
     let mut edges: Vec<JsonEdge> = Vec::new();
 
     for node in graph.node_weights() {
-        let mut metadata: Value = serde_json::to_value(&node.data)?;
+        let metadata: Value = serde_json::to_value(&node.data)?;
 
-        // get label from either name or metadata label (put there by json serializer)
-        let label: String = if let Some(metadata) = metadata.as_object_mut() {
-            let mut used_metadata = false;
-
-            let label = if let Some(label) = metadata.get("label") {
-                used_metadata = true;
-                label.to_string().replace("\"", "")
-            } else {
-                node.name.to_owned()
-            };
-
-            if used_metadata {
-                metadata.remove("label");
-            }
-
-            label
-        } else {
-            node.name.to_owned()
-        };
-
-        // if metadata ends up being an empty object then make it null
-        if metadata.as_object().map(|x| x.is_empty()).unwrap_or(false) {
-            metadata = Value::Null;
-        }
-
-        let value = JsonNode {
-            _label: Some(label),
-            metadata: Some(metadata),
-        };
-
-        nodes.insert(node.name.to_owned(), value);
+        nodes.insert(node.name.to_owned(), metadata);
     }
-    
+
     for edge in graph.edge_references() {
         let edge = JsonEdge {
             source: (&graph[edge.source()]).name.to_owned(),
             target: (&graph[edge.target()]).name.to_owned(),
-            metadata: Some(serde_json::to_value(edge.weight())?),
+            metadata: serde_json::to_value(edge.weight())?,
         };
 
         edges.push(edge);
@@ -166,7 +136,7 @@ pub fn graph_to_json<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Re
 
 /// Get a [`ForceGraph`] from json.
 pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>, JsonError> {
-    let mut graph = ForceGraph::default();
+    let mut graph: ForceGraph<Value, Value> = ForceGraph::default();
 
     let json: JsonGraph = match serde_json::from_str(json.as_ref()) {
         Ok(json) => json,
@@ -178,18 +148,12 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>
     }
 
     for (name, data) in json.graph.nodes {
-        let mut metadata = data.metadata.unwrap_or(Value::Object(Map::new()));
+        let data = match serde_json::to_value(&data) {
+            Ok(data) => data,
+            Err(err) => return Err(JsonError::BadFormatting(err)),
+        };
 
-        // if you included a label in your struct it'll automatically be moved to the metadata to be saved later...
-        if let Some(label) = data._label {
-            if let Some(object) = metadata.as_object_mut() {
-                object.insert("label".to_string(), Value::String(label));
-            }
-        } else {
-            metadata = Value::Null;
-        }
-
-        graph.add_force_node(name, metadata);
+        graph.add_force_node(name, data.into());
     }
 
     if let Some(edges) = json.graph.edges {
@@ -204,9 +168,7 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>
                 None => return Err(JsonError::NodeNotFound(edge.target)),
             };
 
-            let metadata = edge.metadata.unwrap_or(Value::Null);
-
-            graph.add_edge(source, target, metadata);
+            graph.add_edge(source, target, edge.metadata);
         }
     }
 

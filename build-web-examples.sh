@@ -12,10 +12,10 @@ cp target/wasm32-unknown-unknown/release/examples/view_ring.wasm ./fdg-macroquad
 cp target/wasm32-unknown-unknown/release/examples/view_sphere.wasm ./fdg-macroquad/examples/web-examples/
 cp target/wasm32-unknown-unknown/release/examples/view_social_network.wasm ./fdg-macroquad/examples/web-examples/
 
-cd fdg-web && make && cd ..
+cd fdg-wasm && make && cd ..
 
 mkdir -p ./fdg-macroquad/examples/web-examples/wasmapi/
-cp fdg-web/examples/* ./fdg-macroquad/examples/web-examples/wasmapi/
-cp -rvf fdg-web/pkg/ ./fdg-macroquad/examples/web-examples/
+cp fdg-wasm/examples/* ./fdg-macroquad/examples/web-examples/wasmapi/
+cp -rvf fdg-wasm/pkg/ ./fdg-macroquad/examples/web-examples/
 rm -rvf ./fdg-macroquad/examples/web-examples/.gitignore
 rm -rvf ./fdg-macroquad/examples/web-examples/pkg/.gitignore
