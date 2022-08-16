@@ -1,6 +1,15 @@
 {
   "name": "fdg-wasm",
+  "collaborators": [
+    "Grant Handy <grantshandy@gmail.com>"
+  ],
+  "description": "A flexible force directed graph framework",
   "version": "0.1.0",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grantshandy/fdg/"
+  },
   "files": [
     "fdg-wasm_bg.wasm",
     "fdg-wasm.js",
@@ -8,5 +17,11 @@
   ],
   "module": "fdg-wasm.js",
   "types": "fdg-wasm.d.ts",
-  "sideEffects": false
+  "sideEffects": false,
+  "keywords": [
+    "graph",
+    "force",
+    "directed",
+    "viz"
+  ]
 }
