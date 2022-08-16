@@ -1,3 +1,5 @@
+use std::fmt;
+
 use crate::force::{self, Force};
 
 use super::ForceGraph;
@@ -208,12 +210,17 @@ pub struct Node<N> {
     /// Velocity of the node.
     pub velocity: Vec3,
     /// Color of the node in RGBA.
+    #[deprecated(
+        since = "0.6.0",
+        note = "use of color in nodes will be phased out so it can be handled by the user."
+    )]
     pub color: [u8; 4],
     /// If the node is locked. (if the physics should run on it)
     pub locked: bool,
 }
 
 impl<N> Node<N> {
+    #[allow(deprecated)]
     /// Create a new node with it's name and associated data.
     pub fn new(name: impl AsRef<str>, data: N) -> Self {
         Self {
@@ -226,6 +233,11 @@ impl<N> Node<N> {
         }
     }
 
+    #[deprecated(
+        since = "0.6.0",
+        note = "use of color in nodes will be phased out so it can be handled by the user."
+    )]
+    #[allow(deprecated)]
     /// Create a new node with a custom color.
     pub fn new_with_color(name: impl AsRef<str>, data: N, color: [u8; 4]) -> Self {
         Self {
@@ -238,6 +250,7 @@ impl<N> Node<N> {
         }
     }
 
+    #[allow(deprecated)]
     /// Create a new node with custom coordinates.
     pub fn new_with_coords(name: impl AsRef<str>, data: N, location: Vec3) -> Self {
         Self {
@@ -248,5 +261,16 @@ impl<N> Node<N> {
             color: [0, 0, 0, 255],
             locked: false,
         }
+    }
+}
+
+impl<N: fmt::Debug> fmt::Debug for Node<N> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        f.debug_struct("Node")
+            .field("name", &self.name)
+            .field("data", &self.data)
+            .field("location", &self.location)
+            .field("velocity", &self.velocity)
+            .finish()
     }
 }

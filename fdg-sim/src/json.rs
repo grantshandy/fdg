@@ -38,9 +38,12 @@
 
 use std::{collections::HashMap, error::Error, fmt};
 
-use petgraph::{graph::NodeIndex, visit::{IntoEdgeReferences, EdgeRef}};
+use petgraph::{
+    graph::NodeIndex,
+    visit::{EdgeRef, IntoEdgeReferences},
+};
 use serde::{Deserialize, Serialize};
-use serde_json::{Value, Map};
+use serde_json::{Map, Value};
 
 use crate::{ForceGraph, ForceGraphHelper};
 
@@ -103,7 +106,9 @@ struct JsonEdge {
 }
 
 /// Create a json value from a [`ForceGraph`].
-pub fn graph_to_json<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Result<Value, serde_json::Error> {
+pub fn graph_to_json<N: Serialize, E: Serialize>(
+    graph: &ForceGraph<N, E>,
+) -> Result<Value, serde_json::Error> {
     let mut nodes: HashMap<String, Value> = HashMap::new();
     let mut edges: Vec<JsonEdge> = Vec::new();
 

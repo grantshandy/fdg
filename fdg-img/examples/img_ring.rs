@@ -1,6 +1,6 @@
 use std::fs;
 
-use fdg_sim::{ForceGraph, ForceGraphHelper, force};
+use fdg_sim::{force, ForceGraph, ForceGraphHelper};
 
 fn main() {
     // initialize a graph
