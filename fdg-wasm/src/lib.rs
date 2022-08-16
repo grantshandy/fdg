@@ -71,18 +71,9 @@ impl ForceGraphSimulator {
     pub fn get_graph(&mut self) -> Result<JsValue, JsError> {
         let new_graph = wasm_to_serde_graph(self.sim.get_graph())?;
 
-        let json_str = match json::graph_to_json(&new_graph) {
+        let serde_graph = match json::graph_to_json(&new_graph) {
             Ok(json) => json,
             Err(err) => return Err(JsError::new(err.to_string().as_str())),
-        };
-
-        let serde_graph: Value = match serde_json::from_str(&json_str) {
-            Ok(json) => json,
-            Err(err) => {
-                return Err(JsError::new(&format!(
-                    "fdg-sim did not return valid json: {err}"
-                )))
-            }
         };
 
         let inner_serde_graph = match serde_graph.get("graph") {

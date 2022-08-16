@@ -1,53 +1,45 @@
 {
-    "nodes": [
-        {
-            "name": "1"
+    "graph": {
+        "nodes": {
+            "1": {},
+            "2": {},
+            "3": {},
+            "4": {},
+            "5": {}
         },
-        {
-            "name": "2"
-        },            
-        {
-            "name": "3"
-        },            
-        {
-            "name": "4"
-        },            
-        {
-            "name": "5"
-        }
-    ],
-    "edges": [
-        {
-            "source": "1",
-            "target": "2"
-        },
-        {
-            "source": "2",
-            "target": "3"
-        },
-        {
-            "source": "3",
-            "target": "4"
-        },
-        {
-            "source": "4",
-            "target": "1"
-        },
-        {
-            "source": "5",
-            "target": "1"
-        },
-        {
-            "source": "5",
-            "target": "2"
-        },
-        {
-            "source": "5",
-            "target": "3"
-        },
-        {
-            "source": "5",
-            "target": "4"
-        }
-    ]
+        "edges": [
+            {
+                "source": "1",
+                "target": "2"
+            },
+            {
+                "source": "2",
+                "target": "3"
+            },
+            {
+                "source": "3",
+                "target": "4"
+            },
+            {
+                "source": "4",
+                "target": "1"
+            },
+            {
+                "source": "5",
+                "target": "1"
+            },
+            {
+                "source": "5",
+                "target": "2"
+            },
+            {
+                "source": "5",
+                "target": "3"
+            },
+            {
+                "source": "5",
+                "target": "4"
+            }
+        ]
+    }
 }

@@ -3,7 +3,7 @@ use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 #[macroquad::main("Force Graph Binary Tree Demo")]
 async fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
-    let parent = graph.add_force_node("", ());
+    let parent = graph.add_force_node(format!("{}", graph.node_count() + 1), ());
 
     tree(&mut graph, parent, 9);
 
@@ -22,8 +22,8 @@ fn tree(graph: &mut ForceGraph<(), ()>, parent: NodeIndex, depth: u8) {
         return;
     }
 
-    let a = graph.add_force_node("", ());
-    let b = graph.add_force_node("", ());
+    let a = graph.add_force_node(format!("{}", graph.node_count() + 1), ());
+    let b = graph.add_force_node(format!("{}", graph.node_count() + 1), ());
 
     graph.add_edge(parent, a, ());
     graph.add_edge(parent, b, ());

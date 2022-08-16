@@ -44,6 +44,7 @@ use serde_json::{Value, Map};
 
 use crate::{ForceGraph, ForceGraphHelper};
 
+/// Possible errors returned by the functions in the module.
 #[derive(Debug)]
 pub enum JsonError {
     BadFormatting(serde_json::Error),
@@ -101,8 +102,8 @@ struct JsonEdge {
     pub metadata: Value,
 }
 
-/// Create json from a [`ForceGraph`].
-pub fn graph_to_json<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Result<String, serde_json::Error> {
+/// Create a json value from a [`ForceGraph`].
+pub fn graph_to_json<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Result<Value, serde_json::Error> {
     let mut nodes: HashMap<String, Value> = HashMap::new();
     let mut edges: Vec<JsonEdge> = Vec::new();
 
@@ -131,10 +132,10 @@ pub fn graph_to_json<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> Re
 
     outer_graph.insert("graph".to_string(), serde_json::to_value(&inner_graph)?);
 
-    Ok(serde_json::to_string(&outer_graph)?)
+    Ok(Value::Object(outer_graph))
 }
 
-/// Get a [`ForceGraph`] from json.
+/// Get a [`ForceGraph`] from a json string.
 pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>, JsonError> {
     let mut graph: ForceGraph<Value, Value> = ForceGraph::default();
 

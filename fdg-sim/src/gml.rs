@@ -5,6 +5,7 @@ use crate::{ForceGraph, ForceGraphHelper};
 use petgraph::graph::NodeIndex;
 use regex::Regex;
 
+/// Possible errors returned by the functions in the module.
 #[derive(Clone, Debug)]
 pub enum GmlParseError {
     GraphStructure,
@@ -42,7 +43,7 @@ impl fmt::Display for GmlParseError {
 
 impl Error for GmlParseError {}
 
-/// Get a [`ForceGraph`] from gml.
+/// Get a [`ForceGraph`] from a gml string.
 pub fn graph_from_gml(gml: impl AsRef<str>) -> Result<ForceGraph<(), ()>, GmlParseError> {
     let gml = gml.as_ref();
 
@@ -154,7 +155,8 @@ pub fn graph_from_gml(gml: impl AsRef<str>) -> Result<ForceGraph<(), ()>, GmlPar
     Ok(graph)
 }
 
-pub fn gml_from_graph<N, E>(graph: &ForceGraph<N, E>) -> String {
+/// Create a gml string from a [`ForceGraph`].
+pub fn graph_to_gml<N, E>(graph: &ForceGraph<N, E>) -> String {
     let mut final_str = String::new();
 
     final_str.push_str("graph [\n");

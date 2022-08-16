@@ -5,4 +5,5 @@
 /target
 *.wasm
 *.svg
+json2gml.gml
 /.idea/

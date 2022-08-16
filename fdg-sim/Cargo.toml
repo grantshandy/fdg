@@ -1,6 +1,6 @@
 [package]
 name = "fdg-sim"
-version = "0.5.0"
+version = "0.6.0"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "MIT"
@@ -39,3 +39,7 @@ required-features = ["gml"]
 [[example]]
 name = "json"
 required-features = ["json"]
+
+[[example]]
+name = "conversion"
+required-features = ["json", "gml"]

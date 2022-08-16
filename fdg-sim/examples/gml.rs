@@ -1,9 +1,9 @@
 use fdg_sim::gml;
 
 fn main() {
-    let graph = gml::graph_from_gml(include_str!("../../datasets/basic.gml")).unwrap();
+    let graph = gml::graph_from_gml(include_str!("../../datasets/pyramid.gml")).unwrap();
 
-    let gml = gml::gml_from_graph(&graph);
+    let gml = gml::graph_to_gml(&graph);
 
     println!("{gml}");
 }

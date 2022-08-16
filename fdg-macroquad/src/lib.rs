@@ -341,7 +341,7 @@ pub async fn run_window<
                     );
                     ui.checkbox(&mut show_edges, "Show Edges");
                     ui.checkbox(&mut show_nodes, "Show Nodes");
-                    if ui.checkbox(&mut json, "Json (beta)").changed() {
+                    if ui.checkbox(&mut json, "Show Json").changed() {
                         json_buffer = update_json_buffer(sim.get_graph());
                     };
                     ui.separator();
@@ -421,10 +421,10 @@ fn mode_color_convert(dark: bool, i: u8) -> u8 {
 }
 
 fn update_json_buffer<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> String {
-    match json::json_from_graph(graph) {
-        Ok(s) => match jsonxf::pretty_print(&s) {
+    match json::graph_to_json(graph) {
+        Ok(s) => match serde_json::to_string_pretty(&s) {
             Ok(s) => s,
-            Err(err) => format!("json formatting error: {err}"),
+            Err(err) => format!("json string formatting error: {err}"),
         },
         Err(err) => format!("json serializing error: {err}"),
     }
