@@ -1,7 +1,6 @@
 use std::fs;
 
-use fdg_sim::json;
-use petgraph::dot::{Config, Dot};
+use fdg_sim::{dot, json};
 
 const SOCIAL_NETWORK: &'static str = include_str!("../../datasets/social_network.json");
 
@@ -10,7 +9,7 @@ fn main() {
 
     fs::write(
         "social_network.dot",
-        format!("{:?}", Dot::with_config(&graph, &[Config::EdgeNoLabel])).as_bytes(),
+        dot::graph_to_dot(&graph).unwrap().as_bytes(),
     )
     .unwrap();
 }

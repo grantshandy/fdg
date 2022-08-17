@@ -5,6 +5,6 @@
 /target
 *.wasm
 *.svg
-*.dot
-json2gml.gml
+/*.gml
+/*.dot
 /.idea/

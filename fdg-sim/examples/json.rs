@@ -1,41 +1,10 @@
 use fdg_sim::json;
 use petgraph::visit::{EdgeRef, IntoEdgeReferences};
 
-const JSON: &str = r#"{
-    "graph": {
-        "nodes": {
-            "A": {
-                "label": "label for A is moved to data section in node"
-            },
-            "B": {
-                "metadata": {
-                    "something": "here"
-                }
-            },
-            "C": {}
-        },
-        "edges": [
-            {
-                "source": "A",
-                "target": "B",
-                "metadata": 123451.45
-            },
-            {
-                "source": "B",
-                "target": "C",
-                "metadata": "just a string here!"
-            },
-            {
-                "source": "C",
-                "target": "A",
-                "metadata": { "key": "value" }
-            }
-        ]
-    }
-}"#;
+const SOCIAL_NETWORK: &'static str = include_str!("../../datasets/social_network.json");
 
 fn main() {
-    let graph = json::graph_from_json(JSON).unwrap();
+    let graph = json::graph_from_json(SOCIAL_NETWORK).unwrap();
 
     println!("---- nodes ----");
     for node in graph.node_weights() {
@@ -53,5 +22,8 @@ fn main() {
     }
 
     println!("---- output ----");
-    println!("{}", json::graph_to_json(&graph).unwrap());
+    println!(
+        "{}",
+        serde_json::to_string_pretty(&json::graph_to_json(&graph).unwrap()).unwrap()
+    );
 }

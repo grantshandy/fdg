@@ -20,6 +20,7 @@ fn main() {
     // initialize a graph
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
+    // add nodes to it
     let one = graph.add_force_node("one", ());
     let two = graph.add_force_node("two", ());
     let _three = graph.add_force_node("three", ());

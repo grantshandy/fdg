@@ -1,35 +1,66 @@
 //!
-//! Generate graphs from json formatted in the [json graph specification](https://github.com/jsongraph/json-graph-specification).
 //! Hyperedges aren't implemented, but basic graphs like should work:
 //! ```json
 //! {
 //!     "graph": {
 //!         "nodes": {
-//!             "A": {
-//!                 "label": "label for A is moved to data section in node"
-//!             },
-//!             "B": {
-//!                 "metadata": {
-//!                     "something": "here"
-//!                 }
-//!             },
-//!             "C": {}
+//!             "1": {},
+//!             "2": {},
+//!             "3": {},
+//!             "4": {},
+//!             "5": {},
+//!             "6": {},
+//!             "7": {},
+//!             "8": {}
 //!         },
 //!         "edges": [
 //!             {
-//!                 "source": "A",
-//!                 "target": "B",
-//!                 "metadata": 123451.45
+//!                 "source": "1",
+//!                 "target": "2"
 //!             },
 //!             {
-//!                 "source": "B",
-//!                 "target": "C",
-//!                 "metadata": "just a string here!"
+//!                 "source": "2",
+//!                 "target": "3"
 //!             },
 //!             {
-//!                 "source": "C",
-//!                 "target": "A",
-//!                 "metadata": { "key": "value" }
+//!                 "source": "3",
+//!                 "target": "4"
+//!             },
+//!             {
+//!                 "source": "4",
+//!                 "target": "1"
+//!             },
+//!             {
+//!                 "source": "5",
+//!                 "target": "6"
+//!             },
+//!             {
+//!                 "source": "6",
+//!                 "target": "7"
+//!             },
+//!             {
+//!                 "source": "7",
+//!                 "target": "8"
+//!             },
+//!             {
+//!                 "source": "8",
+//!                 "target": "5"
+//!             },
+//!             {
+//!                 "source": "1",
+//!                 "target": "5"
+//!             },
+//!             {
+//!                 "source": "2",
+//!                 "target": "6"
+//!             },
+//!             {
+//!                 "source": "3",
+//!                 "target": "7"
+//!             },
+//!             {
+//!                 "source": "4",
+//!                 "target": "8"
 //!             }
 //!         ]
 //!     }
