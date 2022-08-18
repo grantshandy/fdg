@@ -4,6 +4,11 @@
 */
 export function start(): void;
 /**
+* @param {string} json
+* @returns {any}
+*/
+export function jsongraph_to_dot(json: string): any;
+/**
 */
 export class ForceGraphEdge {
   free(): void;
@@ -90,16 +95,17 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
+  readonly __wbg_forcegraphedge_free: (a: number) => void;
+  readonly forcegraphedge_source: (a: number) => number;
+  readonly forcegraphedge_target: (a: number) => number;
+  readonly forcegraphedge_metadata: (a: number) => number;
   readonly __wbg_forcegraphnode_free: (a: number) => void;
   readonly forcegraphnode_name: (a: number, b: number) => void;
   readonly forcegraphnode_label: (a: number) => number;
   readonly forcegraphnode_location: (a: number, b: number) => void;
   readonly forcegraphnode_metadata: (a: number) => number;
-  readonly __wbg_forcegraphedge_free: (a: number) => void;
-  readonly forcegraphedge_source: (a: number) => number;
-  readonly forcegraphedge_target: (a: number) => number;
-  readonly forcegraphedge_metadata: (a: number) => number;
   readonly start: () => void;
+  readonly jsongraph_to_dot: (a: number, b: number, c: number) => void;
   readonly __wbg_forcegraphsimulator_free: (a: number) => void;
   readonly forcegraphsimulator_new: () => number;
   readonly forcegraphsimulator_set_graph: (a: number, b: number, c: number) => void;
