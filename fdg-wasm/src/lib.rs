@@ -2,6 +2,7 @@ use fdg_sim::{
     force,
     glam::Vec3,
     json,
+    dot,
     petgraph::{
         graph::NodeIndex,
         visit::{EdgeRef, IntoEdgeReferences},
@@ -21,6 +22,21 @@ pub use subtypes::{ForceGraphEdge, ForceGraphNode};
 #[wasm_bindgen(start)]
 pub fn start() {
     console_error_panic_hook::set_once();
+}
+
+#[wasm_bindgen]
+pub fn jsongraph_to_dot(json: String) -> Result<JsValue, JsError> {
+    let graph = match json::graph_from_json(&json) {
+        Ok(graph) => graph,
+        Err(err) => return Err(JsError::new(&err.to_string())),
+    };
+
+    let dot = match dot::graph_to_dot(&graph) {
+        Ok(dot) => dot,
+        Err(err) => return Err(JsError::new(&err.to_string())),
+    };
+
+    Ok(JsValue::from_str(&dot))
 }
 
 #[wasm_bindgen]

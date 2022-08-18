@@ -47,7 +47,7 @@ Child1: -261.75665283203125,36.16830062866211,0
 ```
 
 
-## `ForceGraphSimulation()` Documentation
+## `ForceGraphSimulation` Documentation
 
 ### *simulation*.**graph**
 Get and set the simulation's internal graph based on the [jsongraph specification](https://github.com/jsongraph/json-graph-specification).
@@ -78,3 +78,6 @@ Returns the node info from the name or index of a node.
 
 ### *simulation*.**update**(Number dt)
 Updates the internal simulation for an interval.
+
+## `jsongraph_to_dot(String graph)`
+Returns a graphviz dot graph from a jsongraph string.
