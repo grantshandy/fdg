@@ -1,6 +1,6 @@
 //!
 //! Here's an example graph:
-//! ```
+//! ```ignore
 //! graph [
 //!   node [
 //!     id 0

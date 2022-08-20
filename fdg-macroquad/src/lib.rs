@@ -5,7 +5,7 @@ use egui_macroquad::{
     macroquad::prelude::*,
 };
 use fdg_sim::{
-    force::{self, ForceValue},
+    force::{self, Value},
     glam::Vec3,
     json,
     petgraph::graph::NodeIndex,
@@ -30,9 +30,9 @@ pub async fn run_window<
 
     let forces = vec![
         current_force.clone(),
+        force::handy(45.0, 0.975, true, true),
         force::scale(),
         force::translate(),
-        force::handy(45.0, 0.975, true, true),
     ];
 
     let mut dark = true;
@@ -112,12 +112,10 @@ pub async fn run_window<
 
                 if is_mouse_button_down(MouseButton::Left) {
                     node.locked = true;
-                    node.color = [169, 169, 169, 255];
                     node.location.x = mouse.0;
                     node.location.y = mouse.1;
                 } else if is_mouse_button_released(MouseButton::Left) {
                     node.locked = false;
-                    node.color = [0, 0, 0, 255];
                     dragging_node = None;
                 }
             }
@@ -142,10 +140,10 @@ pub async fn run_window<
                         node.location.y,
                         node_size,
                         Color::from_rgba(
-                            mode_color_convert(dark, node.color[0]),
-                            mode_color_convert(dark, node.color[1]),
-                            mode_color_convert(dark, node.color[2]),
-                            mode_color_convert(dark, node.color[3]),
+                            mode_color_convert(dark, 0),
+                            mode_color_convert(dark, 0),
+                            mode_color_convert(dark, 0),
+                            255,
                         ),
                     );
                 });
@@ -212,10 +210,10 @@ pub async fn run_window<
                         node_size,
                         None,
                         Color::from_rgba(
-                            mode_color_convert(dark, node.color[0]),
-                            mode_color_convert(dark, node.color[1]),
-                            mode_color_convert(dark, node.color[2]),
-                            mode_color_convert(dark, node.color[3]),
+                            mode_color_convert(dark, 0),
+                            mode_color_convert(dark, 0),
+                            mode_color_convert(dark, 0),
+                            255,
                         ),
                     );
                 });
@@ -363,16 +361,12 @@ pub async fn run_window<
                                 ui.label(info);
                             });
                     }
-                    for dict in current_force.dict_mut() {
-                        let name = dict.name;
-
-                        match dict.value_mut() {
-                            ForceValue::Number(value, range) => {
+                    for (name, value) in current_force.dict_mut() {
+                        match value {
+                            Value::Number(value, range) => {
                                 ui.add(Slider::new(value, range.clone()).text(name))
                             }
-                            ForceValue::Bool(value) => {
-                                ui.add(Checkbox::new(value, name.to_string()))
-                            }
+                            Value::Bool(value) => ui.add(Checkbox::new(value, name.to_string())),
                         };
                     }
                     ui.separator();
@@ -414,7 +408,7 @@ pub async fn run_window<
 
 fn mode_color_convert(dark: bool, i: u8) -> u8 {
     if dark {
-        200
+        255 - i
     } else {
         i
     }
@@ -431,11 +425,5 @@ fn update_json_buffer<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> S
 }
 
 fn avg(vs: Vec<f32>) -> f32 {
-    let mut sum: f32 = 0.0;
-
-    for v in &vs {
-        sum += v;
-    }
-
-    sum / (vs.len() as f32)
+    Iterator::sum::<f32>(vs.iter()) / (vs.len() as f32)
 }

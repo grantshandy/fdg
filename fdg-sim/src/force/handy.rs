@@ -1,9 +1,7 @@
 use glam::Vec3;
+use hashlink::LinkedHashMap;
 
-use crate::{
-    force::{DictionaryEntry, ForceValue},
-    ForceGraph,
-};
+use crate::{force::Value, ForceGraph};
 
 use super::Force;
 
@@ -14,16 +12,20 @@ pub fn handy<N: Clone, E: Clone>(
     gravity: bool,
     centering: bool,
 ) -> Force<N, E> {
-    fn update<N: Clone, E: Clone>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, dt: f32) {
+    fn update<N: Clone, E: Clone>(
+        dict: &LinkedHashMap<String, Value>,
+        graph: &mut ForceGraph<N, E>,
+        dt: f32,
+    ) {
         let graph_clone = graph.clone();
 
-        let repulsive = dict[0].value.bool().unwrap();
-        let attractive = dict[1].value.bool().unwrap();
-        let scale = dict[2].value.number().unwrap();
-        let cooloff_factor = dict[3].value.number().unwrap();
-        let gravity_factor = dict[4].value.number().unwrap();
-        let centering = dict[5].value.bool().unwrap();
-        let gravity = dict[6].value.bool().unwrap();
+        let repulsive = dict.get("Repulsive").unwrap().bool().unwrap();
+        let attractive = dict.get("Attractive").unwrap().bool().unwrap();
+        let scale = dict.get("Scale").unwrap().number().unwrap();
+        let cooloff_factor = dict.get("Cooloff Factor").unwrap().number().unwrap();
+        let gravity_factor = dict.get("Gravity Factor").unwrap().number().unwrap();
+        let centering = dict.get("Centering").unwrap().bool().unwrap();
+        let gravity = dict.get("Gravity").unwrap().bool().unwrap();
 
         let mut vec_sum = Vec3::ZERO;
 
@@ -90,18 +92,17 @@ pub fn handy<N: Clone, E: Clone>(
         }
     }
 
-    let dict = vec![
-        DictionaryEntry::new("Repulsive", ForceValue::Bool(true)),
-        DictionaryEntry::new("Attractive", ForceValue::Bool(true)),
-        DictionaryEntry::new("Scale", ForceValue::Number(scale, 1.0..=200.0)),
-        DictionaryEntry::new(
-            "Cooloff Factor",
-            ForceValue::Number(cooloff_factor, 0.0..=1.0),
-        ),
-        DictionaryEntry::new("Gravity Factor", ForceValue::Number(3.0, 1.0..=10.0)),
-        DictionaryEntry::new("Centering", ForceValue::Bool(centering)),
-        DictionaryEntry::new("Gravity", ForceValue::Bool(gravity)),
-    ];
+    let mut dict = LinkedHashMap::new();
+    dict.insert("Repulsive".to_string(), Value::Bool(true));
+    dict.insert("Attractive".to_string(), Value::Bool(true));
+    dict.insert("Scale".to_string(), Value::Number(scale, 1.0..=200.0));
+    dict.insert(
+        "Cooloff Factor".to_string(),
+        Value::Number(cooloff_factor, 0.0..=1.0),
+    );
+    dict.insert("Gravity Factor".to_string(), Value::Number(3.0, 1.0..=10.0));
+    dict.insert("Centering".to_string(), Value::Bool(centering));
+    dict.insert("Gravity".to_string(), Value::Bool(gravity));
 
     Force {
         dict: dict.clone(),

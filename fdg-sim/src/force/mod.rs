@@ -1,3 +1,6 @@
+use glam::Vec3;
+use hashlink::LinkedHashMap;
+
 use crate::ForceGraph;
 use std::ops::RangeInclusive;
 
@@ -6,33 +9,14 @@ mod handy;
 
 pub use {fruchterman_reingold::fruchterman_reingold, handy::handy};
 
-/// An entry in a [`Force`]'s dictionary.
-#[derive(Clone, Debug, PartialEq)]
-pub struct DictionaryEntry {
-    pub name: &'static str,
-    pub value: ForceValue,
-}
-
-impl DictionaryEntry {
-    /// Create a new [`DictionaryEntry`].
-    pub fn new(name: &'static str, value: ForceValue) -> Self {
-        Self { name, value }
-    }
-
-    /// Retrieve a mutable reference to the value
-    pub fn value_mut(&mut self) -> &mut ForceValue {
-        &mut self.value
-    }
-}
-
 /// A value that you can change in a [`Force`]'s dictionary.
 #[derive(Clone, Debug, PartialEq)]
-pub enum ForceValue {
+pub enum Value {
     Number(f32, RangeInclusive<f32>),
     Bool(bool),
 }
 
-impl ForceValue {
+impl Value {
     /// Retrieves the bool from a value.
     pub const fn bool(&self) -> Option<bool> {
         match self {
@@ -69,12 +53,12 @@ impl ForceValue {
 /// A struct that defines how your force behaves.
 #[derive(Clone)]
 pub struct Force<N: Clone, E: Clone> {
-    dict: Vec<DictionaryEntry>,
-    dict_default: Vec<DictionaryEntry>,
+    dict: LinkedHashMap<String, Value>,
+    dict_default: LinkedHashMap<String, Value>,
     name: &'static str,
     continuous: bool,
     info: Option<&'static str>,
-    update: fn(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, dt: f32),
+    update: fn(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32),
 }
 
 impl<N: Clone, E: Clone> Force<N, E> {
@@ -94,12 +78,12 @@ impl<N: Clone, E: Clone> Force<N, E> {
     }
 
     /// Retrieve a mutable reference to the force's internal dictionary.
-    pub fn dict_mut(&mut self) -> &mut [DictionaryEntry] {
+    pub fn dict_mut(&mut self) -> &mut LinkedHashMap<String, Value> {
         &mut self.dict
     }
 
     /// Retrieve a reference to the force's internal dictionary.
-    pub fn dict(&self) -> &[DictionaryEntry] {
+    pub fn dict(&self) -> &LinkedHashMap<String, Value> {
         &self.dict
     }
 
@@ -117,66 +101,74 @@ impl<N: Clone, E: Clone> Force<N, E> {
 
 impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
     fn eq(&self, other: &Self) -> bool {
-        self.name == other.name
+        self.dict_default == other.dict_default
+            && self.name == other.name
+            && self.continuous == other.continuous
+            && self.info == other.info
     }
 }
 
-/// A force for scaling the layout around the center of the graph.
+/// A force for scaling the layout around its center.
 pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
-    fn update<N, E>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, _dt: f32) {
-        let scale = dict[0].value.number().unwrap();
+    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+        let scale = dict.get("Scale Factor").unwrap().number().unwrap();
+
+        let center = Iterator::sum::<Vec3>(
+            graph
+                .node_weights()
+                .map(|x| x.location)
+                .collect::<Vec<Vec3>>()
+                .iter(),
+        ) / graph.node_count() as f32;
 
         for node in graph.node_weights_mut() {
-            node.location *= scale;
+            node.location = ((node.location - center) * scale) + center;
         }
     }
 
-    let dict = vec![DictionaryEntry::new(
-        "Scale Factor",
-        ForceValue::Number(1.5, 0.1..=2.0),
-    )];
+    let mut dict = LinkedHashMap::new();
+    dict.insert("Scale Factor".to_string(), Value::Number(1.5, 0.1..=2.0));
 
     Force {
         dict: dict.clone(),
         dict_default: dict,
         name: "Scale",
         continuous: false,
-        info: Some("Scales the layout around the center of the graph."),
+        info: Some("Scales the graph around its center."),
         update,
     }
 }
 
 /// A force for translating the graph in any direction.
 pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
-    fn update<N, E>(dict: &[DictionaryEntry], graph: &mut ForceGraph<N, E>, _dt: f32) {
-        let distance = dict[0].value.number().unwrap();
+    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+        let distance = dict.get("Distance").unwrap().number().unwrap();
 
         for node in graph.node_weights_mut() {
-            if dict[1].value.bool().unwrap() {
-                node.location.y -= distance;
-            }
-
-            if dict[2].value.bool().unwrap() {
+            if dict.get("Up").unwrap().bool().unwrap() {
                 node.location.y += distance;
             }
 
-            if dict[3].value.bool().unwrap() {
+            if dict.get("Down").unwrap().bool().unwrap() {
+                node.location.y += distance;
+            }
+
+            if dict.get("Left").unwrap().bool().unwrap() {
                 node.location.x -= distance;
             }
 
-            if dict[4].value.bool().unwrap() {
+            if dict.get("Right").unwrap().bool().unwrap() {
                 node.location.x += distance;
             }
         }
     }
 
-    let dict = vec![
-        DictionaryEntry::new("Distance", ForceValue::Number(7.0, 0.0..=100.0)),
-        DictionaryEntry::new("Up", ForceValue::Bool(false)),
-        DictionaryEntry::new("Down", ForceValue::Bool(false)),
-        DictionaryEntry::new("Left", ForceValue::Bool(false)),
-        DictionaryEntry::new("Right", ForceValue::Bool(false)),
-    ];
+    let mut dict = LinkedHashMap::new();
+    dict.insert("Distance".to_string(), Value::Number(7.0, 0.0..=100.0));
+    dict.insert("Up".to_string(), Value::Bool(false));
+    dict.insert("Down".to_string(), Value::Bool(false));
+    dict.insert("Left".to_string(), Value::Bool(false));
+    dict.insert("Right".to_string(), Value::Bool(false));
 
     Force {
         dict: dict.clone(),

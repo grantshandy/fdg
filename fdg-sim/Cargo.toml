@@ -1,6 +1,6 @@
 [package]
 name = "fdg-sim"
-version = "0.6.2"
+version = "0.7.0"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "MIT"
@@ -20,6 +20,7 @@ quad-rand = "0.2"
 serde = { version = "1", optional = true }
 serde_json = { version = "1", optional = true }
 regex = { version = "1.5", optional = true }
+hashlink = "0.8"
 
 [dev-dependencies]
 chrono = "0.4"

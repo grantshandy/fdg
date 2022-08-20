@@ -1,6 +1,6 @@
 //!
 //! Hyperedges aren't implemented, but basic graphs like should work:
-//! ```json
+//! ```json ignore
 //! {
 //!     "graph": {
 //!         "nodes": {
@@ -146,13 +146,20 @@ pub fn graph_to_json<N: Serialize, E: Serialize>(
     for node in graph.node_weights() {
         let metadata: Value = serde_json::to_value(&node.data)?;
 
-        nodes.insert(node.name.to_owned(), metadata);
+        let jnode = JsonNode {
+            label: None,
+            metadata: Some(metadata),
+        };
+
+        let weight = serde_json::to_value(&jnode)?;
+
+        nodes.insert(node.name.to_owned(), weight);
     }
 
     for edge in graph.edge_references() {
         let edge = JsonEdge {
-            source: (&graph[edge.source()]).name.to_owned(),
-            target: (&graph[edge.target()]).name.to_owned(),
+            source: graph[edge.source()].name.to_owned(),
+            target: graph[edge.target()].name.to_owned(),
             metadata: serde_json::to_value(edge.weight())?,
         };
 
@@ -190,7 +197,7 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>
             Err(err) => return Err(JsonError::BadFormatting(err)),
         };
 
-        graph.add_force_node(name, data.into());
+        graph.add_force_node(name, data);
     }
 
     if let Some(edges) = json.graph.edges {
@@ -215,11 +222,5 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>
 fn index_from_name(name: impl AsRef<str>, graph: &ForceGraph<Value, Value>) -> Option<NodeIndex> {
     let name = name.as_ref().to_string();
 
-    for idx in graph.node_indices() {
-        if name == graph[idx].name {
-            return Some(idx);
-        }
-    }
-
-    None
+    graph.node_indices().find(|&idx| name == graph[idx].name)
 }

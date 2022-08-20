@@ -1,7 +1,7 @@
 //!
 //! Here's an example graph:
 //!
-//! ```
+//! ``` ignore
 //! graph {
 //!     0 [ label = "8" ]
 //!     1 [ label = "3" ]

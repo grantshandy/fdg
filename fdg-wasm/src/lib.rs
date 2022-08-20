@@ -1,8 +1,7 @@
 use fdg_sim::{
-    force,
+    dot, force,
     glam::Vec3,
     json,
-    dot,
     petgraph::{
         graph::NodeIndex,
         visit::{EdgeRef, IntoEdgeReferences},
@@ -141,7 +140,7 @@ impl ForceGraphSimulator {
         weight: JsValue,
     ) -> Result<(), JsError> {
         let source: NodeIndex = if let Some(source) = source.as_string() {
-            match node_index_from_name(&self.sim.get_graph(), &source) {
+            match node_index_from_name(self.sim.get_graph(), &source) {
                 Some(idx) => idx,
                 None => {
                     return Err(JsError::new(&format!(
@@ -156,7 +155,7 @@ impl ForceGraphSimulator {
         };
 
         let target: NodeIndex = if let Some(target) = target.as_string() {
-            match node_index_from_name(&self.sim.get_graph(), &target) {
+            match node_index_from_name(self.sim.get_graph(), &target) {
                 Some(idx) => idx,
                 None => {
                     return Err(JsError::new(&format!(
@@ -225,7 +224,7 @@ impl ForceGraphSimulator {
     #[wasm_bindgen(js_name = "nodeInfo")]
     pub fn node_info(&self, name: JsValue) -> JsValue {
         let idx: NodeIndex = if let Some(name) = name.as_string() {
-            match node_index_from_name(&self.sim.get_graph(), &name) {
+            match node_index_from_name(self.sim.get_graph(), &name) {
                 Some(idx) => idx,
                 None => return JsValue::NULL,
             }
@@ -244,19 +243,21 @@ impl ForceGraphSimulator {
     }
 }
 
+impl Default for ForceGraphSimulator {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 fn node_index_from_name<N, E>(
     graph: &ForceGraph<N, E>,
     name: impl AsRef<str>,
 ) -> Option<NodeIndex> {
     let name = name.as_ref().to_string();
 
-    for index in graph.node_indices() {
-        if &graph[index].name == &name {
-            return Some(index);
-        }
-    }
-
-    return None;
+    graph
+        .node_indices()
+        .find(|&index| graph[index].name == name)
 }
 
 fn serde_to_wasm_graph(
