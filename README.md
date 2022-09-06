@@ -25,3 +25,7 @@ The goal of this project is to provide a force-directed graph framework and algo
 - [Force-Directed Graphs on Wikipedia](https://en.wikipedia.org/wiki/Force-directed_graph_drawing)
 - [Force Directed Drawing Algorithms (Kobourov)](https://cs.brown.edu/people/rtamassi/gdhandbook/chapters/force-directed.pdf)
 - Example javascript force directed graph layout engines [d3-force](https://github.com/d3/d3-force) and [ngraph.forcelayout](https://github.com/anvaka/ngraph.forcelayout)
+
+## TODO
+- [ ] Update `Force` and `Node` so `Simulation` doesn't require `Clone` on data.
+- [ ] Create a more simpler viewer than the demo one using opengl/wgpu.

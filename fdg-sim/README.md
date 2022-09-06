@@ -13,7 +13,7 @@ A Force Directed Graph Framework for Rust. This manages your forces and event lo
 [View Demo Online](https://grantshandy.github.io/fdg)
 
 ## Basic Example
-```rust ignore
+```rust
 use fdg_sim::{ForceGraph, ForceGraphHelper, Simulation, SimulationParameters};
 
 fn main() {

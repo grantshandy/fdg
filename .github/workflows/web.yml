@@ -1,4 +1,4 @@
-name: ci
+name: Web Examples
 
 on:
   push:
