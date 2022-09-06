@@ -20,6 +20,8 @@ pub struct Settings {
     pub edge_color: (u8, u8, u8),
     pub background_color: (u8, u8, u8),
     pub print_progress: bool,
+    ///If supplied, the names of nodes will be written
+    pub text_style: Option<TextStyle<'static>>,
 }
 
 impl Default for Settings {
@@ -33,6 +35,7 @@ impl Default for Settings {
             edge_color: (255, 0, 0),
             background_color: (255, 255, 255),
             print_progress: true,
+            text_style: None,
         }
     }
 }
@@ -68,8 +71,21 @@ pub fn gen_image<N: Clone, E: Clone>(
         for node in sim.get_graph().node_weights() {
             let loc = node.location;
 
-            if loc.x > right {
-                right = loc.x;
+            let rightmost = match settings.text_style.clone() {
+                //Make sure that the text isn't cut off
+                Some(ts) => {
+                    loc.x
+                        + ts.font
+                            .box_size(&node.name)
+                            .ok()
+                            .map(|x| x.0 as f32)
+                            .unwrap_or(0.0)
+                }
+                None => loc.x,
+            };
+
+            if rightmost > right {
+                right = rightmost;
             }
 
             if loc.x < left {
@@ -161,6 +177,16 @@ pub fn gen_image<N: Clone, E: Clone>(
                 stroke_width: 1,
             },
         ))?;
+    }
+
+    if let Some(text_style) = settings.text_style {
+        for node in sim.get_graph().node_weights() {
+            let pos = (
+                node.location.x as i32 + (text_style.font.get_size() / 2.) as i32,
+                node.location.y as i32,
+            );
+            backend.draw_text(node.name.as_str(), &text_style, pos)?;
+        }
     }
 
     drop(backend);
