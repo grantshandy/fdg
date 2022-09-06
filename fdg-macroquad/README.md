@@ -5,8 +5,7 @@ The [`macroquad`](https://crates.io/crates/macroquad) based visualizer for [`fdg
 [![Documentation](https://docs.rs/fdg-macroquad/badge.svg)](https://docs.rs/fdg-macroquad)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-macroquad/LICENSE)
 
-![2D example](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-2D.png)
-![3D example](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot-3D.png)
+![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot.png)
 
 [View Examples Online](https://grantshandy.github.io/fdg)
 
