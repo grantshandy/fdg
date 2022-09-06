@@ -1,14 +1,14 @@
 {
   "name": "fdg-wasm",
   "collaborators": [
-    "Grant Handy <grantshandy@gmail.com>"
+    "Grant Handy <granthandy@proton.me>"
   ],
   "description": "A flexible force directed graph framework",
   "version": "0.1.2",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/grantshandy/fdg/"
+    "url": "https://github.com/grantshandy/fdg/tree/main/fdg-wasm/"
   },
   "files": [
     "fdg-wasm_bg.wasm",
