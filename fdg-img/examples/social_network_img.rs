@@ -1,7 +1,7 @@
 use std::fs;
 
 use fdg_img::Settings;
-use fdg_sim::{force, json};
+use fdg_sim::json;
 use plotters::style::{text_anchor::*, BLACK, *};
 
 fn main() {
@@ -18,11 +18,10 @@ fn main() {
 
     let svg = fdg_img::gen_image(
         &graph,
-        &force::handy(45.0, 0.975, true, true),
         Some(Settings {
             text_style,
-            node_color: (100, 100, 100),
-            edge_color: (150, 150, 150),
+            node_color: (100, 100, 100, 1.0),
+            edge_color: (150, 150, 150, 1.0),
             ..Default::default()
         }),
     )

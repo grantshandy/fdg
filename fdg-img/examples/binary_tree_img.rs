@@ -1,7 +1,7 @@
 use std::fs;
 
 use fdg_img::Settings;
-use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
@@ -11,7 +11,6 @@ fn main() {
 
     let svg = fdg_img::gen_image(
         &graph,
-        &force::fruchterman_reingold(45.0, 0.975),
         Some(Settings {
             iterations: 10000,
             ..Default::default()

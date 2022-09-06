@@ -1,21 +1,22 @@
 use std::fs;
 
-use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
 
-    // create center cube
-    let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
-    let layers: u8 = 1;
+    for _ in 0..3 {
+        let mut cube: [NodeIndex; 8] = gen_cube(&mut graph);
+        let layers: u8 = 1;
 
-    for _ in 0..layers {
-        cube = add_layer(&mut graph, cube);
+        for _ in 0..layers {
+            cube = add_layer(&mut graph, cube);
+        }
     }
 
-    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+    let svg = fdg_img::gen_image(&graph, None).unwrap();
 
-    fs::write("nd_cube.svg", svg.as_bytes()).unwrap();
+    fs::write("fragmented.svg", svg.as_bytes()).unwrap();
 }
 
 fn add_layer(graph: &mut ForceGraph<(), ()>, inner: [NodeIndex; 8]) -> [NodeIndex; 8] {

@@ -1,6 +1,6 @@
 use std::fs;
 
-use fdg_sim::{force, ForceGraph, ForceGraphHelper};
+use fdg_sim::{ForceGraph, ForceGraphHelper};
 
 fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
@@ -20,7 +20,7 @@ fn main() {
     graph.add_edge(center, three, ());
     graph.add_edge(center, four, ());
 
-    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+    let svg = fdg_img::gen_image(&graph, None).unwrap();
 
     fs::write("pyramid.svg", svg.as_bytes()).unwrap();
 }

@@ -1,6 +1,6 @@
 use std::fs;
 
-use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 fn main() {
     let mut graph: ForceGraph<(), ()> = ForceGraph::default();
@@ -26,7 +26,7 @@ fn main() {
         }
     }
 
-    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+    let svg = fdg_img::gen_image(&graph, None).unwrap();
 
     fs::write("lattice.svg", svg.as_bytes()).unwrap();
 }

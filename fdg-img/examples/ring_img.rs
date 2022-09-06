@@ -1,6 +1,6 @@
 use std::fs;
 
-use fdg_sim::{force, ForceGraph, ForceGraphHelper};
+use fdg_sim::{ForceGraph, ForceGraphHelper};
 
 fn main() {
     // initialize a graph
@@ -17,7 +17,7 @@ fn main() {
     graph.add_edge(0.into(), (nodes - 1).into(), ());
 
     // generate svg text for your graph
-    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+    let svg = fdg_img::gen_image(&graph, None).unwrap();
 
     // save the svg on disk
     fs::write("ring.svg", svg.as_bytes()).unwrap();

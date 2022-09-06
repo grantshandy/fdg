@@ -27,14 +27,15 @@ fn main() {
     graph.add_edge(0.into(), (nodes - 1).into(), ());
 
     // generate svg text for your graph
-    let svg = fdg_img::gen_image(&graph, &force::handy(45.0, 0.975, true, true), None).unwrap();
+    let svg = fdg_img::gen_image(&graph, None).unwrap();
 
-    // save the svg on disk
+    // save the svg on disk (or send it to an svg renderer)
     fs::write("ring.svg", svg.as_bytes()).unwrap();
 }
 ```
 
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/ring.svg)
+![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/social_network.svg)
 
 ## Related Crates
 - [`fdg-macroquad`](https://crates.io/crates/fdg-macroquad) A visualizer that uses [`macroquad`](https://crates.io/crates/macroquad) for real-time rendering ([view demo online](https://grantshandy.github.io/fdg)).
