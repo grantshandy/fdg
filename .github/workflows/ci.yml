@@ -14,7 +14,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
     - uses: actions/cache@v2
       with:
         path: |
@@ -23,13 +22,19 @@ jobs:
           target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: Test
-      run: cargo test --workspace --all-features
+    - name: Test fdg-macroquad
+      run: cd fdg-macroquad && cargo test --all-features && cd ..
+
+    - name: Test fdg-sim
+      run: cd fdg-sim && cargo test --all-features && cd ..
+
+    - name: Test fdg-img
+      run: cd fdg-img && cargo test --all-features && cd ..
+
   web:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-
     - uses: actions/cache@v2
       with:
         path: |
