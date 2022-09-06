@@ -22,9 +22,6 @@ jobs:
           target
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-    - name: Test fdg-macroquad
-      run: cd fdg-macroquad && cargo test --all-features && cd ..
-
     - name: Test fdg-sim
       run: cd fdg-sim && cargo test --all-features && cd ..
 
