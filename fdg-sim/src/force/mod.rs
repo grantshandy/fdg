@@ -6,11 +6,10 @@ use std::ops::RangeInclusive;
 
 mod fruchterman_reingold;
 mod handy;
-mod weighted_fruchterman_reingold;
 
 pub use {
-    fruchterman_reingold::fruchterman_reingold, handy::handy,
-    weighted_fruchterman_reingold::weighted_fruchterman_reingold,
+    fruchterman_reingold::{fruchterman_reingold, fruchterman_reingold_weighted},
+    handy::handy,
 };
 
 /// A value that you can change in a [`Force`]'s dictionary.

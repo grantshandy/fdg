@@ -29,7 +29,7 @@ pub use {
 mod tests {
     #[test]
     fn dot() {
-        use super::{ForceGraph, ForceGraphHelper, dot};
+        use super::{dot, ForceGraph, ForceGraphHelper};
 
         const RESULT: &str = "graph {\n    0 [ label = \"one\" ]\n    1 [ label = \"two\" ]\n    2 [ label = \"three\" ]\n    0 -- 1 [ ]\n    1 -- 2 [ ]\n}\n";
 
@@ -49,7 +49,7 @@ mod tests {
     #[test]
     #[cfg(feature = "gml")]
     fn gml() {
-        use super::{ForceGraph, ForceGraphHelper, gml};
+        use super::{gml, ForceGraph, ForceGraphHelper};
 
         let mut graph: ForceGraph<(), ()> = ForceGraph::default();
         let one = graph.add_force_node("one", ());
@@ -82,7 +82,7 @@ mod tests {
     #[test]
     #[cfg(feature = "json")]
     fn json() {
-        use super::{ForceGraph, ForceGraphHelper, json};
+        use super::{json, ForceGraph, ForceGraphHelper};
 
         let mut graph: ForceGraph<&str, &str> = ForceGraph::default();
         let one = graph.add_force_node("one", "onedata");

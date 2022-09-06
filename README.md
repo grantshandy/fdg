@@ -27,4 +27,5 @@ The goal of this project is to provide a force-directed graph framework and algo
 
 ## TODO
 - [ ] Update `Force` and `Node` so `Simulation` doesn't require `Clone` on data.
-- [ ] Create a more simpler viewer than the demo one using opengl/wgpu.
+- [ ] Create a simpler/faster viewer than the demo one using opengl/wgpu.
+- [ ] Add ForceAtlas2 as a force.

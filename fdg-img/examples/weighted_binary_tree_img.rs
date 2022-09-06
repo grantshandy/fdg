@@ -1,7 +1,9 @@
 use std::fs;
 
 use fdg_img::Settings;
-use fdg_sim::{force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
+use fdg_sim::{
+    force, petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper, SimulationParameters,
+};
 
 fn main() {
     let mut graph: ForceGraph<(), f32> = ForceGraph::default();
@@ -11,9 +13,12 @@ fn main() {
 
     let svg = fdg_img::gen_image(
         &graph,
-        &force::weighted_fruchterman_reingold(45.0, 0.975),
         Some(Settings {
+            sim_parameters: SimulationParameters::from_force(force::fruchterman_reingold_weighted(
+                45.0, 0.975,
+            )),
             iterations: 10000,
+            print_progress: true,
             ..Default::default()
         }),
     )
@@ -38,7 +43,7 @@ fn tree(graph: &mut ForceGraph<(), f32>, parent: NodeIndex, depth: u8) {
     let b = graph.add_force_node("", ());
 
     graph.add_edge(parent, a, 1.0);
-    graph.add_edge(parent, b, 2.0);
+    graph.add_edge(parent, b, 0.25);
 
     tree(&mut graph, a, depth);
     tree(&mut graph, b, depth);
