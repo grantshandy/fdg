@@ -7,8 +7,11 @@ use crate::{force::Value, ForceGraph};
 use super::Force;
 
 /// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991). but also multiplying attractions by edge weights
-pub fn weighted_fruchterman_reingold<N: Clone, E: Clone + Into<f32>>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
-    fn update<N: Clone, E: Clone  + Into<f32>>(
+pub fn weighted_fruchterman_reingold<N: Clone, E: Clone + Into<f32>>(
+    scale: f32,
+    cooloff_factor: f32,
+) -> Force<N, E> {
+    fn update<N: Clone, E: Clone + Into<f32>>(
         dict: &LinkedHashMap<String, Value>,
         graph: &mut ForceGraph<N, E>,
         dt: f32,
@@ -32,7 +35,6 @@ pub fn weighted_fruchterman_reingold<N: Clone, E: Clone + Into<f32>>(scale: f32,
                     continue;
                 }
 
-                
                 let node_two = &graph_clone[other_node_index];
 
                 final_force += -((scale * scale) / node_one.location.distance(node_two.location))
@@ -40,16 +42,20 @@ pub fn weighted_fruchterman_reingold<N: Clone, E: Clone + Into<f32>>(scale: f32,
                         / node_one.location.distance(node_two.location))
             }
 
-            for edge in graph_clone.edges(node_index){
-                let neighbor_index = if edge.source() == node_index {edge.target()} else{edge.source()};
+            for edge in graph_clone.edges(node_index) {
+                let neighbor_index = if edge.source() == node_index {
+                    edge.target()
+                } else {
+                    edge.source()
+                };
                 let node_two = &graph_clone[neighbor_index];
 
-                let weight : f32 = edge.weight().clone().into();
+                let weight: f32 = edge.weight().clone().into();
 
                 final_force += (node_one.location.distance_squared(node_two.location) / scale)
                     * ((node_two.location - node_one.location)
                         / node_one.location.distance(node_two.location))
-                        * weight
+                    * weight
             }
 
             let node = &mut graph[node_index];
