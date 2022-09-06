@@ -71,8 +71,16 @@ pub fn gen_image<N: Clone, E: Clone>(
         for node in sim.get_graph().node_weights() {
             let loc = node.location;
 
-            let rightmost = match settings.text_style.clone() { //Make sure that the text isn't cut off
-                Some(ts) => loc.x + ts.font.box_size(&node.name).ok().map(|x|x.0 as f32).unwrap_or(0.0) ,
+            let rightmost = match settings.text_style.clone() {
+                //Make sure that the text isn't cut off
+                Some(ts) => {
+                    loc.x
+                        + ts.font
+                            .box_size(&node.name)
+                            .ok()
+                            .map(|x| x.0 as f32)
+                            .unwrap_or(0.0)
+                }
                 None => loc.x,
             };
 
@@ -173,7 +181,10 @@ pub fn gen_image<N: Clone, E: Clone>(
 
     if let Some(text_style) = settings.text_style {
         for node in sim.get_graph().node_weights() {
-            let pos = (node.location.x as i32 + (text_style.font.get_size() / 2.) as i32, node.location.y as i32);
+            let pos = (
+                node.location.x as i32 + (text_style.font.get_size() / 2.) as i32,
+                node.location.y as i32,
+            );
             backend.draw_text(node.name.as_str(), &text_style, pos)?;
         }
     }
