@@ -2,10 +2,10 @@
 name = "fdg-wasm"
 version = "0.1.2"
 edition = "2021"
-authors = ["Grant Handy <grantshandy@gmail.com>"]
+authors = ["Grant Handy <granthandy@proton.me>"]
 license = "MIT"
 description = "A flexible force directed graph framework"
-repository = "https://github.com/grantshandy/fdg/"
+repository = "https://github.com/grantshandy/fdg/tree/main/fdg-wasm/"
 documentation = "https://docs.rs/fdg_sim/"
 keywords = ["graph", "force", "directed", "viz"]
 categories = ["visualization"]

@@ -8,6 +8,3 @@ The [`macroquad`](https://crates.io/crates/macroquad) based visualizer for [`fdg
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot.png)
 
 [View Examples Online](https://grantshandy.github.io/fdg)
-
-## Related Crates
-- [`fdg-img`](https://crates.io/crates/fdg-img) An SVG visualizer for the simulation.

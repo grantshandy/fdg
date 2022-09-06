@@ -36,6 +36,3 @@ fn main() {
 
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/ring.svg)
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/social_network.svg)
-
-## Related Crates
-- [`fdg-macroquad`](https://crates.io/crates/fdg-macroquad) A visualizer that uses [`macroquad`](https://crates.io/crates/macroquad) for real-time rendering ([view demo online](https://grantshandy.github.io/fdg)).

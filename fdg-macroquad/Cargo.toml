@@ -2,11 +2,11 @@
 name = "fdg-macroquad"
 version = "0.3.4"
 edition = "2021"
-authors = ["Grant Handy <grantshandy@gmail.com>"]
+authors = ["Grant Handy <granthandy@proton.me>"]
 license = "GPL-3.0"
 description = "The macroquad based visualizer for fdg"
-repository = "https://github.com/skylinecc/fdg/"
-documentation = "https://docs.rs/fdg_macroquad/"
+repository = "https://github.com/grantshandy/fdg/tree/main/fdg-macroquad/"
+documentation = "https://docs.rs/fdg-macroquad"
 keywords = ["graph", "force", "macroquad"]
 categories = ["visualization"]
 readme = "README.md"

@@ -10,14 +10,14 @@ A Force Directed Graph Framework for Rust.
 
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot.png)
 
-The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop. It easily interacts with the popular [`petgraph`](https://crates.io/crates/petgraph) library and manages the positions of your nodes.
+The goal of this project is to provide a force-directed graph framework and algorithms for Rust, as well as 2D and 3D visualizers that work on the web and desktop. It uses the popular [`petgraph`](https://crates.io/crates/petgraph) library and manages the positions of your nodes.
 
 [View Examples Online](https://grantshandy.github.io/fdg/)
 
 ## Contents
 - [`/fdg-sim`](./fdg-sim/README.md) The underlying force simulation. It handles your dataset's positions based on a physics engine of your choice (or creation).
 - [`/fdg-macroquad`](./fdg-macroquad/README.md) A demo visualizer that uses [`macroquad`](https://crates.io/crates/macroquad) for its rendering.
-- [`/fdg-img`](./fdg-img/README.md) A simple SVG visualizer for your graphs.
+- [`/fdg-img`](./fdg-img/README.md) A simple SVG renderer for graphs.
 - [`/fdg-wasm`](./fdg-wasm/README.md) A simple Webassembly wrapper of `fdg-sim` for Javascript.
 
 ## Resources
