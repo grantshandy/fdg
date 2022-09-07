@@ -9,6 +9,8 @@ use fdg_sim::{
 };
 use plotters::prelude::*;
 
+pub use plotters::style;
+
 /// Parameters for drawing the SVG image.
 pub struct Settings<N: Clone, E: Clone> {
     /// Simulation Parameters
@@ -20,13 +22,13 @@ pub struct Settings<N: Clone, E: Clone> {
     /// The radius of the nodes
     pub node_size: u32,
     /// RGBA color of the nodes
-    pub node_color: (u8, u8, u8, f32),
+    pub node_color: RGBAColor,
     /// Width of the edge lines
     pub edge_size: u32,
     /// RGBA color of the edge lines
-    pub edge_color: (u8, u8, u8, f32),
+    pub edge_color: RGBAColor,
     /// RGBA background color
-    pub background_color: (u8, u8, u8, f32),
+    pub background_color: RGBAColor,
     /// If true, the simulation will be printed on each
     pub print_progress: bool,
     /// If supplied, the names of nodes will be written
@@ -40,10 +42,10 @@ impl<N: Clone, E: Clone> Default for Settings<N, E> {
             iterations: 2000,
             dt: 0.035,
             node_size: 1,
-            node_color: (0, 0, 0, 1.0),
+            node_color: RGBAColor(0, 0, 0, 1.0),
             edge_size: 3,
-            edge_color: (255, 0, 0, 1.0),
-            background_color: (255, 255, 255, 1.0),
+            edge_color: RGBAColor(255, 0, 0, 1.0),
+            background_color: RGBAColor(255, 255, 255, 1.0),
             print_progress: false,
             text_style: None,
         }
@@ -141,14 +143,7 @@ pub fn gen_image<N: Clone, E: Clone>(
     let backend = SVGBackend::with_string(&mut buffer, (image_x, image_y)).into_drawing_area();
 
     // fill in the background
-    backend
-        .fill(&RGBAColor(
-            settings.background_color.0,
-            settings.background_color.1,
-            settings.background_color.2,
-            settings.background_color.3.into(),
-        ))
-        .unwrap();
+    backend.fill(&settings.background_color).unwrap();
 
     // draw all the edges
     for edge in sim.get_graph().edge_references() {
@@ -161,12 +156,7 @@ pub fn gen_image<N: Clone, E: Clone>(
                 (target.x as i32, target.y as i32),
             ],
             ShapeStyle {
-                color: RGBAColor(
-                    settings.edge_color.0,
-                    settings.edge_color.1,
-                    settings.edge_color.2,
-                    settings.edge_color.3.into(),
-                ),
+                color: settings.edge_color,
                 filled: true,
                 stroke_width: settings.edge_size,
             },
@@ -179,12 +169,7 @@ pub fn gen_image<N: Clone, E: Clone>(
             (node.location.x as i32, node.location.y as i32),
             settings.node_size * 10,
             ShapeStyle {
-                color: RGBAColor(
-                    settings.node_color.0,
-                    settings.node_color.1,
-                    settings.node_color.2,
-                    settings.node_color.3.into(),
-                ),
+                color: settings.node_color,
                 filled: true,
                 stroke_width: 1,
             },

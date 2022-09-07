@@ -1,8 +1,13 @@
 use std::fs;
 
-use fdg_img::Settings;
+use fdg_img::{
+    style::{
+        text_anchor::{HPos, Pos, VPos},
+        Color, IntoFont, RGBAColor, TextStyle, BLACK,
+    },
+    Settings,
+};
 use fdg_sim::json;
-use plotters::style::{text_anchor::*, BLACK, *};
 
 fn main() {
     let graph = json::graph_from_json(include_str!("../../datasets/social_network.json")).unwrap();
@@ -20,8 +25,8 @@ fn main() {
         &graph,
         Some(Settings {
             text_style,
-            node_color: (100, 100, 100, 1.0),
-            edge_color: (150, 150, 150, 1.0),
+            node_color: RGBAColor(100, 100, 100, 1.0),
+            edge_color: RGBAColor(150, 150, 150, 1.0),
             ..Default::default()
         }),
     )
