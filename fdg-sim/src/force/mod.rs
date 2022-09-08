@@ -1,4 +1,5 @@
 use glam::Vec3;
+use petgraph::EdgeType;
 
 use crate::ForceGraph;
 use std::ops::RangeInclusive;
@@ -55,16 +56,16 @@ impl Value {
 
 /// A struct that defines how your force behaves.
 #[derive(Clone)]
-pub struct Force<N, E> {
+pub struct Force<N, E, Ty> {
     dict: LinkedHashMap<String, Value>,
     dict_default: LinkedHashMap<String, Value>,
     name: &'static str,
     continuous: bool,
     info: Option<&'static str>,
-    update: fn(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32),
+    update: fn(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E, Ty>, dt: f32),
 }
 
-impl<N, E> Force<N, E> {
+impl<N, E, Ty> Force<N, E, Ty> {
     /// Retrieve the name of the force.
     pub fn name(&self) -> &'static str {
         self.name
@@ -76,7 +77,7 @@ impl<N, E> Force<N, E> {
     }
 
     /// Update the graph's node's positions for a given interval.
-    pub fn update(&self, graph: &mut ForceGraph<N, E>, dt: f32) {
+    pub fn update(&self, graph: &mut ForceGraph<N, E, Ty>, dt: f32) {
         (self.update)(&self.dict, graph, dt);
     }
 
@@ -102,7 +103,7 @@ impl<N, E> Force<N, E> {
     }
 }
 
-impl<N, E> PartialEq for Force<N, E> {
+impl<N, E, Ty> PartialEq for Force<N, E, Ty> {
     fn eq(&self, other: &Self) -> bool {
         self.dict_default == other.dict_default
             && self.name == other.name
@@ -112,8 +113,12 @@ impl<N, E> PartialEq for Force<N, E> {
 }
 
 /// A force for scaling the layout around its center.
-pub fn scale<N, E>() -> Force<N, E> {
-    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+pub fn scale<N, E, Ty: EdgeType>() -> Force<N, E, Ty> {
+    fn update<N, E, Ty: EdgeType>(
+        dict: &LinkedHashMap<String, Value>,
+        graph: &mut ForceGraph<N, E, Ty>,
+        _dt: f32,
+    ) {
         let scale = dict.get("Scale Factor").unwrap().number().unwrap();
 
         let center = Iterator::sum::<Vec3>(
@@ -143,8 +148,12 @@ pub fn scale<N, E>() -> Force<N, E> {
 }
 
 /// A force for translating the graph in any direction.
-pub fn translate<N, E>() -> Force<N, E> {
-    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, _dt: f32) {
+pub fn translate<N, E, Ty: EdgeType>() -> Force<N, E, Ty> {
+    fn update<N, E, Ty: EdgeType>(
+        dict: &LinkedHashMap<String, Value>,
+        graph: &mut ForceGraph<N, E, Ty>,
+        _dt: f32,
+    ) {
         let distance = dict.get("Distance").unwrap().number().unwrap();
 
         for node in graph.node_weights_mut() {

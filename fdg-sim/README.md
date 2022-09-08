@@ -44,3 +44,11 @@ fn main() {
     }
 }
 ```
+
+## What are `N`, `E`, and `Ty`?
+You may notice that structs and types like `Simulation`, `ForceGraph`, and `Force` have generic type parameters `<N, E, Ty>`.
+ - `N`: The node weight (data stored in the `Node`'s `data`).
+ - `E`: The edge weight (data stored directly in the graph's edges).
+ - `Ty`: The edge type, `Directed` or `Undirected` (set by default).
+
+These type names from the petgraph documentation [here](https://docs.rs/petgraph/0.6.2/petgraph/#generic-parameters). Because `Ty` is set by default, you won't have to mess with it most of the time.

@@ -1,14 +1,21 @@
 use glam::Vec3;
 use hashlink::LinkedHashMap;
-use petgraph::{graph::NodeIndex, visit::EdgeRef};
+use petgraph::{graph::NodeIndex, visit::EdgeRef, EdgeType};
 
 use crate::{force::Value, ForceGraph};
 
 use super::{unit_vector, Force};
 
 /// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).
-pub fn fruchterman_reingold<N, E>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
-    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32) {
+pub fn fruchterman_reingold<N, E, Ty: EdgeType>(
+    scale: f32,
+    cooloff_factor: f32,
+) -> Force<N, E, Ty> {
+    fn update<N, E, Ty: EdgeType>(
+        dict: &LinkedHashMap<String, Value>,
+        graph: &mut ForceGraph<N, E, Ty>,
+        dt: f32,
+    ) {
         // establish current variables from the force's dictionary
         let scale = dict.get("Scale").unwrap().number().unwrap();
         let cooloff_factor = dict.get("Cooloff Factor").unwrap().number().unwrap();
@@ -60,13 +67,13 @@ pub fn fruchterman_reingold<N, E>(scale: f32, cooloff_factor: f32) -> Force<N, E
 }
 
 /// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991), though it multiplies attractions by edge weights.
-pub fn fruchterman_reingold_weighted<N, E: Clone + Into<f32>>(
+pub fn fruchterman_reingold_weighted<N, E: Clone + Into<f32>, Ty: EdgeType>(
     scale: f32,
     cooloff_factor: f32,
-) -> Force<N, E> {
-    fn update<N, E: Clone + Into<f32>>(
+) -> Force<N, E, Ty> {
+    fn update<N, E: Clone + Into<f32>, Ty: EdgeType>(
         dict: &LinkedHashMap<String, Value>,
-        graph: &mut ForceGraph<N, E>,
+        graph: &mut ForceGraph<N, E, Ty>,
         dt: f32,
     ) {
         // establish current variables from the force's dictionary
@@ -121,7 +128,11 @@ pub fn fruchterman_reingold_weighted<N, E: Clone + Into<f32>>(
     }
 }
 
-pub fn fr_get_repulsion<N, E>(idx: NodeIndex, scale: f32, graph: &ForceGraph<N, E>) -> Vec3 {
+pub fn fr_get_repulsion<N, E, Ty: EdgeType>(
+    idx: NodeIndex,
+    scale: f32,
+    graph: &ForceGraph<N, E, Ty>,
+) -> Vec3 {
     let mut force = Vec3::ZERO;
     let node = &graph[idx];
 
@@ -139,7 +150,11 @@ pub fn fr_get_repulsion<N, E>(idx: NodeIndex, scale: f32, graph: &ForceGraph<N, 
     force
 }
 
-pub fn fr_get_attraction<N, E>(idx: NodeIndex, scale: f32, graph: &ForceGraph<N, E>) -> Vec3 {
+pub fn fr_get_attraction<N, E, Ty: EdgeType>(
+    idx: NodeIndex,
+    scale: f32,
+    graph: &ForceGraph<N, E, Ty>,
+) -> Vec3 {
     let mut force = Vec3::ZERO;
     let node = &graph[idx];
 
@@ -153,10 +168,10 @@ pub fn fr_get_attraction<N, E>(idx: NodeIndex, scale: f32, graph: &ForceGraph<N,
     force
 }
 
-pub fn fr_get_attraction_weighted<N, E: Clone + Into<f32>>(
+pub fn fr_get_attraction_weighted<N, E: Clone + Into<f32>, Ty: EdgeType>(
     idx: NodeIndex,
     scale: f32,
-    graph: &ForceGraph<N, E>,
+    graph: &ForceGraph<N, E, Ty>,
 ) -> Vec3 {
     let mut force = Vec3::ZERO;
     let node = &graph[idx];

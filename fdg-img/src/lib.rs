@@ -4,7 +4,10 @@ use std::error::Error;
 
 use fdg_sim::{
     glam::Vec3,
-    petgraph::visit::{EdgeRef, IntoEdgeReferences},
+    petgraph::{
+        visit::{EdgeRef, IntoEdgeReferences},
+        EdgeType, Undirected,
+    },
     Dimensions, ForceGraph, Simulation, SimulationParameters,
 };
 use plotters::prelude::*;
@@ -12,9 +15,9 @@ use plotters::prelude::*;
 pub use plotters::style;
 
 /// Parameters for drawing the SVG image.
-pub struct Settings<N, E> {
+pub struct Settings<N, E, Ty = Undirected> {
     /// Simulation Parameters
-    pub sim_parameters: SimulationParameters<N, E>,
+    pub sim_parameters: SimulationParameters<N, E, Ty>,
     /// Number of times to run the simulation
     pub iterations: usize,
     /// "Granularity of simulation updates"
@@ -35,7 +38,7 @@ pub struct Settings<N, E> {
     pub text_style: Option<TextStyle<'static>>,
 }
 
-impl<N, E> Default for Settings<N, E> {
+impl<N, E, Ty: EdgeType> Default for Settings<N, E, Ty> {
     fn default() -> Self {
         Self {
             sim_parameters: SimulationParameters::default(),
@@ -53,9 +56,9 @@ impl<N, E> Default for Settings<N, E> {
 }
 
 /// Generate an image from a graph and a force.
-pub fn gen_image<N, E>(
-    graph: ForceGraph<N, E>,
-    settings: Option<Settings<N, E>>,
+pub fn gen_image<N, E, Ty: EdgeType>(
+    graph: ForceGraph<N, E, Ty>,
+    settings: Option<Settings<N, E, Ty>>,
 ) -> Result<String, Box<dyn Error>> {
     // set up the simulation and settings
     let settings = settings.unwrap_or_default();

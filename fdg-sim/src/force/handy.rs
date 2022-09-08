@@ -1,6 +1,6 @@
 use glam::Vec3;
 use hashlink::LinkedHashMap;
-use petgraph::graph::NodeIndex;
+use petgraph::{graph::NodeIndex, EdgeType};
 
 use crate::{
     force::{
@@ -13,8 +13,17 @@ use crate::{
 use super::Force;
 
 /// My own force-directed graph drawing algorithm.
-pub fn handy<N, E>(scale: f32, cooloff_factor: f32, gravity: bool, centering: bool) -> Force<N, E> {
-    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32) {
+pub fn handy<N, E, Ty: EdgeType>(
+    scale: f32,
+    cooloff_factor: f32,
+    gravity: bool,
+    centering: bool,
+) -> Force<N, E, Ty> {
+    fn update<N, E, Ty: EdgeType>(
+        dict: &LinkedHashMap<String, Value>,
+        graph: &mut ForceGraph<N, E, Ty>,
+        dt: f32,
+    ) {
         // establish current variables from the force's dictionary
         let repulsion = dict.get("Repulsive Force").unwrap().bool().unwrap();
         let attraction = dict.get("Attractive Force").unwrap().bool().unwrap();

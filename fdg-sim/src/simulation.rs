@@ -7,6 +7,7 @@ use glam::Vec3;
 use petgraph::{
     graph::NodeIndex,
     visit::{EdgeRef, IntoEdgeReferences},
+    EdgeType, Undirected,
 };
 use quad_rand::RandomRange;
 
@@ -19,18 +20,18 @@ pub enum Dimensions {
 
 /// Parameters for the simulation.
 #[derive(Clone)]
-pub struct SimulationParameters<N, E> {
+pub struct SimulationParameters<N, E, Ty = Undirected> {
     /// The width and height of the box that the nodes randomly start in at the beginning of the simulation.
     pub node_start_size: f32,
     /// The number of dimensions that the simulation will run in.
     pub dimensions: Dimensions,
     /// The force that dictates how the simulation behaves.
-    force: Force<N, E>,
+    force: Force<N, E, Ty>,
 }
 
-impl<N, E> SimulationParameters<N, E> {
+impl<N, E, Ty: EdgeType> SimulationParameters<N, E, Ty> {
     /// Create a new [`SimulationParameters`].
-    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<N, E>) -> Self {
+    pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<N, E, Ty>) -> Self {
         Self {
             node_start_size,
             dimensions,
@@ -39,17 +40,17 @@ impl<N, E> SimulationParameters<N, E> {
     }
 
     /// Retrieve a mutable reference to the internal [`Force`].
-    pub fn force_mut(&mut self) -> &mut Force<N, E> {
+    pub fn force_mut(&mut self) -> &mut Force<N, E, Ty> {
         &mut self.force
     }
 
     /// Retrieve a reference to the internal [`Force`].
-    pub fn force(&self) -> &Force<N, E> {
+    pub fn force(&self) -> &Force<N, E, Ty> {
         &self.force
     }
 
     /// Create a new [`SimulationParameters`] from a [`Force`].
-    pub fn from_force(force: Force<N, E>) -> Self {
+    pub fn from_force(force: Force<N, E, Ty>) -> Self {
         Self {
             force,
             ..Default::default()
@@ -57,12 +58,12 @@ impl<N, E> SimulationParameters<N, E> {
     }
 
     /// Set the internal [`Force`].
-    pub fn set_force(&mut self, force: Force<N, E>) {
+    pub fn set_force(&mut self, force: Force<N, E, Ty>) {
         self.force = force;
     }
 }
 
-impl<N, E> Default for SimulationParameters<N, E> {
+impl<N, E, Ty: EdgeType> Default for SimulationParameters<N, E, Ty> {
     fn default() -> Self {
         Self {
             node_start_size: 200.0,
@@ -74,14 +75,17 @@ impl<N, E> Default for SimulationParameters<N, E> {
 
 /// A simulation for managing the main event loop and forces.
 #[derive(Clone)]
-pub struct Simulation<N, E> {
-    graph: ForceGraph<N, E>,
-    parameters: SimulationParameters<N, E>,
+pub struct Simulation<N, E, Ty = Undirected> {
+    graph: ForceGraph<N, E, Ty>,
+    parameters: SimulationParameters<N, E, Ty>,
 }
 
-impl<N, E> Simulation<N, E> {
+impl<N, E, Ty: EdgeType> Simulation<N, E, Ty> {
     /// Create a simulation from a [`ForceGraph`].
-    pub fn from_graph(graph: ForceGraph<N, E>, parameters: SimulationParameters<N, E>) -> Self {
+    pub fn from_graph(
+        graph: ForceGraph<N, E, Ty>,
+        parameters: SimulationParameters<N, E, Ty>,
+    ) -> Self {
         let mut myself = Self { graph, parameters };
 
         myself.reset_node_placement();
@@ -121,7 +125,7 @@ impl<N, E> Simulation<N, E> {
     }
 
     /// Update the graph's node's positions for a given interval with a custom [`Force`].
-    pub fn update_custom(&mut self, force: &Force<N, E>, dt: f32) {
+    pub fn update_custom(&mut self, force: &Force<N, E, Ty>, dt: f32) {
         force.update(&mut self.graph, dt)
     }
 
@@ -143,27 +147,27 @@ impl<N, E> Simulation<N, E> {
     }
 
     /// Retrieve a reference to the internal [`ForceGraph`].
-    pub fn get_graph(&self) -> &ForceGraph<N, E> {
+    pub fn get_graph(&self) -> &ForceGraph<N, E, Ty> {
         &self.graph
     }
 
     /// Retrieve a mutable reference to the internal [`ForceGraph`].
-    pub fn get_graph_mut(&mut self) -> &mut ForceGraph<N, E> {
+    pub fn get_graph_mut(&mut self) -> &mut ForceGraph<N, E, Ty> {
         &mut self.graph
     }
 
     /// Set the internal [`ForceGraph`].
-    pub fn set_graph(&mut self, graph: ForceGraph<N, E>) {
+    pub fn set_graph(&mut self, graph: ForceGraph<N, E, Ty>) {
         self.graph = graph;
     }
 
     /// Retrieve a reference to the internal [`SimulationParameters`].
-    pub fn parameters(&self) -> &SimulationParameters<N, E> {
+    pub fn parameters(&self) -> &SimulationParameters<N, E, Ty> {
         &self.parameters
     }
 
     /// Retreive a mutable reference to the internal [`SimulationParameters`].
-    pub fn parameters_mut(&mut self) -> &mut SimulationParameters<N, E> {
+    pub fn parameters_mut(&mut self) -> &mut SimulationParameters<N, E, Ty> {
         &mut self.parameters
     }
 
@@ -188,7 +192,7 @@ impl<N, E> Simulation<N, E> {
     }
 }
 
-impl<N, E> Default for Simulation<N, E> {
+impl<N, E, Ty: EdgeType> Default for Simulation<N, E, Ty> {
     fn default() -> Self {
         Self::from_graph(ForceGraph::default(), SimulationParameters::default())
     }
