@@ -9,4 +9,4 @@ The [`macroquad`](https://crates.io/crates/macroquad) based visualizer for [`fdg
 
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot.png)
 
-[View Examples Online](https://grantshandy.github.io/fdg)
+[View Online](https://grantshandy.github.io/fdg)
