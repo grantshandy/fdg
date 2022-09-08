@@ -22,7 +22,7 @@ pub async fn run_window<
 >(
     graph: &ForceGraph<N, E>,
 ) {
-    let mut sim = Simulation::from_graph(graph, SimulationParameters::default());
+    let mut sim = Simulation::from_graph(graph.clone(), SimulationParameters::default());
 
     let orig_params = sim.parameters().clone();
     let orig_graph = sim.get_graph().clone();
@@ -239,7 +239,7 @@ pub async fn run_window<
                 .show(egui_ctx, |ui| {
                     ui.horizontal(|ui| {
                         if ui.button("Restart Simulation").clicked() {
-                            sim.set_graph(&orig_graph);
+                            sim.set_graph(orig_graph.clone());
                             sim.reset_node_placement();
 
                             json_buffer = update_json_buffer(sim.get_graph());
@@ -370,16 +370,6 @@ pub async fn run_window<
                         };
                     }
                     ui.separator();
-                    let mut av: Vec<f32> = Vec::new();
-
-                    for node in sim.get_graph().node_weights() {
-                        let nv = node.velocity;
-
-                        av.push(avg(vec![nv.x.abs(), nv.y.abs(), nv.z.abs()]));
-                    }
-
-                    ui.label(format!("Avg Velocity: {:.3}", avg(av)));
-                    ui.separator();
                     ui.horizontal(|ui| {
                         let g = sim.get_graph();
                         ui.label(format!("Node Count: {}", g.node_count()));
@@ -422,8 +412,4 @@ fn update_json_buffer<N: Serialize, E: Serialize>(graph: &ForceGraph<N, E>) -> S
         },
         Err(err) => format!("json serializing error: {err}"),
     }
-}
-
-fn avg(vs: Vec<f32>) -> f32 {
-    Iterator::sum::<f32>(vs.iter()) / (vs.len() as f32)
 }

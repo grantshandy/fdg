@@ -28,7 +28,7 @@ fn main() {
     }
 
     let svg = fdg_img::gen_image(
-        &graph,
+        graph,
         Some(Settings {
             print_progress: true,
             ..Default::default()

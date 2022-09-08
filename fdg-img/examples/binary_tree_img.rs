@@ -10,7 +10,7 @@ fn main() {
     tree(&mut graph, parent, 6);
 
     let svg = fdg_img::gen_image(
-        &graph,
+        graph,
         Some(Settings {
             iterations: 10000,
             ..Default::default()

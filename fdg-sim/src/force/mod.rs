@@ -55,7 +55,7 @@ impl Value {
 
 /// A struct that defines how your force behaves.
 #[derive(Clone)]
-pub struct Force<N: Clone, E: Clone> {
+pub struct Force<N, E> {
     dict: LinkedHashMap<String, Value>,
     dict_default: LinkedHashMap<String, Value>,
     name: &'static str,
@@ -64,7 +64,7 @@ pub struct Force<N: Clone, E: Clone> {
     update: fn(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32),
 }
 
-impl<N: Clone, E: Clone> Force<N, E> {
+impl<N, E> Force<N, E> {
     /// Retrieve the name of the force.
     pub fn name(&self) -> &'static str {
         self.name
@@ -102,7 +102,7 @@ impl<N: Clone, E: Clone> Force<N, E> {
     }
 }
 
-impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
+impl<N, E> PartialEq for Force<N, E> {
     fn eq(&self, other: &Self) -> bool {
         self.dict_default == other.dict_default
             && self.name == other.name
@@ -112,7 +112,7 @@ impl<N: Clone, E: Clone> PartialEq for Force<N, E> {
 }
 
 /// A force for scaling the layout around its center.
-pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
+pub fn scale<N, E>() -> Force<N, E> {
     fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, _dt: f32) {
         let scale = dict.get("Scale Factor").unwrap().number().unwrap();
 
@@ -143,13 +143,13 @@ pub fn scale<N: Clone, E: Clone>() -> Force<N, E> {
 }
 
 /// A force for translating the graph in any direction.
-pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
+pub fn translate<N, E>() -> Force<N, E> {
     fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, _dt: f32) {
         let distance = dict.get("Distance").unwrap().number().unwrap();
 
         for node in graph.node_weights_mut() {
             if dict.get("Up").unwrap().bool().unwrap() {
-                node.location.y += distance;
+                node.location.y -= distance;
             }
 
             if dict.get("Down").unwrap().bool().unwrap() {
@@ -178,7 +178,12 @@ pub fn translate<N: Clone, E: Clone>() -> Force<N, E> {
         dict_default: dict,
         name: "Translate",
         continuous: false,
-        info: Some("Moves the layout in any direction."),
+        info: Some("Moves the entire layout in any direction."),
         update,
     }
+}
+
+#[doc(hidden)]
+pub fn unit_vector(a: Vec3, b: Vec3) -> Vec3 {
+    (b - a) / a.distance(b)
 }

@@ -12,7 +12,7 @@ fn main() {
     tree(&mut graph, parent, 6);
 
     let svg = fdg_img::gen_image(
-        &graph,
+        graph,
         Some(Settings {
             sim_parameters: SimulationParameters::from_force(force::fruchterman_reingold_weighted(
                 45.0, 0.975,

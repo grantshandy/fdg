@@ -14,7 +14,7 @@ fn main() {
         }
     }
 
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     fs::write("fragmented.svg", svg.as_bytes()).unwrap();
 }

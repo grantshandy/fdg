@@ -20,7 +20,7 @@ fn main() {
     graph.add_edge(center, three, ());
     graph.add_edge(center, four, ());
 
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     fs::write("pyramid.svg", svg.as_bytes()).unwrap();
 }

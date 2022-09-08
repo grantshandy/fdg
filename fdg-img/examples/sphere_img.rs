@@ -38,7 +38,7 @@ fn main() {
         graph.add_edge(indices[x], bottom, ());
     }
 
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     fs::write("sphere.svg", svg.as_bytes()).unwrap();
 }

@@ -13,7 +13,7 @@ fn main() {
         cube = add_layer(&mut graph, cube);
     }
 
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     fs::write("nd_cube.svg", svg.as_bytes()).unwrap();
 }

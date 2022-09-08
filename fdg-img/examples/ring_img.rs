@@ -17,7 +17,7 @@ fn main() {
     graph.add_edge(0.into(), (nodes - 1).into(), ());
 
     // generate svg text for your graph
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     // save the svg on disk
     fs::write("ring.svg", svg.as_bytes()).unwrap();

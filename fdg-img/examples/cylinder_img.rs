@@ -29,7 +29,7 @@ fn main() {
         graph.add_edge(indices[(size * y) + (size - 1)], indices[(size * y)], ());
     }
 
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     fs::write("cylinder.svg", svg.as_bytes()).unwrap();
 }

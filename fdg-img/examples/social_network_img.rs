@@ -22,7 +22,7 @@ fn main() {
     });
 
     let svg = fdg_img::gen_image(
-        &graph,
+        graph,
         Some(Settings {
             text_style,
             node_color: RGBAColor(100, 100, 100, 1.0),

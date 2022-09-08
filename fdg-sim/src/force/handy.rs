@@ -1,91 +1,80 @@
 use glam::Vec3;
 use hashlink::LinkedHashMap;
+use petgraph::graph::NodeIndex;
 
-use crate::{force::Value, ForceGraph};
+use crate::{
+    force::{
+        fruchterman_reingold::{fr_get_attraction, fr_get_repulsion},
+        Value,
+    },
+    ForceGraph,
+};
 
 use super::Force;
 
 /// My own force-directed graph drawing algorithm.
-pub fn handy<N: Clone, E: Clone>(
-    scale: f32,
-    cooloff_factor: f32,
-    gravity: bool,
-    centering: bool,
-) -> Force<N, E> {
-    fn update<N: Clone, E: Clone>(
-        dict: &LinkedHashMap<String, Value>,
-        graph: &mut ForceGraph<N, E>,
-        dt: f32,
-    ) {
-        let graph_clone = graph.clone();
-
-        let repulsive = dict.get("Repulsive").unwrap().bool().unwrap();
-        let attractive = dict.get("Attractive").unwrap().bool().unwrap();
+pub fn handy<N, E>(scale: f32, cooloff_factor: f32, gravity: bool, centering: bool) -> Force<N, E> {
+    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32) {
+        // establish current variables from the force's dictionary
+        let repulsion = dict.get("Repulsive Force").unwrap().bool().unwrap();
+        let attraction = dict.get("Attractive Force").unwrap().bool().unwrap();
         let scale = dict.get("Scale").unwrap().number().unwrap();
         let cooloff_factor = dict.get("Cooloff Factor").unwrap().number().unwrap();
         let gravity_factor = dict.get("Gravity Factor").unwrap().number().unwrap();
         let centering = dict.get("Centering").unwrap().bool().unwrap();
         let gravity = dict.get("Gravity").unwrap().bool().unwrap();
 
-        let mut vec_sum = Vec3::ZERO;
+        // sum of all locations (for centering)
+        let mut loc_sum = Vec3::ZERO;
 
-        for node_index in graph_clone.node_indices() {
+        // reset all old locations
+        graph
+            .node_weights_mut()
+            .for_each(|n| n.old_location = n.location);
+
+        // loop through all nodes
+        for idx in graph.node_indices().collect::<Vec<NodeIndex>>() {
             if centering {
-                vec_sum += graph_clone[node_index].location
+                loc_sum += graph[idx].old_location
             }
 
-            if graph_clone[node_index].locked {
+            // don't operate on locked nodes.
+            // locked nodes are (for example) being dragged by the mouse on this frame
+            if graph[idx].locked {
                 continue;
             }
 
-            let mut final_force = Vec3::ZERO;
-            let node_one = &graph_clone[node_index];
+            // force that will be applied to the node
+            let mut force = Vec3::ZERO;
 
-            if repulsive {
-                for other_node_index in graph_clone.node_indices() {
-                    if other_node_index == node_index {
-                        continue;
-                    }
-
-                    let node_two = &graph_clone[other_node_index];
-
-                    let unit_vector = (node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location);
-
-                    final_force += -((scale * scale)
-                        / node_one.location.distance(node_two.location))
-                        * unit_vector;
-                }
+            if repulsion {
+                force += fr_get_repulsion(idx, scale, &graph);
             }
 
-            if attractive {
-                for neighbor_index in graph_clone.neighbors(node_index) {
-                    let node_two = &graph_clone[neighbor_index];
-
-                    let unit_vector = (node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location);
-
-                    final_force += (node_one.location.distance_squared(node_two.location) / scale)
-                        * unit_vector;
-                }
+            if attraction {
+                force += fr_get_attraction(idx, scale, &graph);
             }
-
-            let node = &mut graph[node_index];
 
             if gravity {
-                final_force += -node.location / gravity_factor;
+                let node = &graph[idx];
+
+                force += -node.old_location / (1.0 / gravity_factor);
             }
 
-            node.velocity += final_force * dt;
-            node.velocity *= cooloff_factor;
-            node.location += node.velocity * dt;
+            // apply new location
+            let node = &mut graph[idx];
+
+            node.delta += force * dt;
+            node.delta *= cooloff_factor;
+
+            node.location += node.delta * dt;
         }
 
         if centering {
-            let avg_vec = vec_sum / graph_clone.node_count() as f32;
+            let avg_vec = loc_sum / graph.node_count() as f32;
 
-            for node_index in graph_clone.node_indices() {
-                let node = &mut graph[node_index];
+            for idx in graph.node_indices().collect::<Vec<NodeIndex>>() {
+                let node = &mut graph[idx];
 
                 node.location -= avg_vec;
             }
@@ -93,8 +82,8 @@ pub fn handy<N: Clone, E: Clone>(
     }
 
     let mut dict = LinkedHashMap::new();
-    dict.insert("Repulsive".to_string(), Value::Bool(true));
-    dict.insert("Attractive".to_string(), Value::Bool(true));
+    dict.insert("Repulsive Force".to_string(), Value::Bool(true));
+    dict.insert("Attractive Force".to_string(), Value::Bool(true));
     dict.insert("Scale".to_string(), Value::Number(scale, 1.0..=200.0));
     dict.insert(
         "Cooloff Factor".to_string(),

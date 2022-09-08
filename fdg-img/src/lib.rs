@@ -12,7 +12,7 @@ use plotters::prelude::*;
 pub use plotters::style;
 
 /// Parameters for drawing the SVG image.
-pub struct Settings<N: Clone, E: Clone> {
+pub struct Settings<N, E> {
     /// Simulation Parameters
     pub sim_parameters: SimulationParameters<N, E>,
     /// Number of times to run the simulation
@@ -35,7 +35,7 @@ pub struct Settings<N: Clone, E: Clone> {
     pub text_style: Option<TextStyle<'static>>,
 }
 
-impl<N: Clone, E: Clone> Default for Settings<N, E> {
+impl<N, E> Default for Settings<N, E> {
     fn default() -> Self {
         Self {
             sim_parameters: SimulationParameters::default(),
@@ -53,8 +53,8 @@ impl<N: Clone, E: Clone> Default for Settings<N, E> {
 }
 
 /// Generate an image from a graph and a force.
-pub fn gen_image<N: Clone, E: Clone>(
-    graph: &ForceGraph<N, E>,
+pub fn gen_image<N, E>(
+    graph: ForceGraph<N, E>,
     settings: Option<Settings<N, E>>,
 ) -> Result<String, Box<dyn Error>> {
     // set up the simulation and settings

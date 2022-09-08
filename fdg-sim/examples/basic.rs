@@ -11,7 +11,7 @@ fn main() {
     graph.add_edge(one, two, ());
 
     // create a simulation from the graph
-    let mut simulation = Simulation::from_graph(&graph, SimulationParameters::default());
+    let mut simulation = Simulation::from_graph(graph, SimulationParameters::default());
 
     // your event/render loop
     for frame in 0..50 {

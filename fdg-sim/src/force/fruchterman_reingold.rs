@@ -1,57 +1,44 @@
 use glam::Vec3;
 use hashlink::LinkedHashMap;
-use petgraph::visit::EdgeRef;
+use petgraph::{graph::NodeIndex, visit::EdgeRef};
 
 use crate::{force::Value, ForceGraph};
 
-use super::Force;
+use super::{unit_vector, Force};
 
 /// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).
-pub fn fruchterman_reingold<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
-    fn update<N: Clone, E: Clone>(
-        dict: &LinkedHashMap<String, Value>,
-        graph: &mut ForceGraph<N, E>,
-        dt: f32,
-    ) {
-        let graph_clone = graph.clone();
-
+pub fn fruchterman_reingold<N, E>(scale: f32, cooloff_factor: f32) -> Force<N, E> {
+    fn update<N, E>(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E>, dt: f32) {
+        // establish current variables from the force's dictionary
         let scale = dict.get("Scale").unwrap().number().unwrap();
         let cooloff_factor = dict.get("Cooloff Factor").unwrap().number().unwrap();
 
-        for node_index in graph_clone.node_indices() {
-            if graph_clone[node_index].locked {
+        // reset all old locations
+        graph
+            .node_weights_mut()
+            .for_each(|n| n.old_location = n.location);
+
+        // loop through all nodes
+        for idx in graph.node_indices().collect::<Vec<NodeIndex>>() {
+            // don't operate on locked nodes.
+            // locked nodes are (for example) being dragged by the mouse on this frame
+            if graph[idx].locked {
                 continue;
             }
 
-            let mut final_force = Vec3::ZERO;
+            // force that will be applied to the node
+            let mut force = Vec3::ZERO;
 
-            for other_node_index in graph_clone.node_indices() {
-                if other_node_index == node_index {
-                    continue;
-                }
+            force += fr_get_repulsion(idx, scale, &graph);
+            force += fr_get_attraction(idx, scale, &graph);
 
-                let node_one = &graph_clone[node_index];
-                let node_two = &graph_clone[other_node_index];
+            // apply new location
+            let node = &mut graph[idx];
 
-                final_force += -((scale * scale) / node_one.location.distance(node_two.location))
-                    * ((node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location))
-            }
+            node.delta += force * dt;
+            node.delta *= cooloff_factor;
 
-            for neighbor_index in graph_clone.neighbors(node_index) {
-                let node_one = &graph_clone[node_index];
-                let node_two = &graph_clone[neighbor_index];
-
-                final_force += (node_one.location.distance_squared(node_two.location) / scale)
-                    * ((node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location))
-            }
-
-            let node = &mut graph[node_index];
-
-            node.velocity += final_force * dt;
-            node.velocity *= cooloff_factor;
-            node.location += node.velocity * dt;
+            node.location += node.delta * dt;
         }
     }
 
@@ -67,70 +54,51 @@ pub fn fruchterman_reingold<N: Clone, E: Clone>(scale: f32, cooloff_factor: f32)
         dict_default: dict,
         name: "Fruchterman-Reingold (1991)",
         continuous: true,
-        info: Some(
-            "A force directed graph drawing algorithm based on Fruchterman-Reingold (1991).",
-        ),
+        info: Some("The force-directed graph drawing algorithm by Fruchterman-Reingold (1991)."),
         update,
     }
 }
 
 /// A force directed graph drawing algorithm based on Fruchterman-Reingold (1991), though it multiplies attractions by edge weights.
-pub fn fruchterman_reingold_weighted<N: Clone, E: Clone + Into<f32>>(
+pub fn fruchterman_reingold_weighted<N, E: Clone + Into<f32>>(
     scale: f32,
     cooloff_factor: f32,
 ) -> Force<N, E> {
-    fn update<N: Clone, E: Clone + Into<f32>>(
+    fn update<N, E: Clone + Into<f32>>(
         dict: &LinkedHashMap<String, Value>,
         graph: &mut ForceGraph<N, E>,
         dt: f32,
     ) {
-        let graph_clone = graph.clone();
-
+        // establish current variables from the force's dictionary
         let scale = dict.get("Scale").unwrap().number().unwrap();
         let cooloff_factor = dict.get("Cooloff Factor").unwrap().number().unwrap();
 
-        for node_index in graph_clone.node_indices() {
-            if graph_clone[node_index].locked {
+        // reset all old locations
+        graph
+            .node_weights_mut()
+            .for_each(|n| n.old_location = n.location);
+
+        // loop through all nodes
+        for idx in graph.node_indices().collect::<Vec<NodeIndex>>() {
+            // don't operate on locked nodes.
+            // locked nodes are (for example) being dragged by the mouse on this frame
+            if graph[idx].locked {
                 continue;
             }
 
-            let mut final_force = Vec3::ZERO;
+            // force that will be applied to the node
+            let mut force = Vec3::ZERO;
 
-            let node_one = &graph_clone[node_index];
+            force += fr_get_repulsion(idx, scale, &graph);
+            force += fr_get_attraction_weighted(idx, scale, &graph);
 
-            for other_node_index in graph_clone.node_indices() {
-                if other_node_index == node_index {
-                    continue;
-                }
+            // apply new location
+            let node = &mut graph[idx];
 
-                let node_two = &graph_clone[other_node_index];
+            node.delta += force * dt;
+            node.delta *= cooloff_factor;
 
-                final_force += -((scale * scale) / node_one.location.distance(node_two.location))
-                    * ((node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location))
-            }
-
-            for edge in graph_clone.edges(node_index) {
-                let neighbor_index = if edge.source() == node_index {
-                    edge.target()
-                } else {
-                    edge.source()
-                };
-                let node_two = &graph_clone[neighbor_index];
-
-                let weight: f32 = edge.weight().clone().into();
-
-                final_force += (node_one.location.distance_squared(node_two.location) / scale)
-                    * ((node_two.location - node_one.location)
-                        / node_one.location.distance(node_two.location))
-                    * weight
-            }
-
-            let node = &mut graph[node_index];
-
-            node.velocity += final_force * dt;
-            node.velocity *= cooloff_factor;
-            node.location += node.velocity * dt;
+            node.location += node.delta * dt;
         }
     }
 
@@ -147,8 +115,67 @@ pub fn fruchterman_reingold_weighted<N: Clone, E: Clone + Into<f32>>(
         name: "Weighted Fruchterman-Reingold (1991)",
         continuous: true,
         info: Some(
-            "A force directed graph drawing algorithm based on Fruchterman-Reingold (1991). Multiplies edge forces by edge weights.",
+            "The force-directed graph drawing algorithm by Fruchterman-Reingold (1991). This version multiplies the edge force by the edge weight.",
         ),
         update,
     }
+}
+
+pub fn fr_get_repulsion<N, E>(idx: NodeIndex, scale: f32, graph: &ForceGraph<N, E>) -> Vec3 {
+    let mut force = Vec3::ZERO;
+    let node = &graph[idx];
+
+    for alt_idx in graph.node_indices() {
+        if alt_idx == idx {
+            continue;
+        }
+
+        let alt_node = &graph[alt_idx];
+
+        force += -((scale * scale) / node.old_location.distance(alt_node.old_location))
+            * unit_vector(node.old_location, alt_node.old_location);
+    }
+
+    force
+}
+
+pub fn fr_get_attraction<N, E>(idx: NodeIndex, scale: f32, graph: &ForceGraph<N, E>) -> Vec3 {
+    let mut force = Vec3::ZERO;
+    let node = &graph[idx];
+
+    for alt_idx in graph.neighbors(idx) {
+        let alt_node = &graph[alt_idx];
+
+        force += (node.old_location.distance_squared(alt_node.old_location) / scale)
+            * unit_vector(node.old_location, alt_node.old_location);
+    }
+
+    force
+}
+
+pub fn fr_get_attraction_weighted<N, E: Clone + Into<f32>>(
+    idx: NodeIndex,
+    scale: f32,
+    graph: &ForceGraph<N, E>,
+) -> Vec3 {
+    let mut force = Vec3::ZERO;
+    let node = &graph[idx];
+
+    for edge in graph.edges(idx) {
+        let alt_idx = if edge.source() == idx {
+            edge.target()
+        } else {
+            edge.source()
+        };
+
+        let alt_node = &graph[alt_idx];
+
+        let weight: f32 = edge.weight().clone().into();
+
+        force += (node.old_location.distance_squared(alt_node.old_location) / scale)
+            * unit_vector(node.old_location, alt_node.old_location)
+            * weight;
+    }
+
+    force
 }

@@ -19,16 +19,16 @@ pub enum Dimensions {
 
 /// Parameters for the simulation.
 #[derive(Clone)]
-pub struct SimulationParameters<N: Clone, E: Clone> {
+pub struct SimulationParameters<N, E> {
     /// The width and height of the box that the nodes randomly start in at the beginning of the simulation.
     pub node_start_size: f32,
     /// The number of dimensions that the simulation will run in.
     pub dimensions: Dimensions,
     /// The force that dictates how the simulation behaves.
-    pub force: Force<N, E>,
+    force: Force<N, E>,
 }
 
-impl<N: Clone, E: Clone> SimulationParameters<N, E> {
+impl<N, E> SimulationParameters<N, E> {
     /// Create a new [`SimulationParameters`].
     pub fn new(node_start_size: f32, dimensions: Dimensions, force: Force<N, E>) -> Self {
         Self {
@@ -62,7 +62,7 @@ impl<N: Clone, E: Clone> SimulationParameters<N, E> {
     }
 }
 
-impl<N: Clone, E: Clone> Default for SimulationParameters<N, E> {
+impl<N, E> Default for SimulationParameters<N, E> {
     fn default() -> Self {
         Self {
             node_start_size: 200.0,
@@ -74,18 +74,15 @@ impl<N: Clone, E: Clone> Default for SimulationParameters<N, E> {
 
 /// A simulation for managing the main event loop and forces.
 #[derive(Clone)]
-pub struct Simulation<N: Clone, E: Clone> {
+pub struct Simulation<N, E> {
     graph: ForceGraph<N, E>,
     parameters: SimulationParameters<N, E>,
 }
 
-impl<N: Clone, E: Clone> Simulation<N, E> {
+impl<N, E> Simulation<N, E> {
     /// Create a simulation from a [`ForceGraph`].
-    pub fn from_graph(graph: &ForceGraph<N, E>, parameters: SimulationParameters<N, E>) -> Self {
-        let mut myself = Self {
-            graph: graph.clone(),
-            parameters,
-        };
+    pub fn from_graph(graph: ForceGraph<N, E>, parameters: SimulationParameters<N, E>) -> Self {
+        let mut myself = Self { graph, parameters };
 
         myself.reset_node_placement();
 
@@ -114,7 +111,7 @@ impl<N: Clone, E: Clone> Simulation<N, E> {
                 },
             );
 
-            node.velocity = Vec3::ZERO;
+            node.old_location = node.location;
         }
     }
 
@@ -156,8 +153,8 @@ impl<N: Clone, E: Clone> Simulation<N, E> {
     }
 
     /// Set the internal [`ForceGraph`].
-    pub fn set_graph(&mut self, graph: &ForceGraph<N, E>) {
-        self.graph = graph.clone();
+    pub fn set_graph(&mut self, graph: ForceGraph<N, E>) {
+        self.graph = graph;
     }
 
     /// Retrieve a reference to the internal [`SimulationParameters`].
@@ -191,9 +188,9 @@ impl<N: Clone, E: Clone> Simulation<N, E> {
     }
 }
 
-impl<N: Clone, E: Clone> Default for Simulation<N, E> {
+impl<N, E> Default for Simulation<N, E> {
     fn default() -> Self {
-        Self::from_graph(&ForceGraph::default(), SimulationParameters::default())
+        Self::from_graph(ForceGraph::default(), SimulationParameters::default())
     }
 }
 
@@ -205,12 +202,11 @@ pub struct Node<N> {
     pub name: String,
     /// Any arbitrary information you want to store within it.
     pub data: N,
-    /// Location of the node.
-    pub location: Vec3,
-    /// Velocity of the node.
-    pub velocity: Vec3,
     /// If the node is locked. (if the physics should run on it)
     pub locked: bool,
+    pub location: Vec3,
+    pub old_location: Vec3,
+    pub delta: Vec3,
 }
 
 impl<N> Node<N> {
@@ -219,9 +215,10 @@ impl<N> Node<N> {
         Self {
             name: name.as_ref().to_string(),
             data,
-            location: Vec3::ZERO,
-            velocity: Vec3::ZERO,
             locked: false,
+            location: Vec3::ZERO,
+            old_location: Vec3::ZERO,
+            delta: Vec3::ZERO,
         }
     }
 
@@ -230,9 +227,10 @@ impl<N> Node<N> {
         Self {
             name: name.as_ref().to_string(),
             data,
-            location,
-            velocity: Vec3::ZERO,
             locked: false,
+            location,
+            old_location: Vec3::ZERO,
+            delta: Vec3::ZERO,
         }
     }
 }
@@ -243,7 +241,6 @@ impl<N: fmt::Debug> fmt::Debug for Node<N> {
             .field("name", &self.name)
             .field("data", &self.data)
             .field("location", &self.location)
-            .field("velocity", &self.velocity)
             .finish()
     }
 }
