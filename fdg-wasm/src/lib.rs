@@ -77,7 +77,7 @@ impl ForceGraphSimulator {
 
         let wasm_graph = serde_to_wasm_graph(&serde_graph)?;
 
-        self.sim.set_graph(&wasm_graph);
+        self.sim.set_graph(wasm_graph);
 
         Ok(())
     }
