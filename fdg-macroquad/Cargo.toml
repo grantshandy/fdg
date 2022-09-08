@@ -1,6 +1,6 @@
 [package]
 name = "fdg-macroquad"
-version = "0.3.4"
+version = "0.4.0"
 edition = "2021"
 authors = ["Grant Handy <granthandy@proton.me>"]
 license = "GPL-3.0"
@@ -15,8 +15,8 @@ readme = "README.md"
 
 [dependencies]
 egui-macroquad = "0.11"
-# fdg-sim = { version = "0.7", features = ["json"] }
-fdg-sim = { path = "../fdg-sim/", features = ["json"] }
+fdg-sim = { version = "0.8", features = ["json"] }
+# fdg-sim = { path = "../fdg-sim/", features = ["json"] }
 macroquad = "0.3"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
