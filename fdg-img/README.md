@@ -6,6 +6,8 @@ A simple SVG renderer for [`fdg-sim`](https://crates.io/crates/fdg-sim).
 [![Documentation](https://docs.rs/fdg-img/badge.svg)](https://docs.rs/fdg-img)
 [![GPL-3.0](https://img.shields.io/badge/license-GPL-blue.svg)](https://github.com/grantshandy/fdg/blob/main/fdg-img/LICENSE)
 
+[**Visit the project page for more information.**](https://github.com/grantshandy/fdg)
+
 ## Basic Example
 ```rust
 use std::fs;
@@ -27,7 +29,7 @@ fn main() {
     graph.add_edge(0.into(), (nodes - 1).into(), ());
 
     // generate svg text for your graph
-    let svg = fdg_img::gen_image(&graph, None).unwrap();
+    let svg = fdg_img::gen_image(graph, None).unwrap();
 
     // save the svg on disk (or send it to an svg renderer)
     fs::write("ring.svg", svg.as_bytes()).unwrap();

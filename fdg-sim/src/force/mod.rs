@@ -1,5 +1,4 @@
 use glam::Vec3;
-use hashlink::LinkedHashMap;
 
 use crate::ForceGraph;
 use std::ops::RangeInclusive;
@@ -10,6 +9,7 @@ mod handy;
 pub use {
     fruchterman_reingold::{fruchterman_reingold, fruchterman_reingold_weighted},
     handy::handy,
+    hashlink::LinkedHashMap,
 };
 
 /// A value that you can change in a [`Force`]'s dictionary.

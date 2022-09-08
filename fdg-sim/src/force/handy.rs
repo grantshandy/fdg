@@ -89,7 +89,7 @@ pub fn handy<N, E>(scale: f32, cooloff_factor: f32, gravity: bool, centering: bo
         "Cooloff Factor".to_string(),
         Value::Number(cooloff_factor, 0.0..=1.0),
     );
-    dict.insert("Gravity Factor".to_string(), Value::Number(3.0, 1.0..=10.0));
+    dict.insert("Gravity Factor".to_string(), Value::Number(1.0, 0.1..=5.0));
     dict.insert("Centering".to_string(), Value::Bool(centering));
     dict.insert("Gravity".to_string(), Value::Bool(gravity));
 
