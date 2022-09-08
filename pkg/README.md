@@ -27,7 +27,7 @@ sim.nodes.forEach((node) => {
 });
 ```
 
-It works with deno greate just like this:
+It works with deno great just like this:
 ```shell
 $ deno run --allow-net deno.js
 Listolier: 197.79331970214844,134.728515625,0
@@ -45,7 +45,6 @@ Boulatruelle: -140.707275390625,-19.337364196777344,0
 Child1: -261.75665283203125,36.16830062866211,0
 ...
 ```
-
 
 ## `ForceGraphSimulation` Documentation
 
@@ -81,3 +80,5 @@ Updates the internal simulation for an interval.
 
 ## `jsongraph_to_dot(String graph)`
 Returns a graphviz dot graph from a jsongraph string.
+
+This was included here mostly for a demo site I made.
