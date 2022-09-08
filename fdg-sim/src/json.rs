@@ -80,13 +80,13 @@ use crate::{ForceGraph, ForceGraphHelper};
 
 /// Possible errors returned by the functions in the module.
 #[derive(Debug)]
-pub enum JsonError {
+pub enum JsonParseError {
     BadFormatting(serde_json::Error),
     HyperEdges,
     NodeNotFound(String),
 }
 
-impl fmt::Display for JsonError {
+impl fmt::Display for JsonParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::BadFormatting(err) => write!(f, "Input not JSON: {err}"),
@@ -96,7 +96,7 @@ impl fmt::Display for JsonError {
     }
 }
 
-impl Error for JsonError {}
+impl Error for JsonParseError {}
 
 #[derive(Serialize, Deserialize, Debug)]
 struct JsonGraph {
@@ -179,22 +179,22 @@ pub fn graph_to_json<N: Serialize, E: Serialize>(
 }
 
 /// Get a [`ForceGraph`] from a json string.
-pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>, JsonError> {
+pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>, JsonParseError> {
     let mut graph: ForceGraph<Value, Value> = ForceGraph::default();
 
     let json: JsonGraph = match serde_json::from_str(json.as_ref()) {
         Ok(json) => json,
-        Err(err) => return Err(JsonError::BadFormatting(err)),
+        Err(err) => return Err(JsonParseError::BadFormatting(err)),
     };
 
     if json.graph._hyperedges.is_some() {
-        return Err(JsonError::HyperEdges);
+        return Err(JsonParseError::HyperEdges);
     }
 
     for (name, data) in json.graph.nodes {
         let data = match serde_json::to_value(&data) {
             Ok(data) => data,
-            Err(err) => return Err(JsonError::BadFormatting(err)),
+            Err(err) => return Err(JsonParseError::BadFormatting(err)),
         };
 
         graph.add_force_node(name, data);
@@ -204,12 +204,12 @@ pub fn graph_from_json(json: impl AsRef<str>) -> Result<ForceGraph<Value, Value>
         for edge in edges {
             let source = match index_from_name(&edge.source, &graph) {
                 Some(source) => source,
-                None => return Err(JsonError::NodeNotFound(edge.source)),
+                None => return Err(JsonParseError::NodeNotFound(edge.source)),
             };
 
             let target = match index_from_name(&edge.target, &graph) {
                 Some(source) => source,
-                None => return Err(JsonError::NodeNotFound(edge.target)),
+                None => return Err(JsonParseError::NodeNotFound(edge.target)),
             };
 
             graph.add_edge(source, target, edge.metadata);

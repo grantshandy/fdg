@@ -40,12 +40,12 @@ use crate::ForceGraph;
 
 /// Errors that can be returned by the functions in this module.
 #[derive(Clone, Debug)]
-pub enum DotError {
+pub enum DotParseError {
     /// Logically, this should never happen.
     IndexNotFound(String),
 }
 
-impl fmt::Display for DotError {
+impl fmt::Display for DotParseError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::IndexNotFound(n) => write!(f, "Index for {n} was not found in the graph"),
@@ -53,10 +53,10 @@ impl fmt::Display for DotError {
     }
 }
 
-impl Error for DotError {}
+impl Error for DotParseError {}
 
 /// Convert a [`ForceGraph`] to the DOT
-pub fn graph_to_dot<N, E>(graph: &ForceGraph<N, E>) -> Result<String, DotError> {
+pub fn graph_to_dot<N, E>(graph: &ForceGraph<N, E>) -> Result<String, DotParseError> {
     let mut new_graph: StableGraph<String, (), Undirected> = StableGraph::default();
     let mut indices: HashMap<String, NodeIndex> = HashMap::new();
 
@@ -72,12 +72,12 @@ pub fn graph_to_dot<N, E>(graph: &ForceGraph<N, E>) -> Result<String, DotError> 
 
         let source_idx = match indices.get(source) {
             Some(idx) => *idx,
-            None => return Err(DotError::IndexNotFound(source.clone())),
+            None => return Err(DotParseError::IndexNotFound(source.clone())),
         };
 
         let target_idx = match indices.get(target) {
             Some(idx) => *idx,
-            None => return Err(DotError::IndexNotFound(target.clone())),
+            None => return Err(DotParseError::IndexNotFound(target.clone())),
         };
 
         new_graph.add_edge(source_idx, target_idx, ());
