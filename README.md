@@ -7,7 +7,7 @@ A Force-Directed Graph Framework for Rust.
 
 The goal of this project is to provide a [force-directed graph drawing](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) framework for Rust, as well as 2D and 3D visualizers/renderers that work on the web and desktop. It's built on top of the popular [`petgraph`](https://crates.io/crates/petgraph) Rust library for interaction with already existing datasets in Rust.
 
-**In the simplest terms**, the crates in this project allow you to take a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and turn it into a really picture.
+**In the simplest terms**, the crates in this project allow you to take a [graph](https://en.wikipedia.org/wiki/Graph_(discrete_mathematics)) and turn it into a pretty picture.
 
 ## Crates
 | Name                                          | Version                                                                                                        | Docs                                                                                                                                          | License                                                                                                                             | Description                                                                                                               |
