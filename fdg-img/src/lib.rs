@@ -14,6 +14,12 @@ use plotters::prelude::*;
 
 pub use plotters::style;
 
+#[cfg(feature = "wasm")]
+mod wasm;
+
+#[cfg(feature = "wasm")]
+pub use wasm::*;
+
 /// Parameters for drawing the SVG image.
 pub struct Settings<N, E, Ty = Undirected> {
     /// Simulation Parameters
@@ -44,7 +50,7 @@ impl<N, E, Ty: EdgeType> Default for Settings<N, E, Ty> {
             sim_parameters: SimulationParameters::default(),
             iterations: 2000,
             dt: 0.035,
-            node_size: 1,
+            node_size: 10,
             node_color: RGBAColor(0, 0, 0, 1.0),
             edge_size: 3,
             edge_color: RGBAColor(255, 0, 0, 1.0),
@@ -170,7 +176,7 @@ pub fn gen_image<N, E, Ty: EdgeType>(
     for node in sim.get_graph().node_weights() {
         backend.draw(&Circle::new(
             (node.location.x as i32, node.location.y as i32),
-            settings.node_size * 10,
+            settings.node_size,
             ShapeStyle {
                 color: settings.node_color,
                 filled: true,

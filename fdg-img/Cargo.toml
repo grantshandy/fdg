@@ -1,6 +1,6 @@
 [package]
 name = "fdg-img"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["Grant Handy <grantshandy@gmail.com>"]
 license = "GPL-3.0"
@@ -13,11 +13,20 @@ readme = "README.md"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"], optional = true }
+serde_json = { version = "1.0", optional = true }
+serde = { version = "1.0", features = ["derive"], optional = true }
 plotters = "0.3"
 fdg-sim = "0.8"
-# fdg-sim = { path = "../fdg-sim/" }
+#  fdg-sim = { path = "../fdg-sim/" }
 
 [dev-dependencies]
 fdg-sim = { version = "0.8", features = ["json"] }
 # fdg-sim = { path = "../fdg-sim/", features = ["json"] }
+
+[features]
+wasm = ["wasm-bindgen", "serde_json", "serde", "fdg-sim/json"]

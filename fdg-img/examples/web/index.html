@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>fdg-img wasm example</title>
+</head>
+<body>
+    <div id="svg"></div>
+    <script type="module">
+        import init, { generate_svg } from '/pkg/fdg-img.js'
+
+        await init();
+
+        // let json = {
+        //     graph: {
+        //         nodes: {
+        //             '1': {},
+        //             '2': {},
+        //             '3': {}
+        //         },
+        //         edges: [
+        //             {
+        //                 source: '1',
+        //                 target: '2'
+        //             },
+        //             {
+        //                 source: '2',
+        //                 target: '3'
+        //             },
+        //             {
+        //                 source: '3',
+        //                 target: '1'
+        //             }
+        //         ]
+        //     }
+        // };
+
+        let json = await fetch('https://raw.githubusercontent.com/jsongraph/json-graph-specification/master/examples/les_miserables.json')
+            .then(response => response.json());
+
+        let settings = {
+            iterations: 1000,
+            dt: 0.1,
+            showText: true,
+            textSize: 19,
+            textColor: { r: 214, g: 114, b: 107, a: 1.0 },
+            backgroundColor: { r: 75, g: 75, b: 75, a: 1.0 },
+            nodeColor: { r: 200, g: 200, b: 200, a: 1.0 },
+            nodeSize: 5,
+            edgeColor: { r: 150, g: 150, b: 150, a: 1.0 },
+            edgeSize: 5,
+        };
+
+        document.getElementById('svg').innerHTML = generate_svg(JSON.stringify(json), settings);
+    </script>
+</body>
+</html>

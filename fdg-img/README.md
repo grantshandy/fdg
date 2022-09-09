@@ -38,3 +38,7 @@ fn main() {
 
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/ring.svg)
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-img/screenshots/social_network.svg)
+
+
+# Webassembly API
+This library can be used in Javascript though a WASM interface. I'll be setting up a demo for it soon. For now you can see how to use it in the [web example](https://github.com/grantshandy/fdg/tree/main/fdg-img/examples/web).
