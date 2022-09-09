@@ -9,7 +9,7 @@
 <body>
     <div id="svg"></div>
     <script type="module">
-        import init, { generate_svg } from '/pkg/fdg-img.js'
+        import init, { generate_svg } from './pkg/fdg-img.js'
 
         await init();
 
@@ -41,7 +41,7 @@
             .then(response => response.json());
 
         let settings = {
-            iterations: 1000,
+            // iterations: 1000,
             dt: 0.1,
             showText: true,
             textSize: 19,

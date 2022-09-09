@@ -1,21 +1,24 @@
 #!/bin/sh
+rm -rf public/*
+
 rustup target add wasm32-unknown-unknown
 
 cd fdg-macroquad && cargo build --release --target wasm32-unknown-unknown --examples && cd ..
-
-cp target/wasm32-unknown-unknown/release/examples/view_nd_cube.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_binary_tree.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_cylinder.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_json.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_lattice.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_ring.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_sphere.wasm ./fdg-macroquad/examples/web-examples/
-cp target/wasm32-unknown-unknown/release/examples/view_social_network.wasm ./fdg-macroquad/examples/web-examples/
+cp target/wasm32-unknown-unknown/release/examples/* ./public/
+cp fdg-macroquad/examples/web-examples/* ./public/
 
 cd fdg-wasm && make && cd ..
 
-mkdir -p ./fdg-macroquad/examples/web-examples/wasmapi/
-cp fdg-wasm/examples/* ./fdg-macroquad/examples/web-examples/wasmapi/
-cp -rvf fdg-wasm/pkg/ ./fdg-macroquad/examples/web-examples/
-rm -rvf ./fdg-macroquad/examples/web-examples/.gitignore
-rm -rvf ./fdg-macroquad/examples/web-examples/pkg/.gitignore
+mkdir -p ./public/wasmapi/
+cp -rf fdg-wasm/examples/* ./public/wasmapi/
+
+cd fdg-img/examples/web/ && make && cd ../../../
+
+mkdir -p ./public/fdg-img/
+cp -rf fdg-img/examples/web/* ./public/fdg-img/
+
+
+# remove gitignores
+rm -rf public/.gitignore
+rm -rf public/wasmapi/pkg/.gitignore
+rm -rf public/fdg-img/pkg/.gitignore
