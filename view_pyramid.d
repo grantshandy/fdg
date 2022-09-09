@@ -1,0 +1,1 @@
+/home/runner/work/fdg/fdg/target/wasm32-unknown-unknown/release/examples/view_pyramid.wasm: /home/runner/work/fdg/fdg/fdg-macroquad/README.md /home/runner/work/fdg/fdg/fdg-macroquad/examples/view_pyramid.rs /home/runner/work/fdg/fdg/fdg-macroquad/src/lib.rs
