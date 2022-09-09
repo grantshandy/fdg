@@ -1,6 +1,8 @@
 #!/bin/sh
 rm -rf public/*
 
+mkdir -p public/
+
 rustup target add wasm32-unknown-unknown
 
 cd fdg-macroquad && cargo build --release --target wasm32-unknown-unknown --examples && cd ..
