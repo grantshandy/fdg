@@ -1,4 +1,4 @@
-import init, {ForceGraphSimulator} from '../pkg/fdg-wasm.js';
+import init, {ForceGraphSimulator} from './pkg/fdg-wasm.js';
 
 const canvas = document.getElementById('canvas');
 canvas.width = window.innerWidth;

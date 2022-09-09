@@ -1,4 +1,4 @@
-import init, { jsongraph_to_dot } from '../pkg/fdg-wasm.js'
+import init, { jsongraph_to_dot } from './pkg/fdg-wasm.js'
 
 await init();
 
