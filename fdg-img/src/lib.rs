@@ -119,7 +119,10 @@ pub fn gen_image<N, E, Ty: EdgeType>(
             }
         }
 
-        ((right - left), (top - bottom))
+        (
+            ((right + settings.node_size as f32) - (left - settings.node_size as f32)),
+            ((top + settings.node_size as f32) - (bottom - settings.node_size as f32)),
+        )
     };
 
     let image_scale = 1.5;

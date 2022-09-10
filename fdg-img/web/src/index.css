@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.c-block {
+    @apply bg-slate-700 text-slate-50 py-4 px-2 rounded-md shadow-lg;
+}
+
+.e-block {
+    @apply bg-red-700 text-slate-50 py-4 px-2 rounded-md shadow-lg;
+}

@@ -14,11 +14,10 @@ cd fdg-wasm && make && cd ..
 mkdir -p ./public/wasmapi/
 cp -rf fdg-wasm/examples/* ./public/wasmapi/
 
-cd fdg-img/examples/web/ && make && cd ../../../
+cd fdg-img/web/ && make && npm run build && cd ../../../
 
 mkdir -p ./public/fdg-img/
-cp -rf fdg-img/examples/web/* ./public/fdg-img/
-
+cp -rf fdg-img/web/dist/* ./public/fdg-img/
 
 # remove gitignores
 rm -rf public/.gitignore

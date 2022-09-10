@@ -1,8 +1,8 @@
 use super::*;
 
-use fdg_sim::json;
-use plotters::style::text_anchor::{HPos, VPos, Pos};
-use serde::{Serialize, Deserialize};
+use fdg_sim::{force, json};
+use plotters::style::text_anchor::{HPos, Pos, VPos};
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use wasm_bindgen::prelude::*;
 
@@ -55,7 +55,7 @@ impl Default for ImageSettings {
                 g: 0,
                 b: 0,
                 a: 1.0,
-            }
+            },
         }
     }
 }
@@ -65,20 +65,43 @@ impl ImageSettings {
         use plotters::style::Color;
 
         Settings {
-            sim_parameters: SimulationParameters::default(),
+            sim_parameters: SimulationParameters::from_force(force::handy(
+                45.0, 0.975, true, false,
+            )),
             iterations: self.iterations,
             dt: self.dt,
             node_size: self.node_size,
-            node_color: RGBAColor(self.node_color.r, self.node_color.g, self.node_color.b, self.node_color.a),
+            node_color: RGBAColor(
+                self.node_color.r,
+                self.node_color.g,
+                self.node_color.b,
+                self.node_color.a,
+            ),
             edge_size: self.edge_size,
-            edge_color: RGBAColor(self.edge_color.r, self.edge_color.g, self.edge_color.b, self.edge_color.a),
-            background_color: RGBAColor(self.background_color.r, self.background_color.g, self.background_color.b, self.background_color.a),
+            edge_color: RGBAColor(
+                self.edge_color.r,
+                self.edge_color.g,
+                self.edge_color.b,
+                self.edge_color.a,
+            ),
+            background_color: RGBAColor(
+                self.background_color.r,
+                self.background_color.g,
+                self.background_color.b,
+                self.background_color.a,
+            ),
             print_progress: false,
             text_style: {
                 if self.show_text {
                     Some(TextStyle {
                         font: ("sans-serif", self.text_size).into_font(),
-                        color: RGBAColor(self.text_color.r, self.text_color.g, self.text_color.b, self.text_color.a).to_backend_color(),
+                        color: RGBAColor(
+                            self.text_color.r,
+                            self.text_color.g,
+                            self.text_color.b,
+                            self.text_color.a,
+                        )
+                        .to_backend_color(),
                         pos: Pos {
                             h_pos: HPos::Left,
                             v_pos: VPos::Center,
@@ -87,7 +110,7 @@ impl ImageSettings {
                 } else {
                     None
                 }
-            }
+            },
         }
     }
 }
@@ -101,7 +124,7 @@ pub struct Color {
 }
 
 #[wasm_bindgen]
-pub fn generate_svg(jsongraph: String, settings: JsValue) -> Result<String, JsError> {
+pub fn generate_svg(jsongraph: JsValue, settings: JsValue) -> Result<String, JsError> {
     let settings: ImageSettings = if settings != JsValue::NULL || settings != JsValue::UNDEFINED {
         match settings.into_serde() {
             Ok(settings) => settings,
@@ -111,7 +134,12 @@ pub fn generate_svg(jsongraph: String, settings: JsValue) -> Result<String, JsEr
         ImageSettings::default()
     };
 
-    let graph = match json::graph_from_json(&jsongraph) {
+    let jsongraph: Value = match jsongraph.into_serde() {
+        Ok(jsongraph) => jsongraph,
+        Err(err) => return Err(JsError::new(&err.to_string())),
+    };
+
+    let graph = match json::graph_from_json(jsongraph.to_string()) {
         Ok(graph) => graph,
         Err(err) => return Err(JsError::new(&err.to_string())),
     };
