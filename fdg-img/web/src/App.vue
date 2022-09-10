@@ -14,6 +14,9 @@ export default {
 
   data() {
     return {
+      addNodeText: '',
+      addEdgeSourceText: '',
+      addEdgeTargetText: '',
       error: null,
       svg: '',
       isView: false,
@@ -46,9 +49,9 @@ export default {
         showText: true,
         textSize: 20,
         textColor: {
-          r: 0,
-          g: 0,
-          b: 0,
+          r: 248,
+          g: 250,
+          b: 252,
           a: 1.0
         },
         backgroundColor: {
@@ -58,16 +61,16 @@ export default {
           a: 0.0
         },
         nodeColor: {
-          r: 200,
-          g: 200,
-          b: 200,
+          r: 30,
+          g: 41,
+          b: 59,
           a: 1.0
         },
         nodeSize: 10,
         edgeColor: {
-          r: 255,
-          g: 0,
-          b: 0,
+          r: 100,
+          g: 116,
+          b: 139,
           a: 1.0
         },
         edgeSize: 5,
@@ -106,6 +109,45 @@ export default {
 
     removeEdge(index) {
       this.graph.graph.edges.splice(index, 1);
+    },
+
+    addNode(event) {
+      if (event != null && event.key != 'Enter') {
+        return;
+      }
+
+      let name = this.addNodeText;
+
+      if (name == '') {
+        return;
+      }
+
+      if (this.graph.graph.nodes[name] == null || this.graph.graph.nodes[name] == undefined) {
+        this.graph.graph.nodes[name] = {}
+      }
+
+      this.addNodeText = '';
+    },
+
+    addEdge() {
+      let source = this.addEdgeSourceText;
+      let target = this.addEdgeTargetText;
+
+      if (source == null || target == null) {
+        return;
+      }
+
+      let obj = {
+        source: source,
+        target: target,
+      };
+
+      if (!this.graph.graph.edges.includes(obj)) {
+        this.graph.graph.edges.push(obj);
+
+        this.addEdgeSourceText = '';
+        this.addEdgeTargetText = '';
+      }
     }
   }
 }
@@ -136,6 +178,10 @@ export default {
                 </div>
               </div>
             </div>
+            <div class="bg-slate-800 border-4 border-solid border-slate-800 rounded-md shadow-lg w-full md:w-2/3 mx-auto flex">
+              <input type="text" v-model="addNodeText" v-on:keypress="addNode" class="rounded-tl-md rounded-bl-md flex-grow bg-slate-800 px-2 py-1"/>
+              <button v-on:click="addNode()" type="button" class="rounded-tr-md rounded-br-md p-2 inline-flex items-center justify-center bg-slate-700 hover:bg-slate-600 font-semibold">Add</button>
+            </div>
 
             <h3 class="italic text-2xl">Edges</h3>
             <div class="bg-slate-800 rounded-md shadow-lg w-full md:w-2/3 mx-auto">
@@ -150,6 +196,15 @@ export default {
                   </button>
                 </div>
               </div>
+            </div>
+            <div class="bg-slate-800 border-4 border-solid border-slate-800 rounded-md shadow-lg w-full md:w-2/3 mx-auto flex">
+              <div class="flex-grow grid grid-cols-4">
+                <p class="bg-slate-700 align-middle">Source:</p>
+                <input type="text" v-model="addEdgeSourceText" class="rounded-tl-md rounded-bl-md bg-slate-800 px-2 py-1"/>
+                <p class="bg-slate-700 align-middle">Target:</p>
+                <input type="text" v-model="addEdgeTargetText" class="rounded-tl-md rounded-bl-md bg-slate-800 px-2 py-1"/>
+              </div>
+              <button v-on:click="addEdge()" type="button" class="rounded-tr-md rounded-br-md p-2 inline-flex items-center justify-center bg-slate-700 hover:bg-slate-600 font-semibold">Add</button>
             </div>
           </div>
           <div v-else>
