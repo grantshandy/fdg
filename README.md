@@ -1,6 +1,8 @@
 # fdg
 A Force-Directed Graph Framework for Rust.
 
+[![wakatime](https://wakatime.com/badge/user/4ee021cc-8a44-477b-9288-60293a33fb0f/project/130ac4c4-7200-4a15-9dfd-17695ab2558b.svg)](https://wakatime.com/badge/user/4ee021cc-8a44-477b-9288-60293a33fb0f/project/130ac4c4-7200-4a15-9dfd-17695ab2558b)
+
 ![screenshot](https://raw.githubusercontent.com/grantshandy/fdg/main/fdg-macroquad/screenshots/screenshot.png)
 
 [View Demo Online](https://grantshandy.github.io/fdg/)
