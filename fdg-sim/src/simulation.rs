@@ -12,10 +12,19 @@ use petgraph::{
 use quad_rand::RandomRange;
 
 /// Number of dimensions to run the simulation in.
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Dimensions {
     Two,
     Three,
+}
+
+impl fmt::Display for Dimensions {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Dimensions::Two => write!(f, "2"),
+            Dimensions::Three => write!(f, "3"),
+        }
+    }
 }
 
 /// Parameters for the simulation.
@@ -96,26 +105,21 @@ impl<N, E, Ty: EdgeType> Simulation<N, E, Ty> {
     /// Randomly place the nodes within the starting square.
     /// In practice, this restarts the simulation.
     pub fn reset_node_placement(&mut self) {
-        for node in self.graph.node_weights_mut() {
-            node.location = Vec3::new(
-                RandomRange::gen_range(
-                    -(self.parameters.node_start_size / 2.0),
-                    self.parameters.node_start_size / 2.0,
-                ),
-                RandomRange::gen_range(
-                    -(self.parameters.node_start_size / 2.0),
-                    self.parameters.node_start_size / 2.0,
-                ),
-                match self.parameters.dimensions {
-                    Dimensions::Three => RandomRange::gen_range(
-                        -(self.parameters.node_start_size / 2.0),
-                        self.parameters.node_start_size / 2.0,
-                    ),
-                    Dimensions::Two => 0.0,
-                },
-            );
+        let half_node_start_width = self.parameters.node_start_size / 2.0;
 
-            node.old_location = node.location;
+        for node in self.graph.node_weights_mut() {
+            let random_location = Vec3::new(
+                RandomRange::gen_range(-half_node_start_width, half_node_start_width),
+                RandomRange::gen_range(-half_node_start_width, half_node_start_width),
+                match self.parameters.dimensions {
+                    Dimensions::Three => RandomRange::gen_range(-half_node_start_width, half_node_start_width),
+                    Dimensions::Two => 0.0,
+                }
+            );
+           
+            node.velocity = Vec3::ZERO;
+            node.location = random_location;
+            node.old_location = random_location;
         }
     }
 
@@ -206,11 +210,9 @@ pub struct Node<N> {
     pub name: String,
     /// Any arbitrary information you want to store within it.
     pub data: N,
-    /// If the node is locked. (if the physics should run on it)
-    pub locked: bool,
     pub location: Vec3,
     pub old_location: Vec3,
-    pub delta: Vec3,
+    pub velocity: Vec3,
 }
 
 impl<N> Node<N> {
@@ -219,10 +221,9 @@ impl<N> Node<N> {
         Self {
             name: name.as_ref().to_string(),
             data,
-            locked: false,
             location: Vec3::ZERO,
             old_location: Vec3::ZERO,
-            delta: Vec3::ZERO,
+            velocity: Vec3::ZERO,
         }
     }
 
@@ -231,10 +232,9 @@ impl<N> Node<N> {
         Self {
             name: name.as_ref().to_string(),
             data,
-            locked: false,
             location,
             old_location: Vec3::ZERO,
-            delta: Vec3::ZERO,
+            velocity: Vec3::ZERO,
         }
     }
 }

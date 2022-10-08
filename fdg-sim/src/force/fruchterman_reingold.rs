@@ -27,12 +27,6 @@ pub fn fruchterman_reingold<N, E, Ty: EdgeType>(
 
         // loop through all nodes
         for idx in graph.node_indices().collect::<Vec<NodeIndex>>() {
-            // don't operate on locked nodes.
-            // locked nodes are (for example) being dragged by the mouse on this frame
-            if graph[idx].locked {
-                continue;
-            }
-
             // force that will be applied to the node
             let mut force = Vec3::ZERO;
 
@@ -42,10 +36,10 @@ pub fn fruchterman_reingold<N, E, Ty: EdgeType>(
             // apply new location
             let node = &mut graph[idx];
 
-            node.delta += force * dt;
-            node.delta *= cooloff_factor;
+            node.velocity += force * dt;
+            node.velocity *= cooloff_factor;
 
-            node.location += node.delta * dt;
+            node.location += node.velocity * dt;
         }
     }
 
@@ -87,12 +81,6 @@ pub fn fruchterman_reingold_weighted<N, E: Clone + Into<f32>, Ty: EdgeType>(
 
         // loop through all nodes
         for idx in graph.node_indices().collect::<Vec<NodeIndex>>() {
-            // don't operate on locked nodes.
-            // locked nodes are (for example) being dragged by the mouse on this frame
-            if graph[idx].locked {
-                continue;
-            }
-
             // force that will be applied to the node
             let mut force = Vec3::ZERO;
 
@@ -102,10 +90,10 @@ pub fn fruchterman_reingold_weighted<N, E: Clone + Into<f32>, Ty: EdgeType>(
             // apply new location
             let node = &mut graph[idx];
 
-            node.delta += force * dt;
-            node.delta *= cooloff_factor;
+            node.velocity += force * dt;
+            node.velocity *= cooloff_factor;
 
-            node.location += node.delta * dt;
+            node.location += node.velocity * dt;
         }
     }
 

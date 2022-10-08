@@ -1,5 +1,5 @@
 use glam::Vec3;
-use petgraph::EdgeType;
+use petgraph::{EdgeType, Undirected};
 
 use crate::ForceGraph;
 use std::ops::RangeInclusive;
@@ -56,7 +56,7 @@ impl Value {
 
 /// A struct that defines how your force behaves.
 #[derive(Clone)]
-pub struct Force<N, E, Ty> {
+pub struct Force<N, E, Ty = Undirected> {
     dict: LinkedHashMap<String, Value>,
     dict_default: LinkedHashMap<String, Value>,
     name: &'static str,

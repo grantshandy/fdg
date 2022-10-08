@@ -6,9 +6,9 @@ async fn main() {
 
     let nodes = 100;
 
-    graph.add_force_node("", ());
+    graph.add_force_node("0", ());
     for x in 1..nodes {
-        graph.add_force_node("", ());
+        graph.add_force_node(x.to_string(), ());
         graph.add_edge(x.into(), (x - 1).into(), ());
     }
     graph.add_edge(0.into(), (nodes - 1).into(), ());
