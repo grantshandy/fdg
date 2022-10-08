@@ -94,15 +94,15 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
                 self.sim.reset_node_placement();
             }
 
-            self.render_graph();
-            self.draw_gui();
-
             // update the simulation
             if self.running && !self.manual_mode && self.current_force.continuous() {
                 for _ in 0..self.sim_speed {
                     self.sim.update_custom(&self.current_force, self.step_time);
                 }
             }
+
+            self.render_graph();
+            self.draw_gui();
 
             egui_macroquad::draw();
 
