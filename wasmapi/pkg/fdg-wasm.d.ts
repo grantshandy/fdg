@@ -95,11 +95,6 @@ export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembl
 
 export interface InitOutput {
   readonly memory: WebAssembly.Memory;
-  readonly __wbg_forcegraphnode_free: (a: number) => void;
-  readonly forcegraphnode_name: (a: number, b: number) => void;
-  readonly forcegraphnode_label: (a: number) => number;
-  readonly forcegraphnode_location: (a: number, b: number) => void;
-  readonly forcegraphnode_metadata: (a: number) => number;
   readonly start: () => void;
   readonly jsongraph_to_dot: (a: number, b: number, c: number) => void;
   readonly __wbg_forcegraphsimulator_free: (a: number) => void;
@@ -119,6 +114,11 @@ export interface InitOutput {
   readonly forcegraphedge_source: (a: number) => number;
   readonly forcegraphedge_target: (a: number) => number;
   readonly forcegraphedge_metadata: (a: number) => number;
+  readonly __wbg_forcegraphnode_free: (a: number) => void;
+  readonly forcegraphnode_name: (a: number, b: number) => void;
+  readonly forcegraphnode_label: (a: number) => number;
+  readonly forcegraphnode_location: (a: number, b: number) => void;
+  readonly forcegraphnode_metadata: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
