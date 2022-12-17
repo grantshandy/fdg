@@ -57,12 +57,18 @@ impl Value {
 /// A struct that defines how your force behaves.
 #[derive(Clone)]
 pub struct Force<N, E, Ty = Undirected> {
-    dict: LinkedHashMap<String, Value>,
-    dict_default: LinkedHashMap<String, Value>,
-    name: &'static str,
-    continuous: bool,
-    info: Option<&'static str>,
-    update: fn(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E, Ty>, dt: f32),
+    /// Current dictionary
+    pub dict: LinkedHashMap<String, Value>,
+    /// Default dictionary
+    pub dict_default: LinkedHashMap<String, Value>,
+    /// Name of the force
+    pub name: &'static str,
+    /// Whether or not the force should be run on each frame.
+    pub continuous: bool,
+    /// A short description of the force.
+    pub info: Option<&'static str>,
+    /// Force callback function.
+    pub update: fn(dict: &LinkedHashMap<String, Value>, graph: &mut ForceGraph<N, E, Ty>, dt: f32),
 }
 
 impl<N, E, Ty> Force<N, E, Ty> {
