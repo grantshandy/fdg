@@ -10,6 +10,9 @@ use fdg_sim::glam::Vec3;
 use fdg_sim::petgraph::stable_graph::NodeIndex;
 use fdg_sim::{Dimensions, ForceGraph, Node, Simulation, SimulationParameters};
 
+const ZOOM_MIN: f32 = 0.05;
+const ZOOM_MAX: f32 = 2.0;
+
 struct ApplicationState<N, E> {
     sim: Simulation<N, E>,
     current_force: Force<N, E>,
@@ -30,6 +33,8 @@ struct ApplicationState<N, E> {
     manual_mode: bool,
     step_time: f32,
     running: bool,
+    camera_2d_offset: Vec2,
+    natural_zoom_scroll: bool,
 }
 
 impl<N, E> Default for ApplicationState<N, E> {
@@ -67,6 +72,8 @@ impl<N, E> Default for ApplicationState<N, E> {
             manual_mode: false,
             step_time: 0.035,
             running: true,
+            camera_2d_offset: vec2(0.0, 0.0),
+            natural_zoom_scroll: true,
         }
     }
 }
@@ -92,6 +99,38 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
 
             if is_key_down(KeyCode::R) {
                 self.sim.reset_node_placement();
+            }
+
+            // zoom via mouse_wheel
+            let (_, mouse_wheel_y) = mouse_wheel();
+            if mouse_wheel_y != 0.0 {
+                let mut new_zoom = self.zoom;
+                if self.natural_zoom_scroll {
+                    new_zoom += mouse_wheel_y * 0.01;
+                } else {
+                    new_zoom -= mouse_wheel_y * 0.01;
+                }
+                if new_zoom < ZOOM_MIN {
+                    new_zoom = ZOOM_MIN;
+                };
+                if new_zoom > ZOOM_MAX {
+                    new_zoom = ZOOM_MAX;
+                };
+                self.zoom = new_zoom;
+            }
+
+            // pan via wasd
+            if is_key_down(KeyCode::W) {
+                self.camera_2d_offset.y -= 0.03 * self.zoom;
+            }
+            if is_key_down(KeyCode::A) {
+                self.camera_2d_offset.x += 0.03 * self.zoom;
+            }
+            if is_key_down(KeyCode::S) {
+                self.camera_2d_offset.y += 0.03 * self.zoom;
+            }
+            if is_key_down(KeyCode::D) {
+                self.camera_2d_offset.x -= 0.03 * self.zoom;
             }
 
             // update the simulation
@@ -150,12 +189,9 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
 
             // set camera position with simulation position
             // (0,0) as the center of the screen (accounting for zoom)
-            set_camera(&Camera2D::from_display_rect(Rect::new(
-                -(w / 2.0),
-                -(h / 2.0),
-                w,
-                h,
-            )));
+            let mut camera = Camera2D::from_display_rect(Rect::new(-(w / 2.0), -(h / 2.0), w, h));
+            camera.offset = self.camera_2d_offset;
+            set_camera(&camera);
 
             // draw edges and nodes
             if self.show_edges {
@@ -194,7 +230,7 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
 
                 if is_mouse_button_down(MouseButton::Left) {
                     set_default_camera();
-                    
+
                     node.old_location.x = mouse_x;
                     node.old_location.y = mouse_y;
 
@@ -351,7 +387,7 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
                         self.sim.update_custom(&self.current_force, 0.0);
                     }
                     ui.separator();
-                    ui.add(Slider::new(&mut self.zoom, 0.05..=2.0).text("Zoom"));
+                    ui.add(Slider::new(&mut self.zoom, ZOOM_MIN..=ZOOM_MAX).text("Zoom"));
                     match self.sim.parameters().dimensions {
                         Dimensions::Three => {
                             ui.add_enabled(
@@ -376,8 +412,13 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
                         Slider::new(&mut self.sim.parameters_mut().node_start_size, 0.5..=1000.0)
                             .text("Node Start Area"),
                     );
-                    ui.checkbox(&mut self.show_nodes, "Show Nodes");
-                    ui.checkbox(&mut self.show_edges, "Show Edges");
+                    ui.horizontal(|ui| {
+                        ui.vertical(|ui| {
+                            ui.checkbox(&mut self.show_nodes, "Show Nodes");
+                            ui.checkbox(&mut self.show_edges, "Show Edges");
+                        });
+                        ui.checkbox(&mut self.natural_zoom_scroll, "Natural Zoom Scroll");
+                    });
                     ui.separator();
 
                     // box for choosing what force to use
@@ -412,12 +453,12 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
                             }
                         };
                     }
-                    
+
                     // final bit of information
                     ui.separator();
                     ui.horizontal(|ui| {
-                       let graph = self.sim.get_graph();
-                        
+                        let graph = self.sim.get_graph();
+
                         ui.label(format!("Node Count: {}", graph.node_count()));
                         ui.separator();
                         ui.label(format!("Edge Count: {}", graph.edge_count()));
