@@ -106,9 +106,9 @@ impl<N: Clone, E: Clone> ApplicationState<N, E> {
             if mouse_wheel_y != 0.0 {
                 let mut new_zoom = self.zoom;
                 if self.natural_zoom_scroll {
-                    new_zoom += mouse_wheel_y * 0.001;
+                    new_zoom += mouse_wheel_y * 0.01;
                 } else {
-                    new_zoom -= mouse_wheel_y * 0.001;
+                    new_zoom -= mouse_wheel_y * 0.01;
                 }
                 if new_zoom < ZOOM_MIN {
                     new_zoom = ZOOM_MIN;
