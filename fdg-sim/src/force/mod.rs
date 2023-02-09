@@ -200,5 +200,5 @@ pub fn translate<N, E, Ty: EdgeType>() -> Force<N, E, Ty> {
 
 #[doc(hidden)]
 pub fn unit_vector(a: Vec3, b: Vec3) -> Vec3 {
-    (b - a) / a.distance(b)
+    (b - a).normalize_or_zero()
 }
