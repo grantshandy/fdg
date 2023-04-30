@@ -1,6 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export const memory: WebAssembly.Memory;
+export function __wbg_forcegraphnode_free(a: number): void;
+export function forcegraphnode_name(a: number, b: number): void;
+export function forcegraphnode_label(a: number): number;
+export function forcegraphnode_location(a: number, b: number): void;
+export function forcegraphnode_metadata(a: number): number;
 export function start(): void;
 export function jsongraph_to_dot(a: number, b: number, c: number): void;
 export function __wbg_forcegraphsimulator_free(a: number): void;
@@ -16,11 +21,6 @@ export function forcegraphsimulator_setDimensions(a: number, b: number): void;
 export function forcegraphsimulator_find(a: number, b: number, c: number, d: number): number;
 export function forcegraphsimulator_nodeInfo(a: number, b: number): number;
 export function forcegraphsimulator_update(a: number, b: number): void;
-export function __wbg_forcegraphnode_free(a: number): void;
-export function forcegraphnode_name(a: number, b: number): void;
-export function forcegraphnode_label(a: number): number;
-export function forcegraphnode_location(a: number, b: number): void;
-export function forcegraphnode_metadata(a: number): number;
 export function __wbg_forcegraphedge_free(a: number): void;
 export function forcegraphedge_source(a: number): number;
 export function forcegraphedge_target(a: number): number;
