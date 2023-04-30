@@ -25,7 +25,7 @@ The goal of this project is to provide a [force-directed graph drawing](https://
  >
  > - [ ] Lack of "state of the art" (post 1996) force algorithms such as [ForceAtlas2](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0098679).
  > - [ ] Only simple Euler method instead of more stable [RK4](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods) or [Leapfrog](https://en.wikipedia.org/wiki/Leapfrog_integration) integration.
- > - [ ] Unnecessary `Clone` requriement for `Node` data (and associated "hot-clones" 😬).
+ > - [ ] Unnecessary `Clone` requirement for `Node` data (and associated "hot-clones" 😬).
  > - [ ] Opaque `Force` *struct* containing a function pointer instead of an idiomatic `Force` *trait*.
  > - [ ] Buggy node dragging in fdg-macroquad.
  > - [ ] Awkwardly worded documentation.
