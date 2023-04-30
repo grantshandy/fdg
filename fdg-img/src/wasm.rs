@@ -125,7 +125,7 @@ pub struct Color {
 
 #[wasm_bindgen]
 pub fn generate_svg(jsongraph: JsValue, settings: JsValue) -> Result<String, JsError> {
-    let settings: ImageSettings = if settings != JsValue::NULL || settings != JsValue::UNDEFINED {
+    let settings: ImageSettings = if settings != JsValue::NULL && settings != JsValue::UNDEFINED {
         match settings.into_serde() {
             Ok(settings) => settings,
             Err(err) => return Err(JsError::new(&format!("settings has invalid format: {err}"))),
