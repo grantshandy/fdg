@@ -57,10 +57,7 @@ impl ForceGraphSimulator {
 
     #[wasm_bindgen(setter, js_name = "graph")]
     pub fn set_graph(&mut self, json: JsValue) -> Result<(), JsError> {
-        let inner_graph: Value = match serde_wasm_bindgen::from_value(json) {
-            Ok(json) => json,
-            Err(err) => return Err(JsError::new(err.to_string().as_str())),
-        };
+        let inner_graph: Value = serde_wasm_bindgen::from_value(json)?;
 
         if !inner_graph.is_object() {
             return Err(JsError::new("graph must be an object"));
@@ -86,10 +83,7 @@ impl ForceGraphSimulator {
     pub fn get_graph(&mut self) -> Result<JsValue, JsError> {
         let new_graph = wasm_to_serde_graph(self.sim.get_graph())?;
 
-        let serde_graph = match json::graph_to_json(&new_graph) {
-            Ok(json) => json,
-            Err(err) => return Err(JsError::new(err.to_string().as_str())),
-        };
+        let serde_graph = json::graph_to_json(&new_graph)?;
 
         let inner_serde_graph = match serde_graph.get("graph") {
             Some(graph) => graph,
