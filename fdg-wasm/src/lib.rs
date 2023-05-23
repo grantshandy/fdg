@@ -39,6 +39,18 @@ pub fn jsongraph_to_dot(json: String) -> Result<JsValue, JsError> {
 }
 
 #[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "ForceGraphNode[]")]
+    pub type GraphNodes;
+
+    #[wasm_bindgen(typescript_type = "ForceGraphEdge[]")]
+    pub type GraphEdges;
+
+    #[wasm_bindgen(typescript_type = "string | number")]
+    pub type NodeReference;
+}
+
+#[wasm_bindgen]
 pub struct ForceGraphSimulator {
     sim: Simulation<JsValue, JsValue>,
 }
@@ -114,7 +126,7 @@ impl ForceGraphSimulator {
     }
 
     #[wasm_bindgen(getter, js_name = "nodes")]
-    pub fn get_nodes(&self) -> Array {
+    pub fn get_nodes(&self) -> GraphNodes {
         let array = Array::new();
 
         for node in self.sim.get_graph().node_weights() {
@@ -123,14 +135,14 @@ impl ForceGraphSimulator {
             array.push(&node.into());
         }
 
-        array
+        JsValue::from(array).into()
     }
 
     #[wasm_bindgen(js_name = "addEdge")]
     pub fn add_edge(
         &mut self,
-        source: JsValue,
-        target: JsValue,
+        source: NodeReference,
+        target: NodeReference,
         weight: JsValue,
     ) -> Result<(), JsError> {
         let source: NodeIndex = if let Some(source) = source.as_string() {
@@ -169,7 +181,7 @@ impl ForceGraphSimulator {
     }
 
     #[wasm_bindgen(getter, js_name = "edges")]
-    pub fn get_edges(&self) -> Array {
+    pub fn get_edges(&self) -> GraphEdges {
         let array = Array::new();
         let graph = self.sim.get_graph();
 
@@ -183,7 +195,7 @@ impl ForceGraphSimulator {
             array.push(&edge.into());
         }
 
-        array
+        JsValue::from(array).into()
     }
 
     #[wasm_bindgen(js_name = "resetNodePlacement")]
@@ -216,7 +228,7 @@ impl ForceGraphSimulator {
     }
 
     #[wasm_bindgen(js_name = "nodeInfo")]
-    pub fn node_info(&self, name: JsValue) -> JsValue {
+    pub fn node_info(&self, name: NodeReference) -> JsValue {
         let idx: NodeIndex = if let Some(name) = name.as_string() {
             match node_index_from_name(self.sim.get_graph(), &name) {
                 Some(idx) => idx,
