@@ -11,17 +11,17 @@ pub struct ForceGraphEdge {
 
 #[wasm_bindgen]
 impl ForceGraphEdge {
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn source(&self) -> ForceGraphNode {
         self.source.to_owned()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn target(&self) -> ForceGraphNode {
         self.target.to_owned()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn metadata(&self) -> JsValue {
         self.metadata.to_owned()
     }

@@ -49,22 +49,22 @@ impl ForceGraphNode {
 
 #[wasm_bindgen]
 impl ForceGraphNode {
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn name(&self) -> String {
         self.name.to_owned()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn label(&self) -> JsValue {
         self.label.to_owned()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn location(&self) -> Vec<Number> {
         self.location.iter().map(|x| Number::from(*x)).collect()
     }
 
-    #[wasm_bindgen(method, getter)]
+    #[wasm_bindgen(getter)]
     pub fn metadata(&self) -> JsValue {
         self.metadata.to_owned()
     }

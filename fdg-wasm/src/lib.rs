@@ -55,7 +55,7 @@ impl ForceGraphSimulator {
         Self { sim }
     }
 
-    #[wasm_bindgen(method, setter, js_name = "graph")]
+    #[wasm_bindgen(setter, js_name = "graph")]
     pub fn set_graph(&mut self, json: JsValue) -> Result<(), JsError> {
         let inner_graph: Value = match serde_wasm_bindgen::from_value(json) {
             Ok(json) => json,
@@ -82,7 +82,7 @@ impl ForceGraphSimulator {
         Ok(())
     }
 
-    #[wasm_bindgen(method, getter, js_name = "graph")]
+    #[wasm_bindgen(getter, js_name = "graph")]
     pub fn get_graph(&mut self) -> Result<JsValue, JsError> {
         let new_graph = wasm_to_serde_graph(self.sim.get_graph())?;
 
@@ -119,7 +119,7 @@ impl ForceGraphSimulator {
         }
     }
 
-    #[wasm_bindgen(method, getter, js_name = "nodes")]
+    #[wasm_bindgen(getter, js_name = "nodes")]
     pub fn get_nodes(&self) -> Array {
         let array = Array::new();
 
@@ -174,7 +174,7 @@ impl ForceGraphSimulator {
         Ok(())
     }
 
-    #[wasm_bindgen(method, getter, js_name = "edges")]
+    #[wasm_bindgen(getter, js_name = "edges")]
     pub fn get_edges(&self) -> Array {
         let array = Array::new();
         let graph = self.sim.get_graph();
