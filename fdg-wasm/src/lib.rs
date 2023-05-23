@@ -203,6 +203,7 @@ impl ForceGraphSimulator {
         self.sim.reset_node_placement();
     }
 
+    /// Set the simulator to use 2 or 3 dimensions.
     #[wasm_bindgen(js_name = "setDimensions")]
     pub fn set_dimensions(&mut self, dimensions: u8) {
         let dimensions = match dimensions {
