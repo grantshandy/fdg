@@ -1,3 +1,5 @@
+#![allow(unused_parens)]
+
 use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};
 
 #[macroquad::main("Force Graph Cylinder Demo")]
