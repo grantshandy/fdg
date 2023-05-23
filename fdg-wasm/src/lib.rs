@@ -266,7 +266,7 @@ fn serde_to_wasm_graph(
     let mut new_graph: ForceGraph<JsValue, JsValue> = ForceGraph::default();
 
     for node in graph.node_weights() {
-        let weight = JsValue::from_serde(&node.data)?;
+        let weight = serde_wasm_bindgen::to_value(&node.data)?;
         new_graph.add_force_node(node.name.clone(), weight);
     }
 
@@ -274,7 +274,7 @@ fn serde_to_wasm_graph(
         new_graph.add_edge(
             edge.source(),
             edge.target(),
-            JsValue::from_serde(&edge.weight())?,
+            serde_wasm_bindgen::to_value(&edge.weight())?,
         );
     }
 
@@ -287,12 +287,12 @@ fn wasm_to_serde_graph(
     let mut new_graph: ForceGraph<Value, Value> = ForceGraph::default();
 
     for node in graph.node_weights() {
-        let weight: Value = node.data.into_serde()?;
+        let weight: Value = serde_wasm_bindgen::from_value(node.data.clone())?;
         new_graph.add_force_node(node.name.clone(), weight);
     }
 
     for edge in graph.edge_references() {
-        let weight: Value = edge.weight().into_serde()?;
+        let weight: Value = serde_wasm_bindgen::from_value(edge.weight().clone())?;
         new_graph.add_edge(edge.source(), edge.target(), weight);
     }
 
