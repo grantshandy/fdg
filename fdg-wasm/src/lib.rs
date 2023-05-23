@@ -125,6 +125,27 @@ impl ForceGraphSimulator {
         }
     }
 
+    #[wasm_bindgen(js_name = "addNodeWithCoords")]
+    pub fn add_node_with_coords(
+        &mut self,
+        name: String,
+        weight: JsValue,
+        x: f32,
+        y: f32,
+        z: f32,
+    ) -> Result<usize, JsError> {
+        match node_index_from_name(self.sim.get_graph(), &name) {
+            Some(_) => Err(JsError::new(&format!(
+                "node with name \"{name}\" already in graph"
+            ))),
+            None => Ok(self
+                .sim
+                .get_graph_mut()
+                .add_force_node_with_coords(name, weight, Vec3::new(x, y, z))
+                .index()),
+        }
+    }
+
     #[wasm_bindgen(getter, js_name = "nodes")]
     pub fn get_nodes(&self) -> GraphNodes {
         let array = Array::new();
