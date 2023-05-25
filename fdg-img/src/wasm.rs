@@ -126,7 +126,7 @@ pub struct Color {
 #[wasm_bindgen]
 pub fn generate_svg(jsongraph: JsValue, settings: JsValue) -> Result<String, JsError> {
     let settings: ImageSettings = if settings != JsValue::NULL && settings != JsValue::UNDEFINED {
-        match settings.into_serde() {
+        match serde_wasm_bindgen::from_value(settings) {
             Ok(settings) => settings,
             Err(err) => return Err(JsError::new(&format!("settings has invalid format: {err}"))),
         }
@@ -134,7 +134,7 @@ pub fn generate_svg(jsongraph: JsValue, settings: JsValue) -> Result<String, JsE
         ImageSettings::default()
     };
 
-    let jsongraph: Value = match jsongraph.into_serde() {
+    let jsongraph: Value = match serde_wasm_bindgen::from_value(jsongraph) {
         Ok(jsongraph) => jsongraph,
         Err(err) => return Err(JsError::new(&err.to_string())),
     };

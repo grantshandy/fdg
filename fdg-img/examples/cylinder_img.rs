@@ -1,3 +1,5 @@
+#![allow(unused_parens)]
+
 use std::fs;
 
 use fdg_sim::{petgraph::graph::NodeIndex, ForceGraph, ForceGraphHelper};

@@ -39,6 +39,18 @@ pub fn jsongraph_to_dot(json: String) -> Result<JsValue, JsError> {
 }
 
 #[wasm_bindgen]
+extern "C" {
+    #[wasm_bindgen(typescript_type = "ForceGraphNode[]")]
+    pub type GraphNodes;
+
+    #[wasm_bindgen(typescript_type = "ForceGraphEdge[]")]
+    pub type GraphEdges;
+
+    #[wasm_bindgen(typescript_type = "string | number")]
+    pub type NodeReference;
+}
+
+#[wasm_bindgen]
 pub struct ForceGraphSimulator {
     sim: Simulation<JsValue, JsValue>,
 }
@@ -55,12 +67,9 @@ impl ForceGraphSimulator {
         Self { sim }
     }
 
-    #[wasm_bindgen(method, setter, js_name = "graph")]
+    #[wasm_bindgen(setter, js_name = "graph")]
     pub fn set_graph(&mut self, json: JsValue) -> Result<(), JsError> {
-        let inner_graph: Value = match serde_wasm_bindgen::from_value(json) {
-            Ok(json) => json,
-            Err(err) => return Err(JsError::new(err.to_string().as_str())),
-        };
+        let inner_graph: Value = serde_wasm_bindgen::from_value(json)?;
 
         if !inner_graph.is_object() {
             return Err(JsError::new("graph must be an object"));
@@ -82,14 +91,11 @@ impl ForceGraphSimulator {
         Ok(())
     }
 
-    #[wasm_bindgen(method, getter, js_name = "graph")]
+    #[wasm_bindgen(getter, js_name = "graph")]
     pub fn get_graph(&mut self) -> Result<JsValue, JsError> {
         let new_graph = wasm_to_serde_graph(self.sim.get_graph())?;
 
-        let serde_graph = match json::graph_to_json(&new_graph) {
-            Ok(json) => json,
-            Err(err) => return Err(JsError::new(err.to_string().as_str())),
-        };
+        let serde_graph = json::graph_to_json(&new_graph)?;
 
         let inner_serde_graph = match serde_graph.get("graph") {
             Some(graph) => graph,
@@ -119,8 +125,29 @@ impl ForceGraphSimulator {
         }
     }
 
-    #[wasm_bindgen(method, getter, js_name = "nodes")]
-    pub fn get_nodes(&self) -> Array {
+    #[wasm_bindgen(js_name = "addNodeWithCoords")]
+    pub fn add_node_with_coords(
+        &mut self,
+        name: String,
+        weight: JsValue,
+        x: f32,
+        y: f32,
+        z: f32,
+    ) -> Result<usize, JsError> {
+        match node_index_from_name(self.sim.get_graph(), &name) {
+            Some(_) => Err(JsError::new(&format!(
+                "node with name \"{name}\" already in graph"
+            ))),
+            None => Ok(self
+                .sim
+                .get_graph_mut()
+                .add_force_node_with_coords(name, weight, Vec3::new(x, y, z))
+                .index()),
+        }
+    }
+
+    #[wasm_bindgen(getter, js_name = "nodes")]
+    pub fn get_nodes(&self) -> GraphNodes {
         let array = Array::new();
 
         for node in self.sim.get_graph().node_weights() {
@@ -129,14 +156,14 @@ impl ForceGraphSimulator {
             array.push(&node.into());
         }
 
-        array
+        JsValue::from(array).into()
     }
 
     #[wasm_bindgen(js_name = "addEdge")]
     pub fn add_edge(
         &mut self,
-        source: JsValue,
-        target: JsValue,
+        source: NodeReference,
+        target: NodeReference,
         weight: JsValue,
     ) -> Result<(), JsError> {
         let source: NodeIndex = if let Some(source) = source.as_string() {
@@ -174,8 +201,8 @@ impl ForceGraphSimulator {
         Ok(())
     }
 
-    #[wasm_bindgen(method, getter, js_name = "edges")]
-    pub fn get_edges(&self) -> Array {
+    #[wasm_bindgen(getter, js_name = "edges")]
+    pub fn get_edges(&self) -> GraphEdges {
         let array = Array::new();
         let graph = self.sim.get_graph();
 
@@ -189,7 +216,7 @@ impl ForceGraphSimulator {
             array.push(&edge.into());
         }
 
-        array
+        JsValue::from(array).into()
     }
 
     #[wasm_bindgen(js_name = "resetNodePlacement")]
@@ -197,6 +224,7 @@ impl ForceGraphSimulator {
         self.sim.reset_node_placement();
     }
 
+    /// Set the simulator to use 2 or 3 dimensions.
     #[wasm_bindgen(js_name = "setDimensions")]
     pub fn set_dimensions(&mut self, dimensions: u8) {
         let dimensions = match dimensions {
@@ -222,7 +250,7 @@ impl ForceGraphSimulator {
     }
 
     #[wasm_bindgen(js_name = "nodeInfo")]
-    pub fn node_info(&self, name: JsValue) -> JsValue {
+    pub fn node_info(&self, name: NodeReference) -> JsValue {
         let idx: NodeIndex = if let Some(name) = name.as_string() {
             match node_index_from_name(self.sim.get_graph(), &name) {
                 Some(idx) => idx,
@@ -266,7 +294,7 @@ fn serde_to_wasm_graph(
     let mut new_graph: ForceGraph<JsValue, JsValue> = ForceGraph::default();
 
     for node in graph.node_weights() {
-        let weight = JsValue::from_serde(&node.data)?;
+        let weight = serde_wasm_bindgen::to_value(&node.data)?;
         new_graph.add_force_node(node.name.clone(), weight);
     }
 
@@ -274,7 +302,7 @@ fn serde_to_wasm_graph(
         new_graph.add_edge(
             edge.source(),
             edge.target(),
-            JsValue::from_serde(&edge.weight())?,
+            serde_wasm_bindgen::to_value(&edge.weight())?,
         );
     }
 
@@ -287,12 +315,12 @@ fn wasm_to_serde_graph(
     let mut new_graph: ForceGraph<Value, Value> = ForceGraph::default();
 
     for node in graph.node_weights() {
-        let weight: Value = node.data.into_serde()?;
+        let weight: Value = serde_wasm_bindgen::from_value(node.data.clone())?;
         new_graph.add_force_node(node.name.clone(), weight);
     }
 
     for edge in graph.edge_references() {
-        let weight: Value = edge.weight().into_serde()?;
+        let weight: Value = serde_wasm_bindgen::from_value(edge.weight().clone())?;
         new_graph.add_edge(edge.source(), edge.target(), weight);
     }
 
