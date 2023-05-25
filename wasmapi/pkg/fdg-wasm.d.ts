@@ -53,15 +53,25 @@ export class ForceGraphSimulator {
 */
   addNode(name: string, weight: any): number;
 /**
-* @param {any} source
-* @param {any} target
+* @param {string} name
+* @param {any} weight
+* @param {number} x
+* @param {number} y
+* @param {number} z
+* @returns {number}
+*/
+  addNodeWithCoords(name: string, weight: any, x: number, y: number, z: number): number;
+/**
+* @param {string | number} source
+* @param {string | number} target
 * @param {any} weight
 */
-  addEdge(source: any, target: any, weight: any): void;
+  addEdge(source: string | number, target: string | number, weight: any): void;
 /**
 */
   resetNodePlacement(): void;
 /**
+* Set the simulator to use 2 or 3 dimensions.
 * @param {number} dimensions
 */
   setDimensions(dimensions: number): void;
@@ -72,23 +82,23 @@ export class ForceGraphSimulator {
 */
   find(query: Float32Array, radius: number): any;
 /**
-* @param {any} name
+* @param {string | number} name
 * @returns {any}
 */
-  nodeInfo(name: any): any;
+  nodeInfo(name: string | number): any;
 /**
 * @param {number} dt
 */
   update(dt: number): void;
 /**
 */
-  readonly edges: Array<any>;
+  readonly edges: ForceGraphEdge[];
 /**
 */
   graph: any;
 /**
 */
-  readonly nodes: Array<any>;
+  readonly nodes: ForceGraphNode[];
 }
 
 export type InitInput = RequestInfo | URL | Response | BufferSource | WebAssembly.Module;
@@ -100,6 +110,10 @@ export interface InitOutput {
   readonly forcegraphnode_label: (a: number) => number;
   readonly forcegraphnode_location: (a: number, b: number) => void;
   readonly forcegraphnode_metadata: (a: number) => number;
+  readonly __wbg_forcegraphedge_free: (a: number) => void;
+  readonly forcegraphedge_source: (a: number) => number;
+  readonly forcegraphedge_target: (a: number) => number;
+  readonly forcegraphedge_metadata: (a: number) => number;
   readonly start: () => void;
   readonly jsongraph_to_dot: (a: number, b: number, c: number) => void;
   readonly __wbg_forcegraphsimulator_free: (a: number) => void;
@@ -107,6 +121,7 @@ export interface InitOutput {
   readonly forcegraphsimulator_set_graph: (a: number, b: number, c: number) => void;
   readonly forcegraphsimulator_graph: (a: number, b: number) => void;
   readonly forcegraphsimulator_addNode: (a: number, b: number, c: number, d: number, e: number) => void;
+  readonly forcegraphsimulator_addNodeWithCoords: (a: number, b: number, c: number, d: number, e: number, f: number, g: number, h: number) => void;
   readonly forcegraphsimulator_nodes: (a: number) => number;
   readonly forcegraphsimulator_addEdge: (a: number, b: number, c: number, d: number, e: number) => void;
   readonly forcegraphsimulator_edges: (a: number) => number;
@@ -115,10 +130,6 @@ export interface InitOutput {
   readonly forcegraphsimulator_find: (a: number, b: number, c: number, d: number) => number;
   readonly forcegraphsimulator_nodeInfo: (a: number, b: number) => number;
   readonly forcegraphsimulator_update: (a: number, b: number) => void;
-  readonly __wbg_forcegraphedge_free: (a: number) => void;
-  readonly forcegraphedge_source: (a: number) => number;
-  readonly forcegraphedge_target: (a: number) => number;
-  readonly forcegraphedge_metadata: (a: number) => number;
   readonly __wbindgen_malloc: (a: number) => number;
   readonly __wbindgen_realloc: (a: number, b: number, c: number) => number;
   readonly __wbindgen_add_to_stack_pointer: (a: number) => number;
@@ -146,4 +157,4 @@ export function initSync(module: SyncInitInput): InitOutput;
 *
 * @returns {Promise<InitOutput>}
 */
-export default function init (module_or_path?: InitInput | Promise<InitInput>): Promise<InitOutput>;
+export default function __wbg_init (module_or_path?: InitInput | Promise<InitInput>): Promise<InitOutput>;
