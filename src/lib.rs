@@ -1,4 +1,5 @@
 #![cfg_attr(docsrs, feature(doc_cfg, doc_auto_cfg))]
+#![deny(clippy::pedantic)]
 
 use nalgebra::{ClosedAdd, ClosedDiv, ClosedMul, ClosedSub, Const, OVector, Scalar, SimdRealField};
 use num_traits::Float;
