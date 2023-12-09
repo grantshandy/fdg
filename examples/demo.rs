@@ -1,6 +1,6 @@
 use nalgebra::vector;
 use ::rand::distributions::Uniform;
-use fdg_sim::{petgraph::Graph, Center, Force, ForceGraph, FruchtermanReingold, Node, Translate};
+use fdg_sim::{petgraph::Graph, Center, Force, ForceGraph, FruchtermanReingold, Node, Translate, FruchtermanReingoldConfiguration};
 
 use macroquad::prelude::*;
 
@@ -20,7 +20,10 @@ async fn main() {
     let mut center = Center::default();
     let mut translate = Translate::new(vector![0.0, -100.0]);
     let mut force = FruchtermanReingold {
-        scale: 400.0,
+        conf: FruchtermanReingoldConfiguration {
+            scale: 400.0,
+            ..Default::default()
+        },
         ..Default::default()
     };
 

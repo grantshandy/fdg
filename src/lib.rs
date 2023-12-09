@@ -64,10 +64,10 @@ pub fn init_force_graph<T: Field, const D: usize, N: Clone, E: Clone>(
 }
 
 pub trait Field:
-    SimdRealField + Float + Scalar + ClosedMul + ClosedDiv + ClosedAdd + ClosedSub
+    SimdRealField + Float + Scalar + ClosedMul + ClosedDiv + ClosedAdd + ClosedSub + Send + Sync
 {
 }
 impl<T> Field for T where
-    T: SimdRealField + Float + Scalar + ClosedMul + ClosedDiv + ClosedAdd + ClosedSub
+    T: SimdRealField + Float + Scalar + ClosedMul + ClosedDiv + ClosedAdd + ClosedSub + Send + Sync
 {
 }

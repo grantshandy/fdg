@@ -15,6 +15,12 @@ petgraph = { version = "0.6.4", features = ["stable_graph"], default-features = 
 num-traits = "0.2.17"
 rand = "0.8.5"
 rustc-hash = "1.1.0"
+rayon = { version = "1.8.0", optional = true }
 
 [dev-dependencies]
 macroquad = "0.4.4"
+petgraph-gen = "0.1.3"
+
+[features]
+rayon = ["dep:rayon"]
+default = ["rayon"]
