@@ -20,18 +20,34 @@
           inherit system;
           overlays = [ (import rust-overlay) ];
         };
-        
-        rustToolchain =
-          pkgs.rust-bin.stable.latest.default.override {
-            extensions = [ "rust-src" "rust-analyzer" ];
-          };
 
-        nativeBuildInputs = with pkgs; [ rustToolchain cargo-watch pkg-config ];
+        rustToolchain = pkgs.rust-bin.stable.latest.default.override {
+          extensions = [ "rust-src" "rust-analyzer" ];
+        };
+
+        libPath = with pkgs;
+          lib.makeLibraryPath [
+            libGL
+            libxkbcommon
+            wayland
+            xorg.libX11
+            xorg.libXcursor
+            xorg.libXi
+            xorg.libXrandr
+          ];
+
+        nativeBuildInputs = with pkgs; [
+          rustToolchain
+          cargo-watch
+          pkg-config
+          xorg.libxcb
+        ];
 
       in {
 
         devShells.default = pkgs.mkShell {
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
+          LD_LIBRARY_PATH = libPath;
 
           inherit nativeBuildInputs;
         };

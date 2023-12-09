@@ -33,6 +33,8 @@ LD='ld'
 export LD
 LD_FOR_BUILD='ld'
 export LD_FOR_BUILD
+LD_LIBRARY_PATH='/nix/store/a39i17gd56l2s41j66djwz2r9yr905ja-libGL-1.7.0/lib:/nix/store/z50cdic3kw9c0qnjyxwcx8qvv22xlgci-libxkbcommon-1.5.0/lib:/nix/store/nrkv4q1gpi8qfvrj06ip5lg72rpqq3jb-wayland-1.22.0/lib:/nix/store/b7pb0mmcwjp973nj8gcaa2fnmqxckc8q-libX11-1.8.7/lib:/nix/store/70iyy9bchq62rl5wv9qhcpqpwnd3hysx-libXcursor-1.2.1/lib:/nix/store/r49dd7lhwcbszkndp327sk4p4l1zbdv1-libXi-1.8.1/lib:/nix/store/z1ain3k4hk3hklq1pvnsgimff5gx8204-libXrandr-1.5.4/lib'
+export LD_LIBRARY_PATH
 LINENO='76'
 MACHTYPE='x86_64-pc-linux-gnu'
 NIX_BINTOOLS='/nix/store/1alqjnr40dsk7cl15l5sn5y2zdxidc1v-binutils-wrapper-2.40'
@@ -53,15 +55,17 @@ NIX_CC_WRAPPER_TARGET_BUILD_x86_64_unknown_linux_gnu='1'
 export NIX_CC_WRAPPER_TARGET_BUILD_x86_64_unknown_linux_gnu
 NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu='1'
 export NIX_CC_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu
-NIX_CFLAGS_COMPILE=' -frandom-seed=9ym8big1wq'
+NIX_CFLAGS_COMPILE=' -frandom-seed=m2fswjh2fx -isystem /nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev/include -isystem /nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev/include'
 export NIX_CFLAGS_COMPILE
+NIX_CFLAGS_COMPILE_FOR_BUILD=' -isystem /nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev/include -isystem /nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev/include -isystem /nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev/include'
+export NIX_CFLAGS_COMPILE_FOR_BUILD
 NIX_ENFORCE_NO_NATIVE='1'
 export NIX_ENFORCE_NO_NATIVE
 NIX_HARDENING_ENABLE='fortify fortify3 stackprotector pic strictoverflow format relro bindnow'
 export NIX_HARDENING_ENABLE
-NIX_LDFLAGS='-rpath /home/grant/Documents/fdg/outputs/out/lib  -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib'
+NIX_LDFLAGS='-rpath /home/grant/Documents/fdg/outputs/out/lib  -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/mdxa9k44xzha1bwwdr3wrbxs4ncb03sq-libxcb-1.16/lib -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/mdxa9k44xzha1bwwdr3wrbxs4ncb03sq-libxcb-1.16/lib'
 export NIX_LDFLAGS
-NIX_LDFLAGS_FOR_BUILD=' -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib'
+NIX_LDFLAGS_FOR_BUILD=' -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/mdxa9k44xzha1bwwdr3wrbxs4ncb03sq-libxcb-1.16/lib -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/mdxa9k44xzha1bwwdr3wrbxs4ncb03sq-libxcb-1.16/lib -L/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1/lib -L/nix/store/mdxa9k44xzha1bwwdr3wrbxs4ncb03sq-libxcb-1.16/lib'
 export NIX_LDFLAGS_FOR_BUILD
 NIX_NO_SELF_RPATH='1'
 NIX_PKG_CONFIG_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu='1'
@@ -88,6 +92,8 @@ PATH='/nix/store/90h6k8ylkgn81k10190v5c9ldyjpzgl9-gcc-wrapper-12.3.0/bin:/nix/st
 export PATH
 PKG_CONFIG='pkg-config'
 export PKG_CONFIG
+PKG_CONFIG_PATH='/nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev/lib/pkgconfig'
+export PKG_CONFIG_PATH
 PS4='+ '
 RANLIB='ranlib'
 export RANLIB
@@ -172,7 +178,7 @@ mesonFlags=''
 export mesonFlags
 name='nix-shell-env'
 export name
-nativeBuildInputs='/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1 /nix/store/8qdzpmqr9i12dr1dipb0psx6y6gd8jk4-cargo-watch-8.4.1 /nix/store/ljrkf0kwgckcy02kdlz8sjdnxb2pwjb4-pkg-config-wrapper-0.29.2'
+nativeBuildInputs='/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1 /nix/store/8qdzpmqr9i12dr1dipb0psx6y6gd8jk4-cargo-watch-8.4.1 /nix/store/ljrkf0kwgckcy02kdlz8sjdnxb2pwjb4-pkg-config-wrapper-0.29.2 /nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev'
 export nativeBuildInputs
 out='/home/grant/Documents/fdg/outputs/out'
 export out
@@ -193,7 +199,7 @@ phases='buildPhase'
 export phases
 pkg='/nix/store/90h6k8ylkgn81k10190v5c9ldyjpzgl9-gcc-wrapper-12.3.0'
 declare -a pkgsBuildBuild=('/nix/store/90h6k8ylkgn81k10190v5c9ldyjpzgl9-gcc-wrapper-12.3.0' '/nix/store/1alqjnr40dsk7cl15l5sn5y2zdxidc1v-binutils-wrapper-2.40' )
-declare -a pkgsBuildHost=('/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1' '/nix/store/90h6k8ylkgn81k10190v5c9ldyjpzgl9-gcc-wrapper-12.3.0' '/nix/store/1alqjnr40dsk7cl15l5sn5y2zdxidc1v-binutils-wrapper-2.40' '/nix/store/8qdzpmqr9i12dr1dipb0psx6y6gd8jk4-cargo-watch-8.4.1' '/nix/store/ljrkf0kwgckcy02kdlz8sjdnxb2pwjb4-pkg-config-wrapper-0.29.2' '/nix/store/85jldj870vzcl72yz03labc93bwvqayx-patchelf-0.15.0' '/nix/store/9vk5fqaik9zx14zpfxipg7lxkdk8c5g9-update-autotools-gnu-config-scripts-hook' '/nix/store/h9lc1dpi14z7is86ffhl3ld569138595-audit-tmpdir.sh' '/nix/store/m54bmrhj6fqz8nds5zcj97w9s9bckc9v-compress-man-pages.sh' '/nix/store/wgrbkkaldkrlrni33ccvm3b6vbxzb656-make-symlinks-relative.sh' '/nix/store/5yzw0vhkyszf2d179m0qfkgxmp5wjjx4-move-docs.sh' '/nix/store/fyaryjvghbkpfnsyw97hb3lyb37s1pd6-move-lib64.sh' '/nix/store/kd4xwxjpjxi71jkm6ka0np72if9rm3y0-move-sbin.sh' '/nix/store/pag6l61paj1dc9sv15l7bm5c17xn5kyk-move-systemd-user-units.sh' '/nix/store/jivxp510zxakaaic7qkrb7v1dd2rdbw9-multiple-outputs.sh' '/nix/store/wzdsbnv2ba3nj91aql8jjdddfmkkdh7h-patch-shebangs.sh' '/nix/store/cickvswrvann041nqxb0rxilc46svw1n-prune-libtool-files.sh' '/nix/store/xyff06pkhki3qy1ls77w10s0v79c9il0-reproducible-builds.sh' '/nix/store/ngg1cv31c8c7bcm2n8ww4g06nq7s4zhm-set-source-date-epoch-to-latest.sh' '/nix/store/wmknncrif06fqxa16hpdldhixk95nds0-strip.sh' )
+declare -a pkgsBuildHost=('/nix/store/3mliy79z02z36bq8h221mdzxg1ads198-rust-default-1.74.1' '/nix/store/90h6k8ylkgn81k10190v5c9ldyjpzgl9-gcc-wrapper-12.3.0' '/nix/store/1alqjnr40dsk7cl15l5sn5y2zdxidc1v-binutils-wrapper-2.40' '/nix/store/8qdzpmqr9i12dr1dipb0psx6y6gd8jk4-cargo-watch-8.4.1' '/nix/store/ljrkf0kwgckcy02kdlz8sjdnxb2pwjb4-pkg-config-wrapper-0.29.2' '/nix/store/kqhlcmgr3cbg8b8wvisdcxq34l2y0814-libxcb-1.16-dev' '/nix/store/mdxa9k44xzha1bwwdr3wrbxs4ncb03sq-libxcb-1.16' '/nix/store/85jldj870vzcl72yz03labc93bwvqayx-patchelf-0.15.0' '/nix/store/9vk5fqaik9zx14zpfxipg7lxkdk8c5g9-update-autotools-gnu-config-scripts-hook' '/nix/store/h9lc1dpi14z7is86ffhl3ld569138595-audit-tmpdir.sh' '/nix/store/m54bmrhj6fqz8nds5zcj97w9s9bckc9v-compress-man-pages.sh' '/nix/store/wgrbkkaldkrlrni33ccvm3b6vbxzb656-make-symlinks-relative.sh' '/nix/store/5yzw0vhkyszf2d179m0qfkgxmp5wjjx4-move-docs.sh' '/nix/store/fyaryjvghbkpfnsyw97hb3lyb37s1pd6-move-lib64.sh' '/nix/store/kd4xwxjpjxi71jkm6ka0np72if9rm3y0-move-sbin.sh' '/nix/store/pag6l61paj1dc9sv15l7bm5c17xn5kyk-move-systemd-user-units.sh' '/nix/store/jivxp510zxakaaic7qkrb7v1dd2rdbw9-multiple-outputs.sh' '/nix/store/wzdsbnv2ba3nj91aql8jjdddfmkkdh7h-patch-shebangs.sh' '/nix/store/cickvswrvann041nqxb0rxilc46svw1n-prune-libtool-files.sh' '/nix/store/xyff06pkhki3qy1ls77w10s0v79c9il0-reproducible-builds.sh' '/nix/store/ngg1cv31c8c7bcm2n8ww4g06nq7s4zhm-set-source-date-epoch-to-latest.sh' '/nix/store/wmknncrif06fqxa16hpdldhixk95nds0-strip.sh' )
 declare -a pkgsBuildTarget=()
 declare -a pkgsHostHost=()
 declare -a pkgsHostTarget=()

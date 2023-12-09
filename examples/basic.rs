@@ -11,20 +11,11 @@ fn main() {
     let libc = graph.add_node("libc");
     graph.extend_with_edges(&[(pg, fb), (pg, qc), (qc, rand), (rand, libc), (qc, libc)]);
 
-    let mut force_graph: ForceGraph<f64, 2, &str, &str> =
+    let mut force_graph: ForceGraph<f32, 2, &str, &str> =
         fdg_sim::init_force_graph(graph, Uniform::new(-10.0, 10.0));
+    let mut force = FruchtermanReingold::default();
 
-    let mut force = FruchtermanReingold::<f64, 2>::default();
-
-    for i in 1..10000 {
-        let mut sum: f64 = 0.0;
-
-        for vel in force.velocities.values() {
-            sum += vel.as_slice().iter().map(|e| e.powi(2)).sum::<f64>().sqrt()
-        }
-
-        println!("{i}: {}", sum / force.velocities.len() as f64);
-
+    for _ in 1..100000 {
         force.apply(&mut force_graph);
     }
 }

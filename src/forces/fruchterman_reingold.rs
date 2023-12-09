@@ -138,7 +138,7 @@ fn get_attraction<T: Field, const D: usize, N, E>(
         .map(|neighbor_idx| start_positions.get(&neighbor_idx).unwrap())
         .map(|neighbor_pos| {
             (neighbor_pos - pos).normalize()
-                * (nalgebra::distance_squared(neighbor_pos, pos).mul(scale.recip()))
+                * (nalgebra::distance_squared(neighbor_pos, pos) / scale)
         })
         .sum()
 }
@@ -164,7 +164,7 @@ fn get_attraction_weighted<T: Field, const D: usize, N>(
         })
         .map(|(neighbor_pos, weight)| {
             (neighbor_pos - pos).normalize()
-                * (nalgebra::distance_squared(neighbor_pos, pos).mul(scale.recip()))
+                * (nalgebra::distance_squared(neighbor_pos, pos) / scale)
                 * *weight
         })
         .sum()

@@ -25,6 +25,12 @@ pub struct Translate<T: Field, const D: usize> {
     pub translation: SVector<T, D>,
 }
 
+impl<T: Field, const D: usize> Translate<T, D> {
+    pub fn new(translation: SVector<T, D>) -> Self {
+        Self { translation }
+    }
+}
+
 impl<T: Field, const D: usize, N, E> Force<T, D, N, E> for Translate<T, D> {
     fn apply(&mut self, graph: &mut ForceGraph<T, D, N, E>) {
         graph
@@ -33,7 +39,7 @@ impl<T: Field, const D: usize, N, E> Force<T, D, N, E> for Translate<T, D> {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Default, Copy, Clone)]
 pub struct Center;
 
 impl<T: Field, const D: usize, N, E> Force<T, D, N, E> for Center {
