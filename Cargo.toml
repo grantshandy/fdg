@@ -1,6 +1,16 @@
-[workspace]
-members = ["fdg-sim", "fdg-macroquad", "fdg-img", "fdg-wasm"]
+[package]
+name = "fdg-sim"
+version = "0.1.0"
+edition = "2021"
 
-# for cargo-flamegraph
-# [profile.release]
-# debug = true
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+nalgebra = { version = "0.32.3", features = ["rand"] }
+petgraph = { version = "0.6.4", features = ["stable_graph"], default-features = false }
+num-traits = "0.2.17"
+rand = "0.8.5"
