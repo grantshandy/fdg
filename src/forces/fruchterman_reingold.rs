@@ -1,7 +1,8 @@
-use std::{collections::HashMap, ops::AddAssign};
+use std::ops::AddAssign;
 
 use nalgebra::{Point, SVector};
 use petgraph::{stable_graph::NodeIndex, visit::EdgeRef};
+use rustc_hash::FxHashMap;
 
 use crate::{Field, Force, ForceGraph};
 
@@ -10,7 +11,7 @@ pub struct FruchtermanReingold<T: Field, const D: usize> {
     pub dt: T,
     pub cooloff_factor: T,
     pub scale: T,
-    pub velocities: HashMap<NodeIndex, SVector<T, D>>,
+    pub velocities: FxHashMap<NodeIndex, SVector<T, D>>,
 }
 
 impl<T: Field, const D: usize> Default for FruchtermanReingold<T, D> {
@@ -19,14 +20,14 @@ impl<T: Field, const D: usize> Default for FruchtermanReingold<T, D> {
             dt: T::from(0.035).unwrap(),
             cooloff_factor: T::from(0.975).unwrap(),
             scale: T::from(45.0).unwrap(),
-            velocities: HashMap::new(),
+            velocities: FxHashMap::default(),
         }
     }
 }
 
 impl<T: Field, const D: usize, N, E> Force<T, D, N, E> for FruchtermanReingold<T, D> {
     fn apply(&mut self, graph: &mut ForceGraph<T, D, N, E>) {
-        let start_positions: HashMap<NodeIndex, Point<T, D>> = graph
+        let start_positions: FxHashMap<NodeIndex, Point<T, D>> = graph
             .node_indices()
             .map(|idx| (idx, graph.node_weight(idx).unwrap().1))
             .collect();
@@ -60,7 +61,7 @@ pub struct FruchtermanReingoldWeighted<T: Field, const D: usize> {
     pub dt: T,
     pub cooloff_factor: T,
     pub scale: T,
-    pub velocities: HashMap<NodeIndex, SVector<T, D>>,
+    pub velocities: FxHashMap<NodeIndex, SVector<T, D>>,
 }
 
 impl<T: Field, const D: usize> Default for FruchtermanReingoldWeighted<T, D> {
@@ -69,14 +70,14 @@ impl<T: Field, const D: usize> Default for FruchtermanReingoldWeighted<T, D> {
             dt: T::from(0.035).unwrap(),
             cooloff_factor: T::from(0.975).unwrap(),
             scale: T::from(45.0).unwrap(),
-            velocities: HashMap::new(),
+            velocities: FxHashMap::default(),
         }
     }
 }
 
 impl<T: Field, const D: usize, N> Force<T, D, N, T> for FruchtermanReingoldWeighted<T, D> {
     fn apply(&mut self, graph: &mut ForceGraph<T, D, N, T>) {
-        let start_positions: HashMap<NodeIndex, Point<T, D>> = graph
+        let start_positions: FxHashMap<NodeIndex, Point<T, D>> = graph
             .node_indices()
             .map(|idx| (idx, graph.node_weight(idx).unwrap().1))
             .collect();
@@ -108,7 +109,7 @@ impl<T: Field, const D: usize, N> Force<T, D, N, T> for FruchtermanReingoldWeigh
 fn get_repulsion<T: Field, const D: usize, N, E>(
     idx: &NodeIndex,
     graph: &ForceGraph<T, D, N, E>,
-    start_positions: &HashMap<NodeIndex, Point<T, D>>,
+    start_positions: &FxHashMap<NodeIndex, Point<T, D>>,
     scale: T,
 ) -> SVector<T, D> {
     let pos = start_positions.get(idx).unwrap();
@@ -127,7 +128,7 @@ fn get_repulsion<T: Field, const D: usize, N, E>(
 fn get_attraction<T: Field, const D: usize, N, E>(
     idx: &NodeIndex,
     graph: &ForceGraph<T, D, N, E>,
-    start_positions: &HashMap<NodeIndex, Point<T, D>>,
+    start_positions: &FxHashMap<NodeIndex, Point<T, D>>,
     scale: T,
 ) -> SVector<T, D> {
     let pos = start_positions.get(idx).unwrap();
@@ -146,7 +147,7 @@ fn get_attraction<T: Field, const D: usize, N, E>(
 fn get_attraction_weighted<T: Field, const D: usize, N>(
     idx: &NodeIndex,
     graph: &ForceGraph<T, D, N, T>,
-    start_positions: &HashMap<NodeIndex, Point<T, D>>,
+    start_positions: &FxHashMap<NodeIndex, Point<T, D>>,
     scale: T,
 ) -> SVector<T, D> {
     let pos = start_positions.get(idx).unwrap();

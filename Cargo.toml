@@ -14,6 +14,7 @@ nalgebra = { version = "0.32.3", features = ["rand"] }
 petgraph = { version = "0.6.4", features = ["stable_graph"], default-features = false }
 num-traits = "0.2.17"
 rand = "0.8.5"
+rustc-hash = "1.1.0"
 
 [dev-dependencies]
 macroquad = "0.4.4"
