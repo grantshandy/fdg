@@ -2,7 +2,6 @@ use nalgebra::SVector;
 
 use crate::{Field, Force, ForceGraph, Node};
 
-
 #[derive(Copy, Clone)]
 pub struct Scale<T: Field> {
     pub factor: T,
@@ -49,5 +48,3 @@ impl<T: Field, const D: usize, N, E> Force<T, D, N, E> for Center {
         graph.node_weights_mut().for_each(|Node(_, p)| *p -= avg);
     }
 }
-
-

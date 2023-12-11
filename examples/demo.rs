@@ -1,6 +1,9 @@
-use nalgebra::vector;
 use ::rand::distributions::Uniform;
-use fdg_sim::{petgraph::Graph, Center, Force, ForceGraph, FruchtermanReingold, Node, Translate, FruchtermanReingoldConfiguration};
+use fdg_sim::{
+    petgraph::Graph, Center, Force, ForceGraph, FruchtermanReingold,
+    FruchtermanReingoldConfiguration, Node, Translate,
+};
+use nalgebra::vector;
 
 use macroquad::prelude::*;
 

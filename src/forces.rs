@@ -1,10 +1,5 @@
-
-mod simple;
 mod fr;
+mod simple;
 
 #[doc(inline)]
-pub use {
-    simple::*,
-    fr::*
-};
-
+pub use {fr::*, simple::*};
