@@ -11,9 +11,7 @@
 			"extensions": [
 				"rust-lang.rust-analyzer",
                 "jnoortheen.nix-ide",
-				"usernamehw.errorlens",
-				"mkhl.direnv",
-				"vscodevim.vim"
+				"mkhl.direnv"
 			]
 		}
 	},
