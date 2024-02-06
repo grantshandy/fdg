@@ -1,3 +1,5 @@
+//! Implementations of the Fruchterman-Reingold (1991) force-directed graph drawing layout.
+
 use std::{collections::HashMap, hash::BuildHasherDefault, ops::AddAssign};
 
 use nalgebra::{Point, SVector};
@@ -7,6 +9,7 @@ use crate::{Field, Force, ForceGraph};
 
 type HashFn = BuildHasherDefault<rustc_hash::FxHasher>;
 
+/// General configuration parameters for Fruchterman-Reingold (1991) forces.
 #[derive(Debug, Clone)]
 pub struct FruchtermanReingoldConfiguration<T: Field> {
     pub dt: T,
@@ -14,7 +17,9 @@ pub struct FruchtermanReingoldConfiguration<T: Field> {
     pub scale: T,
 }
 
-impl<T: Field> Default for FruchtermanReingoldConfiguration<T> {
+use FruchtermanReingoldConfiguration as Config;
+
+impl<T: Field> Default for Config<T> {
     fn default() -> Self {
         Self {
             dt: T::from(0.035).unwrap(),
@@ -24,9 +29,10 @@ impl<T: Field> Default for FruchtermanReingoldConfiguration<T> {
     }
 }
 
+/// A basic implementation
 #[derive(Default, Debug, Clone)]
 pub struct FruchtermanReingold<T: Field, const D: usize> {
-    pub conf: FruchtermanReingoldConfiguration<T>,
+    pub conf: Config<T>,
     pub velocities: HashMap<NodeIndex, SVector<T, D>, HashFn>,
 }
 
@@ -79,9 +85,12 @@ impl<T: Field, const D: usize, N, E> Force<T, D, N, E> for FruchtermanReingold<T
     }
 }
 
+/// A simple implementation of Fruchterman-Reingold (1991) weighted by edge values.
+///
+/// Attraction between nodes is multiplied by the value of their linking edge, the edge weight must be the same type as the vector coords.
 #[derive(Default, Debug, Clone)]
 pub struct FruchtermanReingoldWeighted<T: Field, const D: usize> {
-    pub conf: FruchtermanReingoldConfiguration<T>,
+    pub conf: Config<T>,
     pub velocities: HashMap<NodeIndex, SVector<T, D>, HashFn>,
 }
 
@@ -143,16 +152,21 @@ impl<T: Field, const D: usize, N> Force<T, D, N, T> for FruchtermanReingoldWeigh
 }
 
 #[cfg(feature = "rayon")]
-pub use fr_parallel::*;
+#[doc(inline)]
+pub use parallel::*;
 
 #[cfg(feature = "rayon")]
-mod fr_parallel {
+mod parallel {
+    use super::{
+        AddAssign, Config, Field, Force, ForceGraph, HashFn, HashMap, NodeIndex, Point,
+        SVector,
+    };
     use rayon::prelude::*;
-    use super::{AddAssign, Field, Force, ForceGraph, FruchtermanReingoldConfiguration, HashFn, HashMap, NodeIndex, Point, SVector};
 
+    /// An alternative implementation of Fruchterman-Reingold (1991) that computes the forces in parallel with [`rayon`].
     #[derive(Default, Debug, Clone)]
     pub struct FruchtermanReingoldParallel<T: Field, const D: usize> {
-        pub conf: FruchtermanReingoldConfiguration<T>,
+        pub conf: Config<T>,
         pub velocities: HashMap<NodeIndex, SVector<T, D>, HashFn>,
     }
 

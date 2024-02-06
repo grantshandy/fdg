@@ -8,4 +8,5 @@
 /*.dot
 /.idea/
 /public/
-/.direnv/
+/.direnv
+/result

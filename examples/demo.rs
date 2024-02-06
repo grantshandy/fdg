@@ -1,9 +1,10 @@
-use ::rand::distributions::Uniform;
-use fdg_sim::{
-    petgraph::Graph, Center, Force, ForceGraph, FruchtermanReingold,
-    FruchtermanReingoldConfiguration, Node, Translate,
+use fdg::{
+    fruchterman_reingold::{FruchtermanReingold, FruchtermanReingoldConfiguration},
+    nalgebra::Rotation2,
+    petgraph::Graph,
+    simple::Center,
+    Force, ForceGraph,
 };
-use nalgebra::vector;
 
 use macroquad::prelude::*;
 
@@ -18,10 +19,14 @@ async fn main() {
     graph.extend_with_edges(&[(pg, fb), (pg, qc), (qc, rand), (rand, libc), (qc, libc)]);
 
     let mut force_graph: ForceGraph<f32, 2, &str, ()> =
-        fdg_sim::init_force_graph(graph, Uniform::new(-200.0, 200.0));
+        fdg::init_force_graph_uniform(graph, 200.0);
 
-    let mut center = Center::default();
-    let mut translate = Translate::new(vector![0.0, -100.0]);
+    // custom closure force which rotates each node
+    let mut rotate = |graph: &mut ForceGraph<f32, 2, &str, ()>| {
+        graph
+            .node_weights_mut()
+            .for_each(|(_, p)| *p = Rotation2::new(0.005).transform_point(p))
+    };
     let mut force = FruchtermanReingold {
         conf: FruchtermanReingoldConfiguration {
             scale: 400.0,
@@ -32,20 +37,15 @@ async fn main() {
 
     loop {
         // apply the fruchterman-reingold force 4 times
-        for _ in 0..4 {
-            force.apply(&mut force_graph);
-        }
+        force.apply_many(&mut force_graph, 4);
 
-        // move the graph mean position to 0,0
-        center.apply(&mut force_graph);
-
-        // translate the whole graph up 100 units
-        translate.apply(&mut force_graph);
+        Center::default().apply(&mut force_graph);
+        rotate.apply(&mut force_graph);
 
         clear_background(WHITE);
 
         for idx in force_graph.edge_indices() {
-            let (Node(_, source), Node(_, target)) = force_graph
+            let ((_, source), (_, target)) = force_graph
                 .edge_endpoints(idx)
                 .map(|(a, b)| {
                     (
@@ -65,7 +65,7 @@ async fn main() {
             );
         }
 
-        for Node(name, pos) in force_graph.node_weights() {
+        for (name, pos) in force_graph.node_weights() {
             let x = translate_x(pos.coords.column(0)[0]);
             let y = translate_y(pos.coords.column(0)[1]);
 

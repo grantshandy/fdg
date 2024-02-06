@@ -1,6 +1,4 @@
 {
-  description = "A basic rust devshell";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
@@ -11,9 +9,10 @@
         flake-utils.follows = "flake-utils";
       };
     };
+    naersk.url = "github:nix-community/naersk";
   };
 
-  outputs = { nixpkgs, rust-overlay, flake-utils, ... }:
+  outputs = { nixpkgs, rust-overlay, flake-utils, naersk, ... }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs {
@@ -41,9 +40,16 @@
           cargo-watch
           pkg-config
           xorg.libxcb
+          hyperfine
         ];
 
+        naersk-lib = pkgs.callPackage naersk { };
       in {
+        # nothing in this package, just for CI.
+        defaultPackage = naersk-lib.buildPackage {
+          inherit nativeBuildInputs;
+          root = ./.;
+        };
 
         devShells.default = pkgs.mkShell {
           RUST_SRC_PATH = "${rustToolchain}/lib/rustlib/src/rust/library";
