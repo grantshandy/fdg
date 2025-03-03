@@ -10,7 +10,7 @@ The library is currently undergoing a complete rewrite with more performant algo
 Contributions always welcome!
 
 ## Usage
-```rust
+```rust,ignore
 use fdg::{fruchterman_reingold::FruchtermanReingold, Force, ForceGraph};
 
 // your dataset: Into<StableGraph<(), ()>>
