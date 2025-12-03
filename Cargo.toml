@@ -31,5 +31,5 @@ petgraph-gen = "0.2"
 
 [features]
 rayon = ["dep:rayon"]
-serde = ["petgraph/serde", "nalgebra/serde-serialize"]
+serde = ["petgraph/serde", "petgraph/serde-1", "nalgebra/serde-serialize"]
 default = ["rayon"]
